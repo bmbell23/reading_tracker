@@ -33,3 +33,6 @@ build/
 
 # Alembic migration versions (you might want to keep these in version control)
 # alembic/versions/*
+
+# Git instructions
+how_to_git_commit.md
