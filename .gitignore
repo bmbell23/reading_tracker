@@ -1,0 +1,35 @@
+# Python virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+
+# Excel files (temporary/test files)
+~$*.xlsx
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+
+# Alembic migration versions (you might want to keep these in version control)
+# alembic/versions/*
