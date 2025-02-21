@@ -1,30 +1,53 @@
 reading_list/
 ├── src/
 │   ├── models/          # Database models
+│   │   ├── __init__.py
+│   │   ├── base.py     # Database connection and base class
+│   │   ├── book.py     # Book model
+│   │   ├── reading.py  # Reading model
+│   │   └── inventory.py # Inventory model
 │   ├── services/        # Business logic, calculations
 │   ├── utils/          # Helper functions
+│   │   ├── __init__.py
+│   │   └── constants.py # Reading speeds and other constants
+│   ├── queries/        # Database queries
+│   │   └── __init__.py
 │   └── api/            # Future API endpoints
 ├── scripts/
-│   └── excel_import.py  # Script to import Excel data
+│   ├── create_db.py           # Database initialization
+│   ├── update_read_db.py      # Update reading calculations
+│   ├── cleanup_codebase.py    # Code maintenance utilities
+│   ├── excel_import.py        # Data import from Excel
+│   ├── query_db.py           # Database queries
+│   └── version.py            # Version management
 ├── tests/
-├── requirements.txt
-└── config.py
-
-
-
-
-
-
+├── venv/                     # Virtual environment (git-ignored)
+├── .gitignore
+├── README.md                # Project documentation
+├── setup.py                # Project setup and dependencies
+├── setup.sh               # Shell script for environment setup
+├── git_commit.sh         # Git commit automation
+├── pyproject.toml       # Project metadata and dependencies
+└── requirements.txt    # Python dependencies
 
 The three database tables are:
 1. book_database with columns:
-id_book	title,author,word_count,page_count,words_per_page,date_published,year_published,author_gender,series,series_number,series_word_count,genre
-(Note that some of these columns are calculated from the others)
+   id_book, title, author, word_count, page_count, words_per_page,
+   date_published, year_published, author_gender, series,
+   series_number, series_word_count, genre
 
 2. reading_database with columns:
-id_read	id_previous,id_book	format,title,author	author_gender,actual_days,estimated_days,date_started,date_finished_actual,date_finished_delta,date_finished_estimate,date_published,word_count,words_per_day_actual,words_per_day_goal,pages_per_day_goal,page_count,series_number,series,rating_horror,rating_spice,rating_world_building,rating_writing,rating_characters,rating_readability,rating_enjoyment,rating_overall,rating_over_rank,rank
-(Note that some of these columns are calculated from others, and some are imported from other database tables, so they may not need to be in two different tables for the database)
+   id_read, id_previous, id_book, format, title, author,
+   author_gender, actual_days, estimated_days, date_started,
+   date_finished_actual, date_finished_delta, date_finished_estimate,
+   date_published, word_count, words_per_day_actual, words_per_day_goal,
+   pages_per_day_goal, page_count, series_number, series,
+   rating_horror, rating_spice, rating_world_building, rating_writing,
+   rating_characters, rating_readability, rating_enjoyment,
+   rating_overall, rating_over_rank, rank
 
-3. inventory_database
-id_inventory,id_book,owned_overall,owned_audio,owned_kindle,owned_physical,date_purchased,location,read_status,read_count,title,author,author_gender,word_count,page_count,date_published,series,series_number,isbn-10,isbn-13
-(Note that some of these columns are calculated from others, and some are imported from other database tables, so they may not need to be in two different tables for the database)
+3. inventory_database with columns:
+   id_inventory, id_book, owned_overall, owned_audio, owned_kindle,
+   owned_physical, date_purchased, location, read_status, read_count,
+   title, author, author_gender, word_count, page_count,
+   date_published, series, series_number, isbn-10, isbn-13

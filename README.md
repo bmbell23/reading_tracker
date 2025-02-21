@@ -1,4 +1,4 @@
-# Reading List Tracker v1.2.0
+# Reading List Tracker v1.2.1
 
 A Python-based application to track reading habits, book inventory, and reading statistics.
 
@@ -14,7 +14,11 @@ The application uses three main database tables:
 
 2. **Reading Database** - Tracks reading sessions
    - Reading progress (start/finish dates)
-   - Reading speed metrics
+   - Reading speed metrics (actual vs. estimated days)
+   - Reading time calculations:
+     - Days estimate (based on word count and media type)
+     - Days elapsed (including start and end dates)
+     - Delta from estimate
    - Ratings (0-10 scale):
      - Horror
      - Spice
@@ -61,7 +65,24 @@ The application uses three main database tables:
 
 ## Usage
 
-[Usage instructions will be added as features are implemented]
+### Database Management
+- Initialize database: `python scripts/create_db.py`
+- Import data: `python scripts/excel_import.py`
+- Query database: `python scripts/query_db.py`
+
+### Reading Progress
+- Update reading calculations: `python scripts/update_read_db.py`
+  - Update all calculations: `--all`
+  - Update specific calculations:
+    - `--estimate` - Calculate estimated reading days
+    - `--elapsed` - Calculate actual reading days
+    - `--delta` - Calculate difference between estimated and actual
+- View current readings: `python scripts/show_current_readings.py`
+
+### Project Maintenance
+- Update version numbers: `python scripts/version.py --update <version>`
+- Commit changes: `./git_commit.sh <version> "<commit message>"`
+- Clean up codebase: `python scripts/cleanup_codebase.py`
 
 ## Project Structure
 
@@ -71,12 +92,18 @@ reading_list/
 │   ├── models/          # Database models
 │   ├── services/        # Business logic, calculations
 │   ├── utils/           # Helper functions
-│   └── api/            # Future API endpoints
+│   ├── queries/         # Database queries
+│   └── api/             # Future API endpoints
 ├── scripts/
-│   └── excel_import.py  # Script to import Excel data
+│   ├── create_db.py           # Database initialization
+│   ├── update_read_db.py      # Update reading calculations
+│   ├── cleanup_codebase.py    # Code maintenance
+│   ├── excel_import.py        # Data import from Excel
+│   ├── query_db.py           # Database queries
+│   ├── show_current_readings.py # Display active readings
+│   └── version.py            # Version management
 ├── tests/
-├── requirements.txt
-└── config.py
+└── [Configuration files]
 ```
 
 ## Development
