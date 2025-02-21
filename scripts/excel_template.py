@@ -24,11 +24,9 @@ def create_excel_template(output_path="reading_list_template.xlsx"):
         'id_read',                  # required
         'id_read_previous',         # optional (ID of previous reading)
         'id_book',                  # required (must match id_book in books sheet)
-        'format',                   # optional
+        'media',                    # optional (was 'format')
         'date_started',             # optional (YYYY-MM-DD)
         'date_finished_actual',     # optional (YYYY-MM-DD)
-        'words_per_day_goal',       # optional
-        'pages_per_day_goal',       # optional
         'rating_horror',            # optional (0-10)
         'rating_spice',             # optional (0-10)
         'rating_world_building',    # optional (0-10)
@@ -50,8 +48,6 @@ def create_excel_template(output_path="reading_list_template.xlsx"):
         'owned_physical',           # required (TRUE/FALSE)
         'date_purchased',           # optional (YYYY-MM-DD)
         'location',                 # optional
-        'read_status',              # optional
-        'read_count',               # optional
         'isbn_10',                  # optional
         'isbn_13'                   # optional
     ]
@@ -82,8 +78,6 @@ def create_excel_template(output_path="reading_list_template.xlsx"):
         'Physical',
         '2023-01-01',
         '2023-01-15',
-        5000,
-        20,
         0,                         # rating_horror (0-10)
         0,                         # rating_spice (0-10)
         8,                         # rating_world_building (0-10)
@@ -104,8 +98,6 @@ def create_excel_template(output_path="reading_list_template.xlsx"):
         True,
         '2022-12-25',
         'Home Library',
-        'Read',
-        1,
         '0261103342',
         '9780261103344'
     ]

@@ -2,3 +2,4 @@ sqlalchemy
 alembic
 pandas
 xlsxwriter
+openpyxl

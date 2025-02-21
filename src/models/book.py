@@ -7,7 +7,8 @@ class Book(Base):
 
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
-    author = Column(String, nullable=False)
+    author_name_first = Column(String)
+    author_name_second = Column(String)
     word_count = Column(Integer)
     page_count = Column(Integer)
     date_published = Column(Date)
@@ -23,3 +24,20 @@ class Book(Base):
     @property
     def year_published(self):
         return self.date_published.year if self.date_published else None
+
+    @property
+    def author(self):
+        """Returns the full author name in 'First Last' format"""
+        if not self.author_name_second and not self.author_name_first:
+            return None
+        name_parts = [self.author_name_first, self.author_name_second]
+        return " ".join(filter(None, name_parts))
+
+    @property
+    def author_sorted(self):
+        """Returns the author name in 'Last, First' format"""
+        if not self.author_name_second:
+            return self.author_name_first
+        if not self.author_name_first:
+            return self.author_name_second
+        return f"{self.author_name_second}, {self.author_name_first}"

@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from .base import Base
 
 class Inventory(Base):
-    __tablename__ = 'inventory'
+    __tablename__ = 'inv'  # Changed from 'inventory' to 'inv'
 
     id = Column(Integer, primary_key=True)
     book_id = Column(Integer, ForeignKey('books.id'), nullable=False)

@@ -2,6 +2,7 @@ import subprocess
 import sys
 import venv
 from pathlib import Path
+from setuptools import setup, find_packages
 
 def create_venv():
     # Create venv directory in project root
@@ -24,18 +25,9 @@ def create_venv():
     print("Upgrading pip...")
     subprocess.run([str(python_path), "-m", "pip", "install", "--upgrade", "pip"])
 
-    # Install requirements
-    print("Installing requirements...")
-    requirements = [
-        "sqlalchemy",
-        "alembic",
-        "pandas",
-        "xlsxwriter",
-    ]
-
-    for req in requirements:
-        print(f"Installing {req}...")
-        subprocess.run([str(pip_path), "install", req])
+    # Install the project in development mode
+    print("Installing project in development mode...")
+    subprocess.run([str(pip_path), "install", "-e", "."])
 
     print("\nSetup complete! To activate the virtual environment:")
     if sys.platform == "win32":
@@ -44,4 +36,18 @@ def create_venv():
         print("    source venv/bin/activate")
 
 if __name__ == "__main__":
+    setup(
+        name="reading_list",
+        version="1.0.1",
+        packages=find_packages(include=['src', 'src.*']),
+        package_dir={'': '.'},
+        install_requires=[
+            "sqlalchemy",
+            "alembic",
+            "pandas",
+            "xlsxwriter",
+            "openpyxl",
+        ],
+        python_requires='>=3.8',
+    )
     create_venv()
