@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import select
+from sqlalchemy import select, func
 from ..models.base import SessionLocal
 from ..models.book import Book
 from ..models.reading import Reading
@@ -15,18 +15,18 @@ class ReadingQueries:
     def get_current_unfinished_readings(self):
         """
         Get all books that have been started but not finished yet.
-        Returns: List of tuples (title, author, date_started, media)
+        Returns: List of Reading objects with their associated Books
         """
         try:
             query = (
-                select(Book.title, Book.author, Reading.date_started, Reading.media)
-                .join(Book, Reading.book_id == Book.id)
+                select(Reading)
+                .join(Book)
                 .where(Reading.date_started <= date.today())
                 .where(Reading.date_finished_actual.is_(None))
                 .order_by(Reading.date_started.desc())
             )
 
-            return self.session.execute(query).all()
+            return self.session.execute(query).scalars().all()
 
         except Exception as e:
             print(f"Error executing query: {e}")
