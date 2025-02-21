@@ -39,3 +39,6 @@ build/
 # Git instructions
 how_to_git_commit.md
 git_commit.sh
+
+# CSV export directory
+csv/

@@ -1,25 +1,45 @@
 import sys
 import os
 import argparse
+import csv
+from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.models.base import engine
 from sqlalchemy import text
 
-def get_series_stats(finished_only=False):
+def ensure_directory_exists(directory):
+    """Create directory if it doesn't exist"""
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+def write_to_csv(data, headers, filepath):
+    """Write data to CSV file, creating directories if needed"""
+    # Ensure the directory exists
+    directory = os.path.dirname(filepath)
+    ensure_directory_exists(directory)
+
+    # Write the CSV file
+    with open(filepath, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        writer.writerows(data)
+
+def get_series_stats(finished_only=False, csv_output=False):
     with engine.connect() as conn:
         # Base query for series books
         if finished_only:
             series_query = """
                 SELECT
-                    series,
+                    b.series,
                     COUNT(DISTINCT b.id) as book_count,
-                    SUM(DISTINCT b.word_count) as total_words
+                    SUM(b.word_count) as total_words,
+                    GROUP_CONCAT(DISTINCT b.author_name_first || ' ' || b.author_name_second) as author
                 FROM books b
                 INNER JOIN read r ON b.id = r.book_id
                 WHERE r.date_finished_actual IS NOT NULL
-                    AND series IS NOT NULL
-                GROUP BY series
+                    AND b.series IS NOT NULL
+                GROUP BY b.series
                 ORDER BY total_words DESC
             """
 
@@ -32,33 +52,34 @@ def get_series_stats(finished_only=False):
                 FROM books b
                 INNER JOIN read r ON b.id = r.book_id
                 WHERE r.date_finished_actual IS NOT NULL
-                    AND series IS NULL
+                    AND b.series IS NULL
                 ORDER BY b.word_count DESC
             """
         else:
             series_query = """
                 SELECT
-                    series,
+                    b.series,
                     COUNT(*) as book_count,
-                    SUM(word_count) as total_words
+                    SUM(b.word_count) as total_words,
+                    GROUP_CONCAT(DISTINCT b.author_name_first || ' ' || b.author_name_second) as author
                 FROM books b
-                WHERE series IS NOT NULL
-                GROUP BY series
+                WHERE b.series IS NOT NULL
+                GROUP BY b.series
                 ORDER BY total_words DESC
             """
 
             # Query for standalone books
             standalone_query = """
                 SELECT
-                    title,
-                    author_name_first || ' ' || author_name_second as author,
-                    word_count
+                    b.title,
+                    b.author_name_first || ' ' || b.author_name_second as author,
+                    b.word_count
                 FROM books b
-                WHERE series IS NULL
-                ORDER BY word_count DESC
+                WHERE b.series IS NULL
+                ORDER BY b.word_count DESC
             """
 
-        # New query for rereads
+        # Query for rereads
         if finished_only:
             reread_query = """
                 SELECT
@@ -94,32 +115,112 @@ def get_series_stats(finished_only=False):
         standalone_results = conn.execute(text(standalone_query)).fetchall()
         reread_results = conn.execute(text(reread_query)).fetchall()
 
-        # Print series results
-        status = "Finished" if finished_only else "All"
-        print(f"\nSeries Statistics ({status} Books, Ordered by Total Word Count):")
-        print("-" * 100)
-        print(f"{'Series Name':<50}\t{'Books':>8}\t{'Total Words':>15}")
-        print("-" * 100)
-
+        # Calculate totals
         series_total_books = 0
         series_total_words = 0
-
         for row in series_results:
-            series_name = row[0] or "N/A"
             book_count = row[1]
             total_words = row[2] or 0
             series_total_books += book_count
             series_total_words += total_words
 
-            # Format word count with commas
+        standalone_total_words = 0
+        for row in standalone_results:
+            words = row[2] or 0
+            standalone_total_words += words
+
+        reread_total_additional_words = 0
+        reread_total_books = len(reread_results)
+        for row in reread_results:
+            additional_words = row[4] or 0
+            reread_total_additional_words += additional_words
+
+        # Handle CSV output
+        if csv_output:
+            # Create base directories
+            csv_dir = "csv"
+            ensure_directory_exists(csv_dir)
+
+            # Create timestamped subfolder
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            status = "finished" if finished_only else "all"
+            subfolder = f"reading_stats_{status}_{timestamp}"
+            output_dir = os.path.join(csv_dir, subfolder)
+            ensure_directory_exists(output_dir)
+
+            # Write series data
+            series_data = [(
+                row[0] or "N/A",
+                row[3] or "Unknown",
+                row[1],
+                row[2] or 0
+            ) for row in series_results]
+            write_to_csv(
+                series_data,
+                ['Series Name', 'Author(s)', 'Book Count', 'Total Words'],
+                os.path.join(output_dir, "series.csv")
+            )
+
+            # Write standalone data
+            standalone_data = [(
+                row[0] or "N/A",
+                row[1] or "Unknown",
+                row[2] or 0
+            ) for row in standalone_results]
+            write_to_csv(
+                standalone_data,
+                ['Title', 'Author', 'Word Count'],
+                os.path.join(output_dir, "standalone.csv")
+            )
+
+            # Write reread data
+            reread_data = [(
+                row[0] or "N/A",
+                row[1] or "Unknown",
+                row[2],
+                row[4] or 0
+            ) for row in reread_results]
+            write_to_csv(
+                reread_data,
+                ['Title', 'Author', 'Times Read', 'Additional Words'],
+                os.path.join(output_dir, "rereads.csv")
+            )
+
+            # Write summary data
+            summary_data = [
+                ['Category', 'Count', 'Words'],
+                ['Series Total', len(series_results), series_total_words],
+                ['Standalone Total', len(standalone_results), standalone_total_words],
+                ['Reread Total', reread_total_books, reread_total_additional_words],
+                ['Grand Total', series_total_books + len(standalone_results) + reread_total_books,
+                 series_total_words + standalone_total_words + reread_total_additional_words]
+            ]
+            write_to_csv(
+                summary_data,
+                [],
+                os.path.join(output_dir, "summary.csv")
+            )
+
+            print(f"\nCSV files have been created in: {output_dir}")
+
+        # Print results to console
+        status = "Finished" if finished_only else "All"
+
+        # Print series results
+        print(f"\nSeries Statistics ({status} Books, Ordered by Total Word Count):")
+        print("-" * 140)
+        print(f"{'Series Name':<40}\t{'Author(s)':<40}\t{'Books':>8}\t{'Total Words':>15}")
+        print("-" * 140)
+
+        for row in series_results:
+            series_name = row[0] or "N/A"
+            book_count = row[1]
+            total_words = row[2] or 0
+            author = row[3] or "Unknown"
             formatted_words = f"{total_words:,}" if total_words else "N/A"
+            print(f"{series_name:<40}\t{author:<40}\t{book_count:>8}\t{formatted_words:>15}")
 
-            # Using tabs and fixed widths for better alignment
-            print(f"{series_name:<50}\t{book_count:>8}\t{formatted_words:>15}")
-
-        # Print series summary
-        print("-" * 100)
-        print(f"\nSeries Summary:")
+        print("-" * 140)
         print(f"Total Series: {len(series_results)}")
         print(f"Total Books in Series: {series_total_books}")
         print(f"Total Words Across All Series: {series_total_words:,}")
@@ -130,23 +231,14 @@ def get_series_stats(finished_only=False):
         print(f"{'Title':<50}\t{'Author':>30}\t{'Words':>15}")
         print("-" * 100)
 
-        standalone_total_words = 0
-
         for row in standalone_results:
             title = row[0] or "N/A"
             author = row[1] or "Unknown"
             words = row[2] or 0
-            standalone_total_words += words
-
-            # Format word count with commas
             formatted_words = f"{words:,}" if words else "N/A"
-
-            # Using tabs and fixed widths for better alignment
             print(f"{title:<50}\t{author:>30}\t{formatted_words:>15}")
 
-        # Print standalone summary
         print("-" * 100)
-        print(f"\nStandalone Books Summary:")
         print(f"Total Standalone Books: {len(standalone_results)}")
         print(f"Total Words Across Standalone Books: {standalone_total_words:,}")
 
@@ -156,29 +248,19 @@ def get_series_stats(finished_only=False):
         print(f"{'Title':<50}\t{'Author':>30}\t{'Times Read':>10}\t{'Additional Words':>15}")
         print("-" * 120)
 
-        reread_total_additional_words = 0
-        reread_total_books = len(reread_results)
-
         for row in reread_results:
             title = row[0] or "N/A"
             author = row[1] or "Unknown"
             times_read = row[2]
             additional_words = row[4] or 0
-            reread_total_additional_words += additional_words
-
-            # Format word count with commas
             formatted_additional_words = f"{additional_words:,}" if additional_words else "N/A"
-
-            # Using tabs and fixed widths for better alignment
             print(f"{title:<50}\t{author:>30}\t{times_read:>10}\t{formatted_additional_words:>15}")
 
-        # Print reread summary
         print("-" * 120)
-        print(f"\nReread Books Summary:")
         print(f"Total Books Reread: {reread_total_books}")
         print(f"Total Additional Words from Rereads: {reread_total_additional_words:,}")
 
-        # Print updated grand total
+        # Print grand total
         print(f"\nGrand Total (Including Rereads):")
         print(f"Total Books: {series_total_books + len(standalone_results) + reread_total_books}")
         total_words = series_total_words + standalone_total_words + reread_total_additional_words
@@ -189,9 +271,12 @@ def main():
     parser.add_argument('--finished-only', '-f',
                        action='store_true',
                        help='Only include books that have been finished reading')
+    parser.add_argument('--csv', '-c',
+                       action='store_true',
+                       help='Output results to CSV files')
 
     args = parser.parse_args()
-    get_series_stats(args.finished_only)
+    get_series_stats(args.finished_only, args.csv)
 
 if __name__ == "__main__":
     main()
