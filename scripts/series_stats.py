@@ -58,11 +58,41 @@ def get_series_stats(finished_only=False):
                 ORDER BY word_count DESC
             """
 
-        # Execute series query
-        series_results = conn.execute(text(series_query)).fetchall()
+        # New query for rereads
+        if finished_only:
+            reread_query = """
+                SELECT
+                    b.title,
+                    b.author_name_first || ' ' || b.author_name_second as author,
+                    COUNT(*) as times_read,
+                    b.word_count,
+                    (COUNT(*) * b.word_count) - b.word_count as additional_words
+                FROM books b
+                INNER JOIN read r ON b.id = r.book_id
+                WHERE r.date_finished_actual IS NOT NULL
+                GROUP BY b.id, b.title, b.author_name_first, b.author_name_second, b.word_count
+                HAVING COUNT(*) > 1
+                ORDER BY additional_words DESC
+            """
+        else:
+            reread_query = """
+                SELECT
+                    b.title,
+                    b.author_name_first || ' ' || b.author_name_second as author,
+                    COUNT(*) as times_read,
+                    b.word_count,
+                    (COUNT(*) * b.word_count) - b.word_count as additional_words
+                FROM books b
+                INNER JOIN read r ON b.id = r.book_id
+                GROUP BY b.id, b.title, b.author_name_first, b.author_name_second, b.word_count
+                HAVING COUNT(*) > 1
+                ORDER BY additional_words DESC
+            """
 
-        # Execute standalone query
+        # Execute queries
+        series_results = conn.execute(text(series_query)).fetchall()
         standalone_results = conn.execute(text(standalone_query)).fetchall()
+        reread_results = conn.execute(text(reread_query)).fetchall()
 
         # Print series results
         status = "Finished" if finished_only else "All"
@@ -120,10 +150,39 @@ def get_series_stats(finished_only=False):
         print(f"Total Standalone Books: {len(standalone_results)}")
         print(f"Total Words Across Standalone Books: {standalone_total_words:,}")
 
-        # Print grand total
-        print(f"\nGrand Total:")
-        print(f"Total Books: {series_total_books + len(standalone_results)}")
-        print(f"Total Words: {series_total_words + standalone_total_words:,}")
+        # Print reread books
+        print(f"\nReread Books ({status}):")
+        print("-" * 120)
+        print(f"{'Title':<50}\t{'Author':>30}\t{'Times Read':>10}\t{'Additional Words':>15}")
+        print("-" * 120)
+
+        reread_total_additional_words = 0
+        reread_total_books = len(reread_results)
+
+        for row in reread_results:
+            title = row[0] or "N/A"
+            author = row[1] or "Unknown"
+            times_read = row[2]
+            additional_words = row[4] or 0
+            reread_total_additional_words += additional_words
+
+            # Format word count with commas
+            formatted_additional_words = f"{additional_words:,}" if additional_words else "N/A"
+
+            # Using tabs and fixed widths for better alignment
+            print(f"{title:<50}\t{author:>30}\t{times_read:>10}\t{formatted_additional_words:>15}")
+
+        # Print reread summary
+        print("-" * 120)
+        print(f"\nReread Books Summary:")
+        print(f"Total Books Reread: {reread_total_books}")
+        print(f"Total Additional Words from Rereads: {reread_total_additional_words:,}")
+
+        # Print updated grand total
+        print(f"\nGrand Total (Including Rereads):")
+        print(f"Total Books: {series_total_books + len(standalone_results) + reread_total_books}")
+        total_words = series_total_words + standalone_total_words + reread_total_additional_words
+        print(f"Total Words: {total_words:,}")
 
 def main():
     parser = argparse.ArgumentParser(description='Get statistics about book series')
