@@ -36,9 +36,5 @@ build/
 # They are important for database version history
 # alembic/versions/*
 
-# Git instructions
-how_to_git_commit.md
-git_commit.sh
-
 # CSV export directory
 csv/
