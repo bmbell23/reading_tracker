@@ -15,6 +15,10 @@ def main():
     table_data = []
 
     for reading in results:
+        # Skip readings with future start dates
+        if reading.date_started > today:
+            continue
+
         author = f"{reading.book.author_name_first or ''} {reading.book.author_name_second or ''}".strip()
         days_elapsed = (today - reading.date_started).days
         days_remaining = reading.days_estimate - days_elapsed if reading.days_estimate else None
