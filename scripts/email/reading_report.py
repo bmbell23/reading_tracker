@@ -1,3 +1,28 @@
+"""
+Daily Reading Report Generator
+
+This script generates and sends daily reading progress reports via email.
+It includes:
+- Current reading progress
+- Estimated completion dates
+- Upcoming reading sessions
+- Reading forecast for the next 10 days
+
+Configuration:
+- Requires .env file with email settings
+- Uses Gmail SMTP server
+- Supports HTML-formatted emails with progress bars
+
+Usage:
+    Direct: python reading_report.py
+    Cron: Set up using run_daily_report.sh
+
+Environment Variables Required:
+    GMAIL_APP_PASSWORD: Gmail application-specific password
+    SENDER_EMAIL: Gmail address to send from
+    RECEIVER_EMAIL: Email address to receive reports
+"""
+
 import sys
 import os
 from pathlib import Path
@@ -8,24 +33,25 @@ from email.mime.multipart import MIMEMultipart
 from rich.console import Console
 from rich.text import Text
 from io import StringIO
-from scripts.utils.paths import find_project_root
+from scripts.utils.paths import get_project_paths
 from scripts.metrics.reading_status import ReadingStatus
 from src.utils.progress_calculator import calculate_reading_progress
 from dotenv import load_dotenv
+from scripts.email.config import EMAIL_CONFIG
 
-# Load environment variables from .env file
-load_dotenv(Path(__file__).parent.parent.parent / '.env')
+# Load environment variables
+load_dotenv()
 
-# Add project root to Python path
-project_root = find_project_root()
-sys.path.insert(0, str(Path(project_root)))
+# Get project paths
+paths = get_project_paths()
 
 class EmailReport:
     def __init__(self):
-        self.sender_email = "bbell.primary@gmail.com"  # Updated to your email
-        self.receiver_email = "bbell.primary@gmail.com"
-        self.smtp_server = "smtp.gmail.com"
-        self.smtp_port = 587
+        self.sender_email = EMAIL_CONFIG['sender_email']
+        self.receiver_email = EMAIL_CONFIG['receiver_email']
+        self.smtp_server = EMAIL_CONFIG['smtp_server']
+        self.smtp_port = EMAIL_CONFIG['smtp_port']
+        self.template_dir = paths['email_templates']
         self.app_password = None  # Will be loaded from environment variable
 
     def _get_app_password(self):
@@ -290,16 +316,38 @@ class EmailReport:
             msg.attach(MIMEText(text_content, 'plain'))
             msg.attach(MIMEText(html_content, 'html'))
 
-            # Send email
-            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                server.starttls()
-                server.login(self.sender_email, self.app_password)
-                server.send_message(msg)
+            # Enhanced SMTP connection and authentication
+            try:
+                print("Connecting to SMTP server...")
+                with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                    print("Starting TLS...")
+                    server.starttls()
 
-            print("Reading status report sent successfully!")
+                    print(f"Attempting login for {self.sender_email}...")
+                    server.login(self.sender_email, self.app_password)
+
+                    print("Sending email...")
+                    server.send_message(msg)
+                    print("Email sent successfully!")
+
+            except smtplib.SMTPAuthenticationError as auth_error:
+                print(f"Authentication failed: {auth_error}")
+                print("Please verify your Gmail App Password and sender email address")
+                print("Generate a new App Password at: https://myaccount.google.com/apppasswords")
+                raise
+
+            except smtplib.SMTPException as smtp_error:
+                print(f"SMTP error occurred: {smtp_error}")
+                raise
 
         except Exception as e:
             print(f"Error sending email: {str(e)}")
+            print("\nTroubleshooting steps:")
+            print("1. Check that GMAIL_APP_PASSWORD is set in your .env file")
+            print("2. Verify SENDER_EMAIL matches the Gmail account used to generate the App Password")
+            print("3. Ensure 2-Step Verification is enabled on your Gmail account")
+            print("4. Try generating a new App Password")
+            raise
 
 def main():
     email_report = EmailReport()

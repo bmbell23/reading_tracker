@@ -13,7 +13,7 @@ def get_version_from_file(file_path: Path) -> str:
         patterns = {
             'setup.py': r'version\s*=\s*["\'](\d+\.\d+\.\d+)["\']',
             'pyproject.toml': r'version\s*=\s*["\'](\d+\.\d+\.\d+)["\']',
-            'README.md': r'# Reading List Tracker v(\d+\.\d+\.\d+)'
+            'README.md': r'# Reading List Tracker v([\d.]+)'  # Updated pattern
         }
 
         pattern = patterns.get(file_path.name)
@@ -46,7 +46,7 @@ def print_version_status(versions: dict):
     print("\nCurrent Version Status:")
     print("-" * 50)
 
-    # Find the most common version
+    # Find the most common version (excluding None values)
     all_versions = [v for v in versions.values() if v is not None]
     if not all_versions:
         print("No version information found!")
@@ -59,6 +59,7 @@ def print_version_status(versions: dict):
     for file, version in versions.items():
         if version is None:
             status = "❌ No version found"
+            has_mismatch = True
         elif version != main_version:
             status = f"❌ Mismatch: {version}"
             has_mismatch = True
@@ -151,19 +152,22 @@ def validate_version(version: str) -> bool:
     return bool(re.match(pattern, version))
 
 def main():
-    parser = argparse.ArgumentParser(description='Check or update project version')
-    parser.add_argument('--update', help='Update to new version (e.g., 1.1.0)')
+    parser = argparse.ArgumentParser(description='Update or check project version')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--update', help='Update to specified version')
+    group.add_argument('--check', action='store_true', help='Check current version')
 
     args = parser.parse_args()
 
-    if args.update:
+    if args.check:
+        versions = check_versions()
+        print_version_status(versions)  # Add this line to print the status
+    elif args.update:
         if not validate_version(args.update):
-            print("Error: Version must be in format X.Y.Z (e.g., 1.0.0)")
+            print(f"Error: Invalid version format: {args.update}")
+            print("Version must be in format: X.Y.Z (e.g., 1.0.0)")
             sys.exit(1)
         version(args.update)
-    else:
-        versions = check_versions()
-        print_version_status(versions)
 
 if __name__ == "__main__":
     main()

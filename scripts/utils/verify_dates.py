@@ -1,4 +1,5 @@
 import sys
+from datetime import timedelta
 from pathlib import Path
 from scripts.utils.paths import find_project_root
 
@@ -47,10 +48,11 @@ def verify_reading_chain(reading_id):
 
                     if prev.date_est_end:
                         expected_start = prev.date_est_end + timedelta(days=1)
-                        if not entry.date_est_start:
-                            print(f"ERROR: Missing est_start date. Should be {expected_start}")
-                        elif entry.date_est_start != expected_start:
+                        # Only flag as error if there's no actual start date
+                        if not entry.date_started and entry.date_est_start != expected_start:
                             print(f"ERROR: Est start date should be {expected_start} (day after previous book ends)")
+                        elif entry.date_started and entry.date_est_start != entry.date_started:
+                            print(f"ERROR: Est start date should match actual start date {entry.date_started}")
                 else:
                     print(f"Warning: Previous reading (ID: {entry.id_previous}) not found")
 
@@ -61,10 +63,13 @@ def verify_reading_chain(reading_id):
                 print(f"Next Est Start: {next_reading.date_est_start}")
                 if entry.date_est_end:
                     expected_next_start = entry.date_est_end + timedelta(days=1)
-                    if not next_reading.date_est_start:
-                        print(f"ERROR: Next book missing est_start date. Should be {expected_next_start}")
-                    elif next_reading.date_est_start != expected_next_start:
-                        print(f"ERROR: Next book should start {expected_next_start} (day after this book ends)")
+                    if not next_reading.date_started:
+                        if not next_reading.date_est_start:
+                            print(f"ERROR: Next book missing est_start date. Should be {expected_next_start}")
+                        elif next_reading.date_est_start != expected_next_start:
+                            print(f"ERROR: Next book should start {expected_next_start} (day after this book ends)")
+                    elif next_reading.date_est_start != next_reading.date_started:
+                        print(f"ERROR: Next book's est_start should match its actual start date {next_reading.date_started}")
 
     finally:
         session.close()

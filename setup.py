@@ -38,9 +38,15 @@ def create_venv():
 if __name__ == "__main__":
     setup(
         name="reading_list",
-        version="1.4.1",
-        packages=find_packages(include=['src', 'src.*', 'tests', 'tests.*', 'scripts', 'scripts.*', 'scripts.cleanup', 'scripts.cleanup.*']),
+        version="1.5.0",
+        packages=find_packages(include=['src', 'src.*', 'tests', 'tests.*', 'scripts', 'scripts.*']),
         package_dir={'': '.'},
+        package_data={
+            'templates': ['excel/*', 'email/*'],
+            'config': ['.env.example', 'logging.yaml'],
+            'docs': ['*.md', 'images/*'],
+            'data': ['db/.gitkeep', 'csv/.gitkeep', 'backups/.gitkeep'],
+        },
         install_requires=[
             "sqlalchemy",
             "alembic",

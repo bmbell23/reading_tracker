@@ -1,49 +1,48 @@
-from src.models.base import SessionLocal
-from src.models.book import Book
-from src.models.reading import Reading
-from src.models.inventory import Inventory
+from pathlib import Path
+from typing import List, Optional
+from src.models import SessionLocal, Book, Reading, Inventory
+from src.utils.path_utils import get_project_root
 
-def cleanup_test_data():
+def cleanup_test_data() -> None:
+    """Remove test data from the database."""
     session = SessionLocal()
     try:
-        # Find test books
+        # Get test books first
         test_books = session.query(Book).filter(
-            Book.title.in_([
-                "Reading Test Book",
-                "Inventory Test Book",
-                "Test Book",
-                "Property Test Book",
-                "TEST_READING_OPERATIONS_TEMP",
-                "TEST_INVENTORY_OPERATIONS_TEMP"
-            ])
+            Book.title.like('TEST_%')
         ).all()
 
-        # Store book IDs
-        book_ids = [book.id for book in test_books]
-
-        # First delete all readings for these books
+        # Remove readings associated with test books
         session.query(Reading).filter(
-            Reading.book_id.in_(book_ids)
+            Reading.book_id.in_([book.id for book in test_books])
         ).delete(synchronize_session=False)
 
-        # Then delete all inventory entries for these books
+        # Remove test inventory entries associated with test books
         session.query(Inventory).filter(
-            Inventory.book_id.in_(book_ids)
+            Inventory.book_id.in_([book.id for book in test_books])
         ).delete(synchronize_session=False)
 
-        # Finally delete the books
+        # Remove test books
         session.query(Book).filter(
-            Book.id.in_(book_ids)
+            Book.title.like('TEST_%')
         ).delete(synchronize_session=False)
 
         session.commit()
-        print(f"Cleaned up {len(test_books)} test books and their associated data")
-
-    except Exception as e:
-        print(f"Error during cleanup: {str(e)}")
-        session.rollback()
     finally:
         session.close()
 
+def remove_test_files() -> List[Path]:
+    """Remove test-related files from the project."""
+    root = get_project_root()
+    test_files = list(root.glob("**/*_test.*"))
+
+    for file in test_files:
+        if file.is_file():
+            file.unlink()
+
+    return test_files
+
 if __name__ == "__main__":
     cleanup_test_data()
+    removed_files = remove_test_files()
+    print(f"Removed {len(removed_files)} test files")

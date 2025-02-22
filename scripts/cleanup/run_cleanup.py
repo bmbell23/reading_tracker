@@ -1,5 +1,29 @@
 """
-Main cleanup script that runs all cleanup utilities in the correct order.
+Project Cleanup Utility
+
+This script runs all cleanup utilities in the correct order to maintain
+project cleanliness and data integrity. It performs the following tasks:
+
+1. Test Data Cleanup:
+   - Removes test data entries
+   - Cleans up test artifacts
+
+2. Database Cleanup:
+   - Checks date consistency
+   - Removes empty entries
+   - Validates relationships
+
+3. Codebase Cleanup:
+   - Removes unnecessary __init__.py files
+   - Cleans up migration artifacts
+   - Consolidates query scripts
+   - Removes __pycache__ directories
+
+Usage:
+    python run_cleanup.py
+
+Note: This script should be run before committing changes to ensure
+      the codebase remains clean and consistent.
 """
 from pathlib import Path
 from scripts.cleanup.cleanup_test_data import cleanup_test_data

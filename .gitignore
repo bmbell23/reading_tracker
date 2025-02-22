@@ -1,39 +1,67 @@
-# Python virtual environment
-venv/
-venv.old/
-
-# Python cache files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Database files
-*.sqlite
-*.sqlite3
+# Virtual Environment
+venv/
+env/
+ENV/
 
-# IDE specific files
-.vscode/
+# IDE
 .idea/
+.vscode/
 *.swp
 *.swo
 
-# Environment variables
-.env
+# Project specific
+config/.env
+*.sqlite
+*.sqlite-journal
+templates/excel/*.xlsx
+!templates/excel/reading_list_template.xlsx
+logs/
+.coverage
+htmlcov/
 
-# Excel files (temporary/test files)
-~$*.xlsx
+# Temporary files
+*.tmp
+*.bak
+*.swp
 
-# Distribution / packaging
-dist/
+# Added by organize_root.py
+# Build
+reading_list.egg-info/
 build/
-*.egg-info/
+dist/
+__pycache__/
+
+# Data
+data/db/*.db
+data/backups/
+data/csv/*
+!data/csv/.gitkeep
+
+# Config
+config/.env
 
 # Logs
-*.log
-
-# Keep all Alembic migration versions in version control
-# They are important for database version history
-# alembic/versions/*
-
-# CSV export directory
-csv/
+logs/*
+!logs/.gitkeep

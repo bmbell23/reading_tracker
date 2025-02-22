@@ -1,0 +1,54 @@
+reading_list/
+├── docs/                  # All documentation
+│   ├── getting_started.md
+│   ├── database.md
+│   ├── api.md
+│   └── images/           # Documentation images/diagrams
+├── config/               # Configuration files
+│   ├── .env.example
+│   └── logging.yaml
+├── src/                  # Core application code
+│   ├── models/
+│   ├── services/
+│   ├── utils/
+│   ├── queries/
+│   └── api/
+├── scripts/              # Utility scripts
+│   ├── database/
+│   ├── email/
+│   ├── cleanup/
+│   └── utils/
+├── tests/                # Test suite
+│   ├── database/
+│   ├── services/
+│   └── utils/
+├── templates/            # Excel and email templates
+│   ├── excel/
+│   └── email/
+├── .gitignore
+├── LICENSE
+├── README.md
+├── pyproject.toml       # Project metadata and dependencies
+└── requirements.txt     # Direct dependencies
+
+The three database tables are:
+1. book_database with columns:
+   id_book, title, author, word_count, page_count, words_per_page,
+   date_published, year_published, author_gender, series,
+   series_number, series_word_count, genre
+
+2. reading_database with columns:
+   id_read, id_previous, id_book, format, title, author,
+   author_gender, actual_days, estimated_days, date_started,
+   date_finished_actual, date_finished_delta, date_finished_estimate,
+   date_published, word_count, words_per_day_actual, words_per_day_goal,
+   pages_per_day_goal, page_count, series_number, series,
+   rating_horror, rating_spice, rating_world_building, rating_writing,
+   rating_characters, rating_readability, rating_enjoyment,
+   rating_overall, rating_over_rank, rank
+
+3. inventory_database with columns:
+   id_inventory, id_book, owned_overall, owned_audio, owned_kindle,
+   owned_physical, date_purchased, location, read_status, read_count,
+   title, author, author_gender, word_count, page_count,
+   date_published, series, series_number, isbn-10, isbn-13

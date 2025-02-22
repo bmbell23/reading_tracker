@@ -1,8 +1,12 @@
 import pandas as pd
 from datetime import datetime
 import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from pathlib import Path
+from scripts.utils.paths import find_project_root
+
+# Add project root to Python path
+project_root = find_project_root()
+sys.path.insert(0, str(project_root))
 
 from src.models.base import SessionLocal
 from src.models.book import Book

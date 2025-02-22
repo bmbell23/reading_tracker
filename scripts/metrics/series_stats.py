@@ -5,6 +5,10 @@ import csv
 from datetime import datetime
 from src.models.base import engine
 from sqlalchemy import text
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
 
 def ensure_directory_exists(directory):
     """Create directory if it doesn't exist"""
@@ -114,24 +118,11 @@ def get_series_stats(finished_only=False, csv_output=False):
         reread_results = conn.execute(text(reread_query)).fetchall()
 
         # Calculate totals
-        series_total_books = 0
-        series_total_words = 0
-        for row in series_results:
-            book_count = row[1]
-            total_words = row[2] or 0
-            series_total_books += book_count
-            series_total_words += total_words
-
-        standalone_total_words = 0
-        for row in standalone_results:
-            words = row[2] or 0
-            standalone_total_words += words
-
-        reread_total_additional_words = 0
+        series_total_books = sum(row[1] for row in series_results)
+        series_total_words = sum(row[2] or 0 for row in series_results)
+        standalone_total_words = sum(row[2] or 0 for row in standalone_results)
+        reread_total_additional_words = sum(row[4] or 0 for row in reread_results)
         reread_total_books = len(reread_results)
-        for row in reread_results:
-            additional_words = row[4] or 0
-            reread_total_additional_words += additional_words
 
         # Handle CSV output
         if csv_output:
@@ -199,70 +190,121 @@ def get_series_stats(finished_only=False, csv_output=False):
                 os.path.join(output_dir, "summary.csv")
             )
 
-            print(f"\nCSV files have been created in: {output_dir}")
+            console.print(f"\nCSV files have been created in: [blue]{output_dir}[/blue]")
 
-        # Print results to console
+        # Print results using Rich tables
         status = "Finished" if finished_only else "All"
 
-        # Print series results
-        print(f"\nSeries Statistics ({status} Books, Ordered by Total Word Count):")
-        print("-" * 140)
-        print(f"{'Series Name':<40}\t{'Author(s)':<40}\t{'Books':>8}\t{'Total Words':>15}")
-        print("-" * 140)
+        # Series table
+        series_table = Table(
+            title=f"Series Statistics ({status} Books, Ordered by Total Word Count)",
+            show_header=True,
+            header_style="bold magenta",
+            border_style="bright_black"
+        )
+        series_table.add_column("Series Name", justify="left")
+        series_table.add_column("Author(s)", justify="left")
+        series_table.add_column("Books", justify="right")
+        series_table.add_column("Total Words", justify="right")
 
         for row in series_results:
-            series_name = row[0] or "N/A"
-            book_count = row[1]
-            total_words = row[2] or 0
-            author = row[3] or "Unknown"
-            formatted_words = f"{total_words:,}" if total_words else "N/A"
-            print(f"{series_name:<40}\t{author:<40}\t{book_count:>8}\t{formatted_words:>15}")
+            series_table.add_row(
+                row[0] or "N/A",
+                row[3] or "Unknown",
+                str(row[1]),
+                f"{row[2]:,}" if row[2] else "N/A"
+            )
 
-        print("-" * 140)
-        print(f"Total Series: {len(series_results)}")
-        print(f"Total Books in Series: {series_total_books}")
-        print(f"Total Words Across All Series: {series_total_words:,}")
+        series_table.add_row(
+            "TOTAL",
+            "",
+            str(series_total_books),
+            f"{series_total_words:,}",
+            style="bold white"
+        )
 
-        # Print standalone books
-        print(f"\nStandalone Books ({status}):")
-        print("-" * 100)
-        print(f"{'Title':<50}\t{'Author':>30}\t{'Words':>15}")
-        print("-" * 100)
+        # Standalone table
+        standalone_table = Table(
+            title=f"\nStandalone Books ({status})",
+            show_header=True,
+            header_style="bold magenta",
+            border_style="bright_black"
+        )
+        standalone_table.add_column("Title", justify="left")
+        standalone_table.add_column("Author", justify="left")
+        standalone_table.add_column("Words", justify="right")
 
         for row in standalone_results:
-            title = row[0] or "N/A"
-            author = row[1] or "Unknown"
-            words = row[2] or 0
-            formatted_words = f"{words:,}" if words else "N/A"
-            print(f"{title:<50}\t{author:>30}\t{formatted_words:>15}")
+            standalone_table.add_row(
+                row[0] or "N/A",
+                row[1] or "Unknown",
+                f"{row[2]:,}" if row[2] else "N/A"
+            )
 
-        print("-" * 100)
-        print(f"Total Standalone Books: {len(standalone_results)}")
-        print(f"Total Words Across Standalone Books: {standalone_total_words:,}")
+        standalone_table.add_row(
+            "TOTAL",
+            "",
+            f"{standalone_total_words:,}",
+            style="bold white"
+        )
 
-        # Print reread books
-        print(f"\nReread Books ({status}):")
-        print("-" * 120)
-        print(f"{'Title':<50}\t{'Author':>30}\t{'Times Read':>10}\t{'Additional Words':>15}")
-        print("-" * 120)
+        # Reread table
+        reread_table = Table(
+            title=f"\nReread Books ({status})",
+            show_header=True,
+            header_style="bold magenta",
+            border_style="bright_black"
+        )
+        reread_table.add_column("Title", justify="left")
+        reread_table.add_column("Author", justify="left")
+        reread_table.add_column("Times Read", justify="right")
+        reread_table.add_column("Additional Words", justify="right")
 
         for row in reread_results:
-            title = row[0] or "N/A"
-            author = row[1] or "Unknown"
-            times_read = row[2]
-            additional_words = row[4] or 0
-            formatted_additional_words = f"{additional_words:,}" if additional_words else "N/A"
-            print(f"{title:<50}\t{author:>30}\t{times_read:>10}\t{formatted_additional_words:>15}")
+            reread_table.add_row(
+                row[0] or "N/A",
+                row[1] or "Unknown",
+                str(row[2]),
+                f"{row[4]:,}" if row[4] else "N/A"
+            )
 
-        print("-" * 120)
-        print(f"Total Books Reread: {reread_total_books}")
-        print(f"Total Additional Words from Rereads: {reread_total_additional_words:,}")
+        reread_table.add_row(
+            "TOTAL",
+            "",
+            str(reread_total_books),
+            f"{reread_total_additional_words:,}",
+            style="bold white"
+        )
 
-        # Print grand total
-        print(f"\nGrand Total (Including Rereads):")
-        print(f"Total Books: {series_total_books + len(standalone_results) + reread_total_books}")
+        # Summary table
+        summary_table = Table(
+            title="\nGrand Total (Including Rereads)",
+            show_header=True,
+            header_style="bold magenta",
+            border_style="bright_black"
+        )
+        summary_table.add_column("Category", justify="left")
+        summary_table.add_column("Books", justify="right")
+        summary_table.add_column("Words", justify="right")
+
+        total_books = series_total_books + len(standalone_results) + reread_total_books
         total_words = series_total_words + standalone_total_words + reread_total_additional_words
-        print(f"Total Words: {total_words:,}")
+
+        summary_table.add_row("Series", str(series_total_books), f"{series_total_words:,}")
+        summary_table.add_row("Standalone", str(len(standalone_results)), f"{standalone_total_words:,}")
+        summary_table.add_row("Reread", str(reread_total_books), f"{reread_total_additional_words:,}")
+        summary_table.add_row("TOTAL", str(total_books), f"{total_words:,}", style="bold white")
+
+        # Print all tables
+        console.print("\n")
+        console.print(series_table)
+        console.print("\n")
+        console.print(standalone_table)
+        console.print("\n")
+        console.print(reread_table)
+        console.print("\n")
+        console.print(summary_table)
+        console.print("\n")
 
 def main():
     parser = argparse.ArgumentParser(description='Get statistics about book series')

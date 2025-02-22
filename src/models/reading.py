@@ -5,7 +5,7 @@ from ..utils.constants import READING_SPEEDS, DEFAULT_WPD
 from .base import Base
 
 class Reading(Base):
-    __tablename__ = 'read'
+    __tablename__ = 'read'  # Keep original table name
 
     id = Column(Integer, primary_key=True)
     book_id = Column(Integer, ForeignKey('books.id'), nullable=False)
@@ -19,7 +19,7 @@ class Reading(Base):
     _days_elapsed_to_read = Column('days_elapsed_to_read', Integer)
     _days_to_read_delta_from_estimate = Column('days_to_read_delta_from_estimate', Integer)
 
-    # Ratings
+    # Ratings columns
     rating_horror = Column(Float)
     rating_spice = Column(Float)
     rating_world_building = Column(Float)

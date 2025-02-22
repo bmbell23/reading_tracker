@@ -1,5 +1,23 @@
 """
 Unified CLI tool for database operations.
+
+This script provides a command-line interface for common database operations
+including viewing current readings, managing inventory, and cleaning up invalid
+or empty database entries.
+
+Usage:
+    python db_cli.py [options]
+
+Options:
+    --current          Show all current reading sessions
+    --inventory [type] Show inventory (all/physical/kindle/audio)
+    --cleanup-books    Remove books with missing essential data
+    --cleanup-empty    Remove empty database entries
+
+Examples:
+    python db_cli.py --current
+    python db_cli.py --inventory kindle
+    python db_cli.py --cleanup-books
 """
 import argparse
 from datetime import date
