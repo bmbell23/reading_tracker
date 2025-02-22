@@ -9,7 +9,7 @@ if [ $# -ne 2 ]; then
 fi
 
 # Update the read table
-python scripts/update_read_db.py --all
+python scripts/updates/update_read_db.py --all
 
 # Run cleanup all scripts
 python scripts/cleanup/run_cleanup.py
