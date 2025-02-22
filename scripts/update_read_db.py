@@ -94,6 +94,28 @@ class UpdateReadTable:
 
         return self.updates_count, self.skipped_count
 
+    def update_est_end_date(self):
+        """Calculate and update date_est_end for all reading entries"""
+        print("\nCalculating estimated end dates...")
+
+        readings = self.get_all_readings()
+        self.updates_count = 0
+        self.skipped_count = 0
+
+        for reading in readings:
+            if not reading.date_started or reading._days_estimate is None:
+                print(f"Skipping reading ID {reading.id} - Missing start date or days estimate")
+                self.skipped_count += 1
+                continue
+
+            est_end_date = reading.date_started + timedelta(days=reading._days_estimate)
+            reading.date_est_end = est_end_date
+            self.updates_count += 1
+
+            print(f"Reading ID {reading.id}: {reading.book.title} - {est_end_date.strftime('%Y-%m-%d')}")
+
+        return self.updates_count, self.skipped_count
+
     def commit_changes(self, updates_count, skipped_count):
         """Commit changes to the database after confirmation"""
         if updates_count > 0:
@@ -117,6 +139,7 @@ def main():
     parser.add_argument('--estimate', action='store_true', help='Update days_estimate column')
     parser.add_argument('--elapsed', action='store_true', help='Update days_elapsed_to_read column')
     parser.add_argument('--delta', action='store_true', help='Update days_to_read_delta_from_estimate column')
+    parser.add_argument('--est-end', action='store_true', help='Update date_est_end column')
 
     args = parser.parse_args()
 
@@ -137,6 +160,10 @@ def main():
 
             if args.all or args.delta:
                 updates, skipped = updater.update_days_delta()
+                updater.commit_changes(updates, skipped)
+
+            if args.all or args.est_end:
+                updates, skipped = updater.update_est_end_date()
                 updater.commit_changes(updates, skipped)
 
     except Exception as e:
