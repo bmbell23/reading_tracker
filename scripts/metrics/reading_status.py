@@ -139,10 +139,101 @@ class ReadingStatus:
             console.print("[yellow]No upcoming reading sessions found for the next 30 days.[/yellow]")
         console.print("\n")
 
+    def _calculate_future_progress(self, reading, target_date):
+        """Calculate estimated progress for a book on a future date"""
+        if not reading.book.page_count or not reading.days_estimate:
+            return "Unknown"
+
+        if reading.date_started:
+            # For current readings
+            days_elapsed = (target_date - reading.date_started).days
+        else:
+            # For upcoming readings
+            days_elapsed = (target_date - reading.date_est_start).days
+
+        if days_elapsed < 0:
+            return "TBR"
+
+        total_days = reading.days_estimate
+        progress_pct = (days_elapsed / total_days) if total_days > 0 else 0
+
+        if progress_pct >= 1:
+            return "Done"
+
+        est_pages = int(progress_pct * reading.book.page_count)
+        return f"{progress_pct:.0%}"
+
+    def show_progress_forecast(self):
+        """Display daily progress forecast for the next 10 days"""
+        # Get both current and upcoming readings
+        current_readings = self.queries.get_current_unfinished_readings()
+        upcoming_readings = self.queries.get_upcoming_readings()
+
+        # Filter upcoming readings to only include those starting in the next 10 days
+        ten_days_future = self.today + timedelta(days=10)
+        upcoming_readings = [r for r in upcoming_readings
+                           if r.date_est_start and r.date_est_start <= ten_days_future]
+
+        # Combine and sort all relevant readings
+        all_readings = current_readings + upcoming_readings
+        all_readings.sort(key=lambda x: (x.media.lower(), x.book.title))
+
+        if not all_readings:
+            console.print("\n[yellow]No current or upcoming readings found for the next 10 days.[/yellow]\n")
+            return
+
+        # Create forecast table
+        table = Table(
+            title="10-Day Reading Progress Forecast",
+            show_header=True,
+            header_style="bold white"
+        )
+
+        # Add columns
+        table.add_column("Format", justify="center")
+        table.add_column("Title", justify="left")
+        table.add_column("Author", justify="left")
+
+        # Add date columns
+        dates = [self.today + timedelta(days=i) for i in range(11)]  # Include today
+        for d in dates:
+            table.add_column(d.strftime('%m/%d'), justify="center")
+
+        # Add rows for each reading
+        for reading in all_readings:
+            # Get color based on media type
+            if reading.media.lower() == 'audio':
+                color = 'orange1'
+            elif reading.media.lower() == 'hardcover':
+                color = 'purple'
+            elif reading.media.lower() == 'kindle':
+                color = 'blue'
+            else:
+                color = 'white'
+
+            # Prepare row data
+            row_data = [
+                reading.media,
+                reading.book.title,
+                self._format_author(reading.book)
+            ]
+
+            # Add progress forecasts for each date
+            for forecast_date in dates:
+                progress = self._calculate_future_progress(reading, forecast_date)
+                row_data.append(progress)
+
+            table.add_row(*row_data, style=color)
+
+        console.print("\n")
+        console.print(table)
+        console.print("\n")
+
 def main():
     status = ReadingStatus()
     status.show_current_readings()
     status.show_upcoming_readings()
+    status.show_progress_forecast()  # Add the new table
 
 if __name__ == "__main__":
     main()
