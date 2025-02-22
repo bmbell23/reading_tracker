@@ -26,9 +26,30 @@ source venv/bin/activate
 # On Windows:
 venv\Scripts\activate
 
-# Install dependencies
+# Install core dependencies
 pip install -e .
+
+# For development, install additional dependencies
+pip install -e ".[dev]"
 ```
+
+Note: The development installation includes additional tools for testing, linting, and code formatting.
+
+Core Dependencies:
+- SQLAlchemy (≥1.4.0) - Database ORM
+- Alembic (≥1.7.0) - Database migrations
+- Pandas (≥1.3.0) - Data manipulation
+- XlsxWriter (≥3.0.0) - Excel file creation
+- OpenPyXL (≥3.0.0) - Excel file reading
+- Rich (≥10.0.0) - Terminal formatting
+- Python-dotenv (≥0.19.0) - Environment configuration
+
+Development Dependencies:
+- Black - Code formatting
+- isort - Import sorting
+- MyPy - Type checking
+- Pylint - Code linting
+- Pytest - Testing framework
 
 ### 3. Configure Environment Variables
 

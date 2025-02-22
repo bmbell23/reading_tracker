@@ -86,9 +86,27 @@ venv\Scripts\activate
 # Linux/MacOS
 source venv/bin/activate
 
-# Install dev dependencies
+# Install core dependencies
+pip install -e .
+
+# Install development dependencies
 pip install -e ".[dev]"
 ```
+
+### Version Information
+Current version: 1.5.0
+
+Major changes in this version:
+- Significant documentation overhaul
+- Added automated email reports via cron
+- Streamlined dependency management
+- Separated core and development dependencies
+
+### Dependency Management
+- Core dependencies are defined in `pyproject.toml`
+- Development tools are available as optional dependencies
+- Use `pip install -e ".[dev]"` for development setup
+- Requirements are locked in `requirements.txt`
 
 ## Testing
 ```bash
