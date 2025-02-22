@@ -38,7 +38,7 @@ def create_venv():
 if __name__ == "__main__":
     setup(
         name="reading_list",
-        version="1.5.2",
+        version="1.5.3",
         packages=find_packages(include=['src', 'src.*', 'tests', 'tests.*', 'scripts', 'scripts.*']),
         package_dir={'': '.'},
         package_data={

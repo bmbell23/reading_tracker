@@ -59,4 +59,4 @@ git push
 git status
 
 echo "Done! Version $1 has been committed and pushed"
-```
+
