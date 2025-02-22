@@ -1,9 +1,6 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from src.models.base import SessionLocal
 from src.models.book import Book
+from sqlalchemy import or_
 from src.models.reading import Reading
 from src.models.inventory import Inventory
 from datetime import date, timedelta

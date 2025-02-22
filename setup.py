@@ -38,8 +38,8 @@ def create_venv():
 if __name__ == "__main__":
     setup(
         name="reading_list",
-        version="1.2.8",
-        packages=find_packages(include=['src', 'src.*']),
+        version="1.3.0",
+        packages=find_packages(include=['src', 'src.*', 'tests', 'tests.*', 'scripts', 'scripts.*']),
         package_dir={'': '.'},
         install_requires=[
             "sqlalchemy",
@@ -48,6 +48,8 @@ if __name__ == "__main__":
             "xlsxwriter",
             "openpyxl",
             "tabulate>=0.9.0",
+            "termcolor",
+            "rich"
         ],
         python_requires='>=3.8',
     )

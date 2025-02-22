@@ -10,3 +10,6 @@ pip install -e .
 
 python setup.py
 
+# Add this line to run tests after setup
+python tests/run_tests.py
+

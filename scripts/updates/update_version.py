@@ -1,8 +1,8 @@
 import sys
-import os
 import re
 from pathlib import Path
 import argparse
+from scripts.utils.paths import find_project_root
 
 def get_version_from_file(file_path: Path) -> str:
     """Extract version number from a file."""
@@ -25,7 +25,7 @@ def get_version_from_file(file_path: Path) -> str:
 
 def check_versions() -> dict:
     """Check versions across all project files and return results."""
-    project_root = Path(__file__).parent.parent
+    project_root = find_project_root()
 
     files_to_check = {
         'setup.py': project_root / 'setup.py',
@@ -75,7 +75,7 @@ def print_version_status(versions: dict):
 
 def version(new_version: str):
     """Update version number across all relevant project files."""
-    project_root = Path(__file__).parent.parent
+    project_root = find_project_root()
 
     files_to_update = {
         'setup.py': update_setup_py,

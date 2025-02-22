@@ -1,4 +1,4 @@
-# Reading List Tracker v1.2.8
+# Reading List Tracker v1.3.0
 
 A Python-based application to track reading habits, book inventory, and reading statistics.
 
@@ -96,12 +96,19 @@ reading_list/
 │   └── api/             # Future API endpoints
 ├── scripts/
 │   ├── create_db.py           # Database initialization
-│   ├── update_read_db.py      # Update reading calculations
-│   ├── cleanup_codebase.py    # Code maintenance
 │   ├── excel_import.py        # Data import from Excel
 │   ├── query_db.py           # Database queries
 │   ├── show_current_readings.py # Display active readings
-│   └── version.py            # Version management
+│   ├── updates/              # Update operations
+│   │   ├── update_book.py     # Book updates
+│   │   ├── update_read_db.py  # Reading calculations
+│   │   └── update_version.py  # Version management
+│   ├── metrics/              # Statistics and metrics scripts
+│   │   ├── series_stats.py
+│   │   └── media_stats.py
+│   └── util/                 # Utility scripts
+        ├── fix_hardcover_chain.py
+        └── fix_missing_data.py
 ├── tests/
 └── [Configuration files]
 ```

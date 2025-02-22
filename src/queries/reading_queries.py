@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from sqlalchemy import select, func
 from ..models.base import SessionLocal
 from ..models.book import Book
@@ -56,6 +56,30 @@ class ReadingQueries:
 
             return self.session.execute(query).all()
 
+        except Exception as e:
+            print(f"Error executing query: {e}")
+            return []
+
+    def get_upcoming_readings(self):
+        """
+        Get upcoming books that haven't been started yet, ordered by estimated start date.
+        Returns readings scheduled to start within the next 30 days.
+        """
+        try:
+            today = date.today()
+            thirty_days = today + timedelta(days=30)
+
+            query = (
+                select(Reading)
+                .join(Book)
+                .where(Reading.date_est_start > today)
+                .where(Reading.date_est_start <= thirty_days)
+                .where(Reading.date_started.is_(None))
+                .where(Reading.date_finished_actual.is_(None))
+                .order_by(Reading.date_est_start)
+            )
+
+            return self.session.execute(query).scalars().all()
         except Exception as e:
             print(f"Error executing query: {e}")
             return []

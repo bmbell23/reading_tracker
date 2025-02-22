@@ -13,6 +13,7 @@ class Reading(Base):
     media = Column(String)
     date_started = Column(Date)
     date_finished_actual = Column(Date)
+    date_est_start = Column(Date)
     date_est_end = Column(Date)
     _days_estimate = Column('days_estimate', Integer)
     _days_elapsed_to_read = Column('days_elapsed_to_read', Integer)

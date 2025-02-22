@@ -1,6 +1,10 @@
+from pathlib import Path
+from scripts.utils.paths import find_project_root
 import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Add project root to Python path
+project_root = find_project_root()
+sys.path.insert(0, str(project_root))
 
 from src.models.base import engine
 from sqlalchemy import text

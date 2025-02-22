@@ -8,14 +8,14 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
-# Change to your project directory
-cd /home/bbell/sandbox/projects/personal/reading_tracker/reading_list
+# Run update_read_db.py script
+python scripts/update_read_db.py --chain
 
 # Run cleanup script
 python scripts/cleanup_codebase.py
 
 # Run version update script and capture its exit status
-python scripts/version.py --update "$1"
+python scripts/updates/update_version.py --update "$1"
 UPDATE_STATUS=$?
 
 # Check if update_version.py succeeded
@@ -24,6 +24,14 @@ if [ $UPDATE_STATUS -ne 0 ]; then
     exit 1
 fi
 echo "Version updated to $1"
+
+# Run tests
+if python tests/run_tests.py; then
+    echo "All tests passed"
+else
+    echo "Some tests failed"
+    exit 1
+fi
 
 # 1. See what files have been changed
 git status

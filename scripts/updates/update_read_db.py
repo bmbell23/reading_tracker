@@ -1,12 +1,9 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+import argparse
+from datetime import date, timedelta
 from src.models.base import SessionLocal
 from src.models.reading import Reading
 from src.models.book import Book
 from src.utils.constants import READING_SPEEDS, DEFAULT_WPD
-from datetime import timedelta
 
 class UpdateReadTable:
     def __init__(self):
@@ -116,6 +113,94 @@ class UpdateReadTable:
 
         return self.updates_count, self.skipped_count
 
+    def update_chain_dates(self):
+        """Calculate and update both est_end and est_start dates for all readings in chain order"""
+        print("\nUpdating reading chain dates...")
+
+        readings = self.get_all_readings()
+        self.updates_count = 0
+        self.skipped_count = 0
+
+        # Create a lookup dictionary for quick access
+        readings_dict = {reading.id: reading for reading in readings}
+
+        # First, ensure all readings have days_estimate calculated
+        for reading in readings:
+            if reading._days_estimate is None and reading.days_estimate is not None:
+                reading._days_estimate = reading.days_estimate
+                print(f"Set days_estimate for ID {reading.id}: {reading.book.title} ({reading._days_estimate} days)")
+                self.updates_count += 1
+
+        # Commit the days_estimate updates
+        self.session.commit()
+
+        # Now process the dates in chain order
+        for media_type in ['kindle', 'hardcover', 'audio']:
+            print(f"\nProcessing {media_type} chain...")
+
+            # Get current reading for this media type
+            current = (self.session.query(Reading)
+                      .filter(Reading.media.ilike(f"%{media_type}%"))
+                      .filter(Reading.date_started <= date.today())
+                      .filter(Reading.date_finished_actual.is_(None))
+                      .first())
+
+            if not current:
+                print(f"No current {media_type} reading found")
+                continue
+
+            # First go backward to ensure all previous books are set
+            while current and current.id_previous:
+                prev = readings_dict.get(current.id_previous)
+                if prev:
+                    if not prev.date_est_end and prev._days_estimate is not None:
+                        if prev.date_est_start:
+                            prev.date_est_end = prev.date_est_start + timedelta(days=prev._days_estimate)
+                            print(f"Set est_end for previous ID {prev.id}: {prev.book.title}")
+                            self.updates_count += 1
+                    if not current.date_est_start and prev.date_est_end:
+                        current.date_est_start = prev.date_est_end + timedelta(days=1)
+                        print(f"Set est_start for ID {current.id}: {current.book.title}")
+                        self.updates_count += 1
+                current = prev
+
+            # Now go forward through the chain
+            current = (self.session.query(Reading)
+                      .filter(Reading.media.ilike(f"%{media_type}%"))
+                      .filter(Reading.date_started <= date.today())
+                      .filter(Reading.date_finished_actual.is_(None))
+                      .first())
+
+            while current:
+                # Set est_end if missing
+                if not current.date_est_end and current._days_estimate is not None:
+                    start_date = current.date_est_start or current.date_started
+                    if start_date:
+                        current.date_est_end = start_date + timedelta(days=current._days_estimate)
+                        print(f"Set est_end for ID {current.id}: {current.book.title}")
+                        self.updates_count += 1
+
+                # Find and process next reading
+                next_reading = (self.session.query(Reading)
+                              .filter(Reading.id_previous == current.id)
+                              .first())
+
+                if not next_reading:
+                    break
+
+                # Set est_start for next reading
+                if not next_reading.date_est_start and current.date_est_end:
+                    next_reading.date_est_start = current.date_est_end + timedelta(days=1)
+                    print(f"Set est_start for next ID {next_reading.id}: {next_reading.book.title}")
+                    self.updates_count += 1
+
+                current = next_reading
+
+            # Commit changes after processing each media type chain
+            self.session.commit()
+
+        return self.updates_count, self.skipped_count
+
     def commit_changes(self, updates_count, skipped_count):
         """Commit changes to the database after confirmation"""
         if updates_count > 0:
@@ -140,6 +225,8 @@ def main():
     parser.add_argument('--elapsed', action='store_true', help='Update days_elapsed_to_read column')
     parser.add_argument('--delta', action='store_true', help='Update days_to_read_delta_from_estimate column')
     parser.add_argument('--est-end', action='store_true', help='Update date_est_end column')
+    parser.add_argument('--est-start', action='store_true', help='Update date_est_start column')
+    parser.add_argument('--chain', action='store_true', help='Update both est_end and est_start dates in chain order')
 
     args = parser.parse_args()
 
@@ -150,6 +237,16 @@ def main():
 
     try:
         with UpdateReadTable() as updater:
+            if args.all or args.chain:
+                # First update estimates if needed
+                if args.all:
+                    updates, skipped = updater.update_days_estimate()
+                    updater.commit_changes(updates, skipped)
+
+                # Then update the chain dates
+                updates, skipped = updater.update_chain_dates()
+                updater.commit_changes(updates, skipped)
+
             if args.all or args.estimate:
                 updates, skipped = updater.update_days_estimate()
                 updater.commit_changes(updates, skipped)
@@ -164,6 +261,10 @@ def main():
 
             if args.all or args.est_end:
                 updates, skipped = updater.update_est_end_date()
+                updater.commit_changes(updates, skipped)
+
+            if args.all or args.est_start:
+                updates, skipped = updater.update_chain_dates()
                 updater.commit_changes(updates, skipped)
 
     except Exception as e:
