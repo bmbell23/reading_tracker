@@ -5,6 +5,7 @@ from rich.console import Console
 from rich.table import Table
 from scripts.utils.paths import find_project_root
 from src.queries.reading_queries import ReadingQueries
+from src.utils.progress_calculator import calculate_reading_progress
 
 # Add project root to Python path
 project_root = find_project_root()
@@ -88,16 +89,26 @@ class ReadingStatus:
 
     def _create_table(self, title, include_progress=True):
         """Create a rich table with standard headers"""
-        table = Table(title=title, show_header=True, header_style="bold white")
-        table.add_column("Format", justify="center")
-        table.add_column("Title", justify="left")
-        table.add_column("Author", justify="left")
-        table.add_column("Start\nDate", justify="center")
+        table = Table(
+            title=title,
+            show_header=True,
+            header_style="bold",
+            border_style="bright_black",
+            pad_edge=False,
+            collapse_padding=True
+        )
+
+        # Add columns with simpler styling
+        table.add_column("Format", justify="center", style="white")
+        table.add_column("Title", justify="left", style="white")
+        table.add_column("Author", justify="left", style="white")
+        table.add_column("Start Date", justify="center", style="white")
         if include_progress:
-            table.add_column("Est.\nProgress", justify="center")
-            table.add_column("Days\nElapsed", justify="center")
-        table.add_column("Days\nto Finish", justify="center")
-        table.add_column("Est.\nEnd Date", justify="center")
+            table.add_column("Progress", justify="center", style="white")
+            table.add_column("Days Elapsed", justify="center", style="white")
+        table.add_column("Days to Finish", justify="center", style="white")
+        table.add_column("Est. End Date", justify="center", style="white")
+
         return table
 
     def show_current_readings(self):
@@ -141,27 +152,7 @@ class ReadingStatus:
 
     def _calculate_future_progress(self, reading, target_date):
         """Calculate estimated progress for a book on a future date"""
-        if not reading.book.page_count or not reading.days_estimate:
-            return "Unknown"
-
-        if reading.date_started:
-            # For current readings
-            days_elapsed = (target_date - reading.date_started).days
-        else:
-            # For upcoming readings
-            days_elapsed = (target_date - reading.date_est_start).days
-
-        if days_elapsed < 0:
-            return "TBR"
-
-        total_days = reading.days_estimate
-        progress_pct = (days_elapsed / total_days) if total_days > 0 else 0
-
-        if progress_pct >= 1:
-            return "Done"
-
-        est_pages = int(progress_pct * reading.book.page_count)
-        return f"{progress_pct:.0%}"
+        return calculate_reading_progress(reading, target_date)
 
     def show_progress_forecast(self):
         """Display daily progress forecast for the next 10 days"""
@@ -184,9 +175,9 @@ class ReadingStatus:
 
         # Create forecast table
         table = Table(
-            title="10-Day Reading Progress Forecast",
+            title=f"10-Day Reading Progress Forecast (as of {self.today})",
             show_header=True,
-            header_style="bold white"
+            header_style="bold magenta"
         )
 
         # Add columns

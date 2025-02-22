@@ -1,7 +1,10 @@
 import sys
-import os
-from datetime import date, timedelta
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from pathlib import Path
+from scripts.utils.paths import find_project_root
+
+# Add project root to Python path
+project_root = find_project_root()
+sys.path.insert(0, str(project_root))
 
 from src.models.base import SessionLocal
 from src.models.reading import Reading

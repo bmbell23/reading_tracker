@@ -14,21 +14,30 @@ reading_list/
 │   │   └── __init__.py
 │   └── api/            # Future API endpoints
 ├── scripts/
-│   ├── create_db.py           # Database initialization
-│   ├── update_read_db.py      # Update reading calculations
-│   ├── cleanup_codebase.py    # Code maintenance utilities
-│   ├── excel_import.py        # Data import from Excel
-│   ├── query_db.py           # Database queries
-│   └── version.py            # Version management
+│   ├── database/       # Database management scripts
+│   │   └── db_cli.py   # Database CLI tool
+│   ├── utils/          # Utility scripts
+│   │   ├── inspect_chain.py
+│   │   ├── search_book.py
+│   │   └── verify_dates.py
+│   ├── cleanup/        # Cleanup utilities
+│   │   ├── cleanup_codebase.py
+│   │   ├── cleanup_database.py
+│   │   ├── cleanup_test_data.py
+│   │   └── run_cleanup.py
+│   ├── create_db.py    # Database initialization
+│   ├── excel_import.py # Data import from Excel
+│   └── version.py      # Version management
 ├── tests/
-├── venv/                     # Virtual environment (git-ignored)
+├── venv/              # Virtual environment (git-ignored)
 ├── .gitignore
-├── README.md                # Project documentation
-├── setup.py                # Project setup and dependencies
-├── setup.sh               # Shell script for environment setup
-├── git_commit.sh         # Git commit automation
-├── pyproject.toml       # Project metadata and dependencies
-└── requirements.txt    # Python dependencies
+├── .project-root     # Project root marker
+├── README.md         # Project documentation
+├── setup.py         # Project setup and dependencies
+├── setup.sh        # Shell script for environment setup
+├── git_commit.sh   # Git commit automation
+├── pyproject.toml # Project metadata and dependencies
+└── requirements.txt # Python dependencies
 
 The three database tables are:
 1. book_database with columns:

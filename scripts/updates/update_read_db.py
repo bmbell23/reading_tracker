@@ -105,6 +105,7 @@ class UpdateReadTable:
                 self.skipped_count += 1
                 continue
 
+            # Don't subtract 1 from days_estimate anymore
             est_end_date = reading.date_started + timedelta(days=reading._days_estimate)
             reading.date_est_end = est_end_date
             self.updates_count += 1
@@ -121,24 +122,26 @@ class UpdateReadTable:
         self.updates_count = 0
         self.skipped_count = 0
 
-        # Create a lookup dictionary for quick access
         readings_dict = {reading.id: reading for reading in readings}
 
-        # First, ensure all readings have days_estimate calculated
         for reading in readings:
             if reading._days_estimate is None and reading.days_estimate is not None:
                 reading._days_estimate = reading.days_estimate
                 print(f"Set days_estimate for ID {reading.id}: {reading.book.title} ({reading._days_estimate} days)")
                 self.updates_count += 1
 
-        # Commit the days_estimate updates
+            # Ensure est_start matches actual start date if it exists
+            if reading.date_started:
+                if reading.date_est_start != reading.date_started:
+                    reading.date_est_start = reading.date_started
+                    print(f"Aligned est_start with actual start date for ID {reading.id}: {reading.book.title} - {reading.date_started}")
+                    self.updates_count += 1
+
         self.session.commit()
 
-        # Now process the dates in chain order
         for media_type in ['kindle', 'hardcover', 'audio']:
             print(f"\nProcessing {media_type} chain...")
 
-            # Get current reading for this media type
             current = (self.session.query(Reading)
                       .filter(Reading.media.ilike(f"%{media_type}%"))
                       .filter(Reading.date_started <= date.today())
@@ -149,38 +152,20 @@ class UpdateReadTable:
                 print(f"No current {media_type} reading found")
                 continue
 
-            # First go backward to ensure all previous books are set
-            while current and current.id_previous:
-                prev = readings_dict.get(current.id_previous)
-                if prev:
-                    if not prev.date_est_end and prev._days_estimate is not None:
-                        if prev.date_est_start:
-                            prev.date_est_end = prev.date_est_start + timedelta(days=prev._days_estimate)
-                            print(f"Set est_end for previous ID {prev.id}: {prev.book.title}")
-                            self.updates_count += 1
-                    if not current.date_est_start and prev.date_est_end:
-                        current.date_est_start = prev.date_est_end + timedelta(days=1)
-                        print(f"Set est_start for ID {current.id}: {current.book.title}")
-                        self.updates_count += 1
-                current = prev
-
-            # Now go forward through the chain
-            current = (self.session.query(Reading)
-                      .filter(Reading.media.ilike(f"%{media_type}%"))
-                      .filter(Reading.date_started <= date.today())
-                      .filter(Reading.date_finished_actual.is_(None))
-                      .first())
-
             while current:
-                # Set est_end if missing
-                if not current.date_est_end and current._days_estimate is not None:
-                    start_date = current.date_est_start or current.date_started
+                if current._days_estimate is not None:
+                    # Always use actual start date if available
+                    if current.date_started:
+                        start_date = current.date_started
+                        current.date_est_start = start_date  # Ensure alignment
+                    else:
+                        start_date = current.date_est_start
+
                     if start_date:
                         current.date_est_end = start_date + timedelta(days=current._days_estimate)
-                        print(f"Set est_end for ID {current.id}: {current.book.title}")
+                        print(f"Set est_end for ID {current.id}: {current.book.title} - {current.date_est_end}")
                         self.updates_count += 1
 
-                # Find and process next reading
                 next_reading = (self.session.query(Reading)
                               .filter(Reading.id_previous == current.id)
                               .first())
@@ -188,15 +173,21 @@ class UpdateReadTable:
                 if not next_reading:
                     break
 
-                # Set est_start for next reading
-                if not next_reading.date_est_start and current.date_est_end:
-                    next_reading.date_est_start = current.date_est_end + timedelta(days=1)
-                    print(f"Set est_start for next ID {next_reading.id}: {next_reading.book.title}")
-                    self.updates_count += 1
+                if current.date_est_end:
+                    if next_reading.date_started:
+                        # If next book has started, ensure its est_start matches actual start
+                        if next_reading.date_est_start != next_reading.date_started:
+                            next_reading.date_est_start = next_reading.date_started
+                            print(f"Aligned est_start with actual start date for next ID {next_reading.id}: {next_reading.book.title} - {next_reading.date_started}")
+                            self.updates_count += 1
+                    else:
+                        # Only set est_start if the book hasn't actually started
+                        next_reading.date_est_start = current.date_est_end + timedelta(days=1)
+                        print(f"Set est_start for next ID {next_reading.id}: {next_reading.book.title} - {next_reading.date_est_start}")
+                        self.updates_count += 1
 
                 current = next_reading
 
-            # Commit changes after processing each media type chain
             self.session.commit()
 
         return self.updates_count, self.skipped_count
@@ -204,8 +195,8 @@ class UpdateReadTable:
     def commit_changes(self, updates_count, skipped_count):
         """Commit changes to the database after confirmation"""
         if updates_count > 0:
-            confirm = input(f"\nUpdate {updates_count} entries? (yes/no): ")
-            if confirm.lower() == 'yes':
+            confirm = input(f"\nUpdate {updates_count} entries? (Y/n): ").lower()
+            if confirm in ['', 'y', 'yes']:  # Empty string (Enter) now counts as yes
                 self.session.commit()
                 print(f"\nSuccessfully updated {updates_count} entries!")
                 if skipped_count > 0:
