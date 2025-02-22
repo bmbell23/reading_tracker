@@ -8,7 +8,6 @@ __pycache__/
 *$py.class
 
 # Database files
-*.db
 *.sqlite
 *.sqlite3
 

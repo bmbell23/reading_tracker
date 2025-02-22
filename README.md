@@ -1,4 +1,4 @@
-# Reading List Tracker v1.2.6
+# Reading List Tracker v1.2.7
 
 A Python-based application to track reading habits, book inventory, and reading statistics.
 
