@@ -6,7 +6,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 Base = declarative_base()
 
 class Reading(Base):
-    __tablename__ = 'readings'
+    __tablename__ = 'read'  # Changed from 'readings'
     id = Column(Integer, primary_key=True)
     book_id = Column(Integer, nullable=False)
     date_started = Column(Date)
@@ -15,7 +15,7 @@ class Reading(Base):
     date_finished_actual = Column(Date)
 
 # Create an engine and bind it to the Base
-engine = create_engine('sqlite:///reading_list.db')
+engine = create_engine('sqlite:///data/db/reading_list.db')
 Base.metadata.create_all(engine)
 
 # Create a session

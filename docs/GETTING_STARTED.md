@@ -91,7 +91,7 @@ Fill out the template with your reading data:
    - Required: title, author
    - Optional but recommended: word_count, page_count
 
-2. Readings Sheet:
+2. Read Sheet:
    - Add reading sessions
    - Required: id_read, id_book
    - Link to books using `id_book`

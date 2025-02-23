@@ -100,13 +100,23 @@ class UpdateReadTable:
         self.skipped_count = 0
 
         for reading in readings:
-            if not reading.date_started or reading._days_estimate is None:
-                print(f"Skipping reading ID {reading.id} - Missing start date or days estimate")
+            if not reading.date_started and not reading.date_est_start:
+                print(f"Skipping reading ID {reading.id} - Missing both actual and estimated start dates")
                 self.skipped_count += 1
                 continue
 
-            # Don't subtract 1 from days_estimate anymore
-            est_end_date = reading.date_started + timedelta(days=reading._days_estimate)
+            if reading._days_estimate is None:
+                # Try to get days_estimate from the property if not set
+                reading._days_estimate = reading.days_estimate
+
+            if reading._days_estimate is None:
+                print(f"Skipping reading ID {reading.id} - Missing days estimate")
+                self.skipped_count += 1
+                continue
+
+            # Use actual start date if available, otherwise use estimated start date
+            start_date = reading.date_started or reading.date_est_start
+            est_end_date = start_date + timedelta(days=reading._days_estimate)
             reading.date_est_end = est_end_date
             self.updates_count += 1
 

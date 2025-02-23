@@ -5,7 +5,7 @@ from ..utils.constants import READING_SPEEDS, DEFAULT_WPD
 from .base import Base
 
 class Reading(Base):
-    __tablename__ = 'read'  # Keep original table name
+    __tablename__ = 'read'
 
     id = Column(Integer, primary_key=True)
     book_id = Column(Integer, ForeignKey('books.id'), nullable=False)
@@ -15,18 +15,21 @@ class Reading(Base):
     date_finished_actual = Column(Date)
     date_est_start = Column(Date)
     date_est_end = Column(Date)
-    _days_estimate = Column('days_estimate', Integer)
-    _days_elapsed_to_read = Column('days_elapsed_to_read', Integer)
-    _days_to_read_delta_from_estimate = Column('days_to_read_delta_from_estimate', Integer)
 
-    # Ratings columns
+    # Rating columns
     rating_horror = Column(Float)
     rating_spice = Column(Float)
     rating_world_building = Column(Float)
     rating_writing = Column(Float)
     rating_characters = Column(Float)
     rating_readability = Column(Float)
-    rating_enjoyment = Column(Float)
+    rating_enjoyment = Column(Integer)
+    rank = Column(Integer)
+
+    # Days calculations
+    _days_estimate = Column('days_estimate', Integer)
+    _days_elapsed_to_read = Column('days_elapsed_to_read', Integer)
+    _days_to_read_delta_from_estimate = Column('days_to_read_delta_from_estimate', Integer)
 
     # Relationships
     book = relationship("Book", backref="readings")
@@ -41,6 +44,11 @@ class Reading(Base):
         media_lower = self.media.lower()
         words_per_day = READING_SPEEDS.get(media_lower, DEFAULT_WPD)
         return int(self.book.word_count / words_per_day)
+
+    def update_est_end_date(self):
+        """Update the estimated end date based on start date and days estimate"""
+        if self.date_started and self._days_estimate:
+            self.date_est_end = self.date_started + timedelta(days=self._days_estimate)
 
     @days_estimate.setter
     def days_estimate(self, value):

@@ -70,7 +70,7 @@ def cleanup_empty_entries():
             Book.genre.is_(None)
         ).all()
 
-        # Clean up Readings table
+        # Clean up Read table (changed from Readings)
         empty_readings = session.query(Reading).filter(
             Reading.id_previous.is_(None),
             Reading.media.is_(None),

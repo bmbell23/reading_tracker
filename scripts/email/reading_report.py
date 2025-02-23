@@ -38,6 +38,8 @@ from scripts.metrics.reading_status import ReadingStatus
 from src.utils.progress_calculator import calculate_reading_progress
 from dotenv import load_dotenv
 from scripts.email.config import EMAIL_CONFIG
+import requests
+from urllib.parse import quote
 
 # Load environment variables
 load_dotenv()
@@ -53,6 +55,13 @@ class EmailReport:
         self.smtp_port = EMAIL_CONFIG['smtp_port']
         self.template_dir = paths['email_templates']
         self.app_password = None  # Will be loaded from environment variable
+        self.google_books_url = "https://www.googleapis.com/books/v1/volumes"
+        self.cover_cache = {}  # Cache cover URLs to avoid repeated API calls
+        self.default_cover_url = "https://raw.githubusercontent.com/your-repo/reading-list/main/assets/default-cover.jpg"  # Replace with your default image URL
+        # Alternative default covers:
+        # - https://placehold.co/80x120/e0e0e0/666666.png?text=No+Cover
+        # - https://via.placeholder.com/80x120.png?text=No+Cover
+        # - Or any other placeholder image service
 
     def _get_app_password(self):
         """Get Gmail App Password from environment variable"""
@@ -63,64 +72,161 @@ class EmailReport:
                 "You can generate an App Password at: https://myaccount.google.com/apppasswords"
             )
 
+    def _get_book_cover_url(self, title, author):
+        """Get book cover URL from Google Books API with improved search accuracy"""
+        cache_key = f"{title}-{author}"
+        if cache_key in self.cover_cache:
+            return self.cover_cache[cache_key]
+
+        try:
+            # More specific search query with exact title matching
+            query = quote(f"intitle:\"{title}\" inauthor:\"{author}\"")
+            response = requests.get(
+                f"{self.google_books_url}?q={query}&maxResults=5"
+            )
+            data = response.json()
+
+            if 'items' in data:
+                # Try to find exact match first
+                for item in data['items']:
+                    book_info = item['volumeInfo']
+                    if (book_info.get('title', '').lower() == title.lower() and
+                        author.lower() in book_info.get('authors', [''])[0].lower()):
+                        image_links = book_info.get('imageLinks', {})
+                        cover_url = image_links.get('thumbnail') or image_links.get('smallThumbnail')
+                        if cover_url:
+                            cover_url = cover_url.replace('http://', 'https://')
+                            self.cover_cache[cache_key] = cover_url
+                            return cover_url
+
+                # Fallback to first result if no exact match
+                image_links = data['items'][0]['volumeInfo'].get('imageLinks', {})
+                cover_url = image_links.get('thumbnail') or image_links.get('smallThumbnail')
+                if cover_url:
+                    cover_url = cover_url.replace('http://', 'https://')
+                    self.cover_cache[cache_key] = cover_url
+                    return cover_url
+
+        except Exception as e:
+            print(f"Error fetching cover for {title}: {e}")
+
+        # Return default cover if no cover found
+        self.cover_cache[cache_key] = self.default_cover_url
+        return self.default_cover_url
+
     def _format_reading_to_html(self, reading, is_current=True):
         """Format a reading entry as HTML table row"""
         today = date.today()
 
+        # DEBUG: Print reading info
+        print(f"Processing reading: {reading.book.title}")
+        print(f"date_est_end: {reading.date_est_end}")
+        print(f"is_current: {is_current}")
+
         # Get color based on media type
         if reading.media.lower() == 'audio':
-            color = '#FFA500'  # orange
+            color = '#FB923C'  # warm orange
+            bg_color = '#FFF7ED'
         elif reading.media.lower() == 'hardcover':
-            color = '#9370DB'  # purple
+            color = '#A855F7'  # purple
+            bg_color = '#FAF5FF'
         elif reading.media.lower() == 'kindle':
-            color = '#4169E1'  # blue
+            color = '#3B82F6'  # blue
+            bg_color = '#EFF6FF'
         else:
-            color = '#333333'  # dark gray
+            color = '#64748B'  # slate
+            bg_color = '#F8FAFC'
 
-        # Format dates and calculations differently for current vs upcoming
+        # Get book cover with improved styling
+        cover_url = self._get_book_cover_url(reading.book.title, reading.book.author)
+        cover_html = f"""
+            <td class="cover-cell">
+                <img src="{cover_url}" alt="Cover of {reading.book.title}"
+                     style="width: 60px; height: auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+                     onerror="this.style.display='none'"/>
+            </td>
+        """
+
+        # Format media badge
+        media_badge = f"""
+            <span style="
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 4px;
+                background-color: {bg_color};
+                color: {color};
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            ">{reading.media}</span>
+        """
+
+        # Format title and author
+        title_author = f"""
+            <div style="font-weight: 600; color: #1a202c; margin-bottom: 4px;">
+                {reading.book.title}
+            </div>
+            <div style="color: #64748b; font-size: 14px;">
+                {reading.book.author}
+            </div>
+        """
+
+        # Format dates and calculations
         if is_current:
-            start_date = reading.date_started.strftime('%Y-%m-%d') if reading.date_started else 'Not started'
+            start_date = reading.date_started.strftime('%b %d, %Y') if reading.date_started else 'Not started'
             days_elapsed_num = (today - reading.date_started).days if reading.date_started else 0
             days_elapsed = str(days_elapsed_num)
 
             if reading.date_est_end and reading.date_started:
                 total_days = (reading.date_est_end - reading.date_started).days
                 progress_pct = (days_elapsed_num / total_days * 100) if total_days > 0 else 0
-                progress = f"{progress_pct:.1f}%"
+
+                # Progress bar HTML
+                progress_bar = f"""
+                    <div style="width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 6px; margin-top: 8px;">
+                        <div style="width: {min(100, progress_pct)}%; background-color: {color}; height: 6px; border-radius: 9999px;"></div>
+                    </div>
+                    <div style="color: {color}; font-weight: 600; font-size: 14px; margin-top: 4px;">
+                        {progress_pct:.1f}%
+                    </div>
+                """
                 days_to_finish = str(total_days - days_elapsed_num)
             else:
-                progress = "0%"
+                progress_bar = """
+                    <div style="color: #64748b; font-size: 14px;">No progress data</div>
+                """
                 days_to_finish = "Unknown"
 
-            est_end_date = reading.date_est_end.strftime('%Y-%m-%d') if reading.date_est_end else 'Unknown'
+            est_end_date = reading.date_est_end.strftime('%b %d, %Y') if reading.date_est_end else 'Unknown'
         else:
-            start_date = reading.date_est_start.strftime('%Y-%m-%d') if reading.date_est_start else 'Not scheduled'
-            progress = "Not started"
+            start_date = reading.date_est_start.strftime('%b %d, %Y') if reading.date_est_start else 'Not scheduled'
+            est_end_date = reading.date_est_end.strftime('%b %d, %Y') if reading.date_est_end else 'Unknown'
+            progress_bar = ""
             days_elapsed = "0"
-            if reading.date_est_end and reading.date_est_start:
-                days_to_finish = str((reading.date_est_end - reading.date_est_start).days)
-            else:
-                days_to_finish = "Unknown"
-            est_end_date = reading.date_est_end.strftime('%Y-%m-%d') if reading.date_est_end else 'Unknown'
+            days_to_finish = str((reading.date_est_end - reading.date_est_start).days) if (reading.date_est_end and reading.date_est_start) else "Unknown"
+
+        # Debug: Print final est_end_date value before row construction
+        print(f"Final est_end_date for {reading.book.title}: {est_end_date}")
 
         # Create table row
         row = f"""
-            <tr style="color: {color}">
-                <td>{reading.media}</td>
-                <td>{reading.book.title}</td>
-                <td>{reading.book.author}</td>
-                <td>{start_date}</td>
+            <tr>
+                {cover_html}
+                <td>{media_badge}</td>
+                <td>{title_author}</td>
+                <td style="color: #64748b; font-size: 14px;">{start_date}</td>
         """
 
         if is_current:
             row += f"""
-                <td>{progress}</td>
-                <td>{days_elapsed}</td>
+                <td>{progress_bar}</td>
+                <td style="text-align: center; color: #64748b; font-size: 14px;">{days_elapsed}</td>
             """
 
         row += f"""
-                <td>{days_to_finish}</td>
-                <td>{est_end_date}</td>
+                <td style="text-align: center; color: #64748b; font-size: 14px;">{days_to_finish}</td>
+                <td style="color: #64748b; font-size: 14px;">{est_end_date}</td>
             </tr>
         """
 
@@ -128,29 +234,40 @@ class EmailReport:
 
     def _create_html_table(self, readings, title, is_current=True):
         """Create an HTML table for readings"""
-        headers = ['Format', 'Title', 'Author', 'Start Date']
-        if is_current:
-            headers.extend(['Progress', 'Days Elapsed'])
-        headers.extend(['Days to Finish', 'Est. End Date'])
-
-        header_row = ''.join([f'<th>{h}</th>' for h in headers])
-
         table = f"""
-        <div class="table-container">
+        <div class="table-section">
             <h2>{title}</h2>
-            <table>
-                <thead>
-                    <tr>{header_row}</tr>
-                </thead>
-                <tbody>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="cover-header"></th>
+                            <th class="table-header">Format</th>
+                            <th class="table-header">Title</th>
+                            <th class="table-header">Start Date</th>
+        """
+
+        if is_current:
+            table += """
+                            <th class="table-header">Progress</th>
+                            <th class="table-header">Days Elapsed</th>
+            """
+
+        table += """
+                            <th class="table-header">Days to Finish</th>
+                            <th class="table-header">Est. End Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
         """
 
         for reading in readings:
             table += self._format_reading_to_html(reading, is_current)
 
         table += """
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
         """
 
@@ -260,42 +377,114 @@ class EmailReport:
                 <head>
                     <style>
                         body {{
-                            font-family: Arial, sans-serif;
+                            font-family: 'Segoe UI', Arial, sans-serif;
                             margin: 0;
-                            padding: 20px;
-                            color: #333333;
+                            padding: 40px;
+                            color: #2c3e50;
+                            background-color: #f5f7fa;
+                            line-height: 1.6;
+                        }}
+                        .container {{
+                            max-width: 1200px;
+                            margin: 0 auto;
+                            background-color: #ffffff;
+                            border-radius: 12px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                            padding: 30px;
+                        }}
+                        .header {{
+                            text-align: center;
+                            padding-bottom: 30px;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #edf2f7;
                         }}
                         h1 {{
-                            color: #2c3e50;
-                            font-size: 24px;
-                            margin-bottom: 30px;
+                            color: #1a202c;
+                            font-size: 28px;
+                            font-weight: 600;
+                            margin: 0;
+                        }}
+                        .date {{
+                            color: #718096;
+                            font-size: 16px;
+                            margin-top: 8px;
                         }}
                         h2 {{
-                            color: #34495e;
-                            font-size: 20px;
-                            margin-bottom: 20px;
+                            color: #2d3748;
+                            font-size: 22px;
+                            font-weight: 600;
+                            margin: 30px 0 20px 0;
+                            padding-bottom: 10px;
+                            border-bottom: 2px solid #edf2f7;
                         }}
+                        .table-section {{
+                            margin-bottom: 40px;
+                        }}
+
+                        .table-wrapper {{
+                            border-radius: 8px;
+                            overflow: hidden;
+                            border: 1px solid #e2e8f0;
+                        }}
+
                         table {{
                             width: 100%;
                             border-collapse: collapse;
-                            margin-bottom: 30px;
+                            margin-bottom: 0;
+                            background-color: white;
                         }}
-                        th, td {{
-                            border: 1px solid #ddd;
-                            padding: 8px;
+
+                        .table-header {{
+                            font-size: 14px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            background-color: #f8fafc;
+                            border-bottom: 2px solid #e2e8f0;
+                            padding: 16px 12px;
                             text-align: left;
-                            font-weight: bold;
+                            color: #64748b;
                         }}
+
+                        .cover-header {{
+                            width: 96px;
+                            border: none !important;
+                            background: none !important;
+                            padding: 8px 16px 8px 0;
+                        }}
+
                         th {{
-                            background-color: #f5f5f5;
+                            background-color: #f8fafc;
+                            border: none;
+                            border-bottom: 2px solid #e2e8f0;
+                        }}
+
+                        td {{
+                            padding: 16px 12px;
+                            border: none;
+                            border-bottom: 1px solid #e2e8f0;
+                        }}
+
+                        tr:last-child td {{
+                            border-bottom: none;
+                        }}
+
+                        tr:hover {{
+                            background-color: #f8fafc;
+                            transition: background-color 0.2s ease;
                         }}
                     </style>
                 </head>
                 <body>
-                    <h1>Reading Status Report - {date.today().strftime("%Y-%m-%d")}</h1>
-                    {current_table}
-                    {upcoming_table}
-                    {forecast_table}
+                    <div class="container">
+                        <div class="header">
+                            <h1>Reading Status Report</h1>
+                            <div class="date">{date.today().strftime("%B %d, %Y")}</div>
+                        </div>
+                        {current_table}
+                        {upcoming_table}
+                        {forecast_table}
+                    </div>
                 </body>
             </html>
             """

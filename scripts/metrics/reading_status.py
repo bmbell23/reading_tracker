@@ -45,34 +45,28 @@ class ReadingStatus:
         author = self._format_author(reading.book)
 
         if is_current:
-            days_elapsed = (self.today - reading.date_started).days
-            days_remaining = reading.days_estimate - days_elapsed if reading.days_estimate else None
-            est_end_date = self.today + timedelta(days=days_remaining) if days_remaining else None
-            progress_str = self._calculate_progress(reading, days_elapsed, days_remaining)
-            start_date = reading.date_started
+            days_elapsed = (self.today - reading.date_started).days if reading.date_started else 0
+            days_estimate = reading.days_estimate
+            days_remaining = days_estimate - days_elapsed if days_estimate else None
 
             row_data = [
                 reading.media,
                 reading.book.title,
                 author,
-                start_date.strftime('%Y-%m-%d'),
-                progress_str,
+                reading.date_started.strftime('%Y-%m-%d') if reading.date_started else 'Not started',
+                self._calculate_progress(reading, days_elapsed, days_remaining),
                 str(days_elapsed),
-                str(days_remaining or 'Unknown'),
-                est_end_date.strftime('%Y-%m-%d') if est_end_date else 'Unknown'
+                str(days_remaining if days_remaining is not None else 'Unknown'),
+                reading.date_est_end.strftime('%Y-%m-%d') if reading.date_est_end else 'Unknown'
             ]
         else:
-            days_remaining = reading.days_estimate if reading.days_estimate else None
-            est_end_date = reading.date_est_end
-            start_date = reading.date_est_start
-
             row_data = [
                 reading.media,
                 reading.book.title,
                 author,
-                start_date.strftime('%Y-%m-%d'),
-                str(days_remaining or 'Unknown'),
-                est_end_date.strftime('%Y-%m-%d') if est_end_date else 'Unknown'
+                reading.date_est_start.strftime('%Y-%m-%d') if reading.date_est_start else 'Not scheduled',
+                str(reading.days_estimate if reading.days_estimate is not None else 'Unknown'),
+                reading.date_est_end.strftime('%Y-%m-%d') if reading.date_est_end else 'Unknown'
             ]
 
         # Define color based on media type
