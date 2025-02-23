@@ -350,11 +350,11 @@ class EmailReport:
         if is_current:
             start_date = reading.date_started.strftime('%b %d, %Y') if reading.date_started else 'Not started'
             days_elapsed_num = (today - reading.date_started).days if reading.date_started else 0
-            days_elapsed = str(days_elapsed_num)
 
             if reading.date_est_end and reading.date_started:
-                total_days = (reading.date_est_end - reading.date_started).days
-                progress_pct = (days_elapsed_num / total_days * 100) if total_days > 0 else 0
+                # Use the same calculation as the 10-day forecast
+                progress = calculate_reading_progress(reading, today)
+                progress_pct = float(progress.rstrip('%')) if progress.endswith('%') else 0
 
                 # Progress bar HTML
                 progress_bar = f"""
@@ -362,10 +362,12 @@ class EmailReport:
                         <div style="width: {min(100, progress_pct)}%; background-color: {color}; height: 6px; border-radius: 9999px;"></div>
                     </div>
                     <div style="color: {color}; font-weight: 600; font-size: 14px; margin-top: 4px;">
-                        {progress_pct:.1f}%
+                        {int(round(progress_pct))}%
                     </div>
                 """
-                days_to_finish = str(total_days - days_elapsed_num)
+                total_days = (reading.date_est_end - reading.date_started).days + 1
+                days_elapsed = days_elapsed_num + 1
+                days_to_finish = str(total_days - days_elapsed)
             else:
                 progress_bar = """
                     <div style="color: #64748b; font-size: 14px;">No progress data</div>
