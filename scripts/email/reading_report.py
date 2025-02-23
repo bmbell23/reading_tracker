@@ -697,8 +697,8 @@ class EmailReport:
                             <h1>Your Daily Reading Update for {date.today().strftime('%B %d')}!</h1>
                             <div class="intro-text">
                                 Here's your personalized reading dashboard for today. Below you'll find your current reading progress,
-                                upcoming books in your queue, and a forecast of your reading journey for the next 10 days.
-                                Keep turning those pages! ���
+                                upcoming books in your queue, and a forecast of your reading journey for the next 7 days.
+                                Keep turning those pages!
                             </div>
                         </div>
                         {current_table}
