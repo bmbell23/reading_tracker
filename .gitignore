@@ -54,7 +54,6 @@ dist/
 __pycache__/
 
 # Data
-data/db/*.db
 data/backups/
 data/csv/*
 !data/csv/.gitkeep
