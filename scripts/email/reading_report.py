@@ -362,7 +362,8 @@ class EmailReport:
                         <div style="width: {min(100, progress_pct)}%; background-color: {color}; height: 6px; border-radius: 9999px;"></div>
                     </div>
                     <div style="color: {color}; font-weight: 600; font-size: 14px; margin-top: 4px;">
-                        {int(round(progress_pct))}%
+                        {int(round(progress_pct))}%<br>
+                        p. {int(round((progress_pct/100) * reading.book.page_count))}
                     </div>
                 """
                 total_days = (reading.date_est_end - reading.date_started).days + 1
@@ -641,6 +642,11 @@ class EmailReport:
                             border-bottom: 1px solid #e2e8f0;
                         }}
 
+                        /* Remove border only from cover cells */
+                        td.cover-cell {{
+                            border-bottom: none;
+                        }}
+
                         tr:last-child td {{
                             border-bottom: none;
                         }}
@@ -658,7 +664,7 @@ class EmailReport:
                             <div class="intro-text">
                                 Here's your personalized reading dashboard for today. Below you'll find your current reading progress,
                                 upcoming books in your queue, and a forecast of your reading journey for the next 10 days.
-                                Keep turning those pages! 📚
+                                Keep turning those pages! ���
                             </div>
                         </div>
                         {current_table}
