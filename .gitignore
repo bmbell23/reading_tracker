@@ -64,3 +64,7 @@ config/.env
 # Logs
 logs/*
 !logs/.gitkeep
+
+# Assets
+assets/
+assets/book_covers/
