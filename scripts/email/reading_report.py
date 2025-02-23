@@ -30,6 +30,7 @@ from datetime import date, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 from rich.console import Console
 from rich.text import Text
 from io import StringIO
@@ -40,6 +41,7 @@ from dotenv import load_dotenv
 from scripts.email.config import EMAIL_CONFIG
 import requests
 from urllib.parse import quote
+import base64  # Add this import at the top of the file
 
 # Load environment variables
 load_dotenv()
@@ -49,6 +51,7 @@ paths = get_project_paths()
 
 class EmailReport:
     def __init__(self):
+        """Initialize the reading report generator"""
         self.sender_email = EMAIL_CONFIG['sender_email']
         self.receiver_email = EMAIL_CONFIG['receiver_email']
         self.smtp_server = EMAIL_CONFIG['smtp_server']
@@ -57,11 +60,18 @@ class EmailReport:
         self.app_password = None  # Will be loaded from environment variable
         self.google_books_url = "https://www.googleapis.com/books/v1/volumes"
         self.cover_cache = {}  # Cache cover URLs to avoid repeated API calls
-        self.default_cover_url = "https://raw.githubusercontent.com/your-repo/reading-list/main/assets/default-cover.jpg"  # Replace with your default image URL
-        # Alternative default covers:
-        # - https://placehold.co/80x120/e0e0e0/666666.png?text=No+Cover
-        # - https://via.placeholder.com/80x120.png?text=No+Cover
-        # - Or any other placeholder image service
+        self.image_cids = {}  # Add this to store Content-IDs for images
+
+        # Define assets path for book covers
+        self.assets_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'assets', 'book_covers')
+
+        # Create the book covers directory if it doesn't exist
+        os.makedirs(self.assets_path, exist_ok=True)
+
+        # Default cover as fallback
+        self.default_cover_url = (
+            "https://raw.githubusercontent.com/your-repo/reading-list/main/assets/generic-book-cover.png"
+        )
 
     def _get_app_password(self):
         """Get Gmail App Password from environment variable"""
@@ -72,22 +82,98 @@ class EmailReport:
                 "You can generate an App Password at: https://myaccount.google.com/apppasswords"
             )
 
-    def _get_book_cover_url(self, title, author):
-        """Get book cover URL from Google Books API with improved search accuracy"""
-        cache_key = f"{title}-{author}"
-        if cache_key in self.cover_cache:
-            return self.cover_cache[cache_key]
+    def _get_local_cover_path(self, book_id):
+        """Get image data and type for a book cover"""
+        if book_id is None:
+            return None, None
 
+        for ext in ['.jpg', '.jpeg', '.png', '.webp']:
+            cover_path = os.path.join(self.assets_path, f"book_{book_id}{ext}")
+            if os.path.exists(cover_path):
+                with open(cover_path, 'rb') as img_file:
+                    img_data = img_file.read()
+                    mime_type = f"image/{ext.lstrip('.')}"
+                    if mime_type == 'image/jpg':
+                        mime_type = 'image/jpeg'
+                    return img_data, mime_type
+        return None, None
+
+    def _get_book_cover_url(self, title, author, book_id=None):
+        """Get book cover CID for email"""
+        cache_key = f"{title}-{author}"
+        if cache_key in self.image_cids:
+            return f"cid:{self.image_cids[cache_key]}"
+
+        # First try local storage
+        if book_id:
+            img_data, mime_type = self._get_local_cover_path(book_id)
+            if img_data:
+                cid = f"cover_{book_id}@reading.list"
+                self.image_cids[cache_key] = (cid, img_data, mime_type)
+                return f"cid:{cid}"
+
+        # If not in local storage, try to fetch from APIs and save locally
+        cover_url = None
+        for source in [
+            self._try_google_books,
+            self._try_openlibrary,
+            self._try_librarything,
+            self._try_isbndb,
+            self._try_goodreads
+        ]:
+            cover_url = source(title, author)
+            if cover_url:
+                break
+
+        if cover_url:
+            try:
+                # Download and save the cover
+                response = requests.get(cover_url, timeout=10)
+                if response.status_code == 200:
+                    img_data = response.content
+                    mime_type = response.headers.get('content-type', 'image/jpeg')
+
+                    # Save locally for future use if we have a book_id
+                    if book_id:
+                        ext = '.jpg' if 'jpeg' in mime_type else '.' + mime_type.split('/')[-1]
+                        cover_path = os.path.join(self.assets_path, f"book_{book_id}{ext}")
+                        with open(cover_path, 'wb') as f:
+                            f.write(img_data)
+
+                    # Use in current email
+                    cid = f"cover_{book_id or cache_key}@reading.list"
+                    self.image_cids[cache_key] = (cid, img_data, mime_type)
+                    return f"cid:{cid}"
+            except Exception as e:
+                print(f"Error downloading cover for {title}: {str(e)}")
+
+        # If all else fails, use default cover
+        if self.default_cover_url:
+            try:
+                response = requests.get(self.default_cover_url, timeout=10)
+                if response.status_code == 200:
+                    img_data = response.content
+                    mime_type = response.headers.get('content-type', 'image/png')
+                    cid = f"default_cover@reading.list"
+                    self.image_cids[cache_key] = (cid, img_data, mime_type)
+                    return f"cid:{cid}"
+            except Exception as e:
+                print(f"Error loading default cover: {str(e)}")
+
+        return ""  # Return empty string if no cover is available
+
+    def _try_google_books(self, title, author):
+        """Try to get cover from Google Books API"""
         try:
-            # More specific search query with exact title matching
             query = quote(f"intitle:\"{title}\" inauthor:\"{author}\"")
             response = requests.get(
-                f"{self.google_books_url}?q={query}&maxResults=5"
+                f"{self.google_books_url}?q={query}&maxResults=5",
+                timeout=5
             )
             data = response.json()
 
             if 'items' in data:
-                # Try to find exact match first
+                # Try exact match first
                 for item in data['items']:
                     book_info = item['volumeInfo']
                     if (book_info.get('title', '').lower() == title.lower() and
@@ -95,33 +181,110 @@ class EmailReport:
                         image_links = book_info.get('imageLinks', {})
                         cover_url = image_links.get('thumbnail') or image_links.get('smallThumbnail')
                         if cover_url:
-                            cover_url = cover_url.replace('http://', 'https://')
-                            self.cover_cache[cache_key] = cover_url
-                            return cover_url
+                            return cover_url.replace('http://', 'https://')
 
-                # Fallback to first result if no exact match
+                # Fallback to first result
                 image_links = data['items'][0]['volumeInfo'].get('imageLinks', {})
                 cover_url = image_links.get('thumbnail') or image_links.get('smallThumbnail')
                 if cover_url:
-                    cover_url = cover_url.replace('http://', 'https://')
-                    self.cover_cache[cache_key] = cover_url
-                    return cover_url
+                    return cover_url.replace('http://', 'https://')
 
-        except Exception as e:
-            print(f"Error fetching cover for {title}: {e}")
+        except Exception:
+            pass
+        return None
 
-        # Return default cover if no cover found
-        self.cover_cache[cache_key] = self.default_cover_url
-        return self.default_cover_url
+    def _try_openlibrary(self, title, author):
+        """Try to get cover from OpenLibrary API"""
+        try:
+            clean_title = quote(title.lower().replace(' ', '+'))
+            clean_author = quote(author.lower().replace(' ', '+'))
+
+            response = requests.get(
+                f"https://openlibrary.org/search.json?title={clean_title}&author={clean_author}",
+                timeout=5
+            )
+            data = response.json()
+
+            if data.get('docs') and len(data['docs']) > 0:
+                cover_id = data['docs'][0].get('cover_i')
+                if cover_id:
+                    return f"https://covers.openlibrary.org/b/id/{cover_id}-M.jpg"
+
+        except Exception:
+            pass
+        return None
+
+    def _try_librarything(self, title, author):
+        """Try to get cover from LibraryThing"""
+        # Requires API key - implement if you have one
+        try:
+            api_key = os.getenv('LIBRARYTHING_API_KEY')
+            if not api_key:
+                return None
+
+            # Basic implementation - expand based on their API docs
+            clean_title = quote(title.lower())
+            response = requests.get(
+                f"http://covers.librarything.com/services/rest/1.1/?method=librarything.ck.getwork"
+                f"&apikey={api_key}&title={clean_title}",
+                timeout=5
+            )
+            # Parse response and extract cover URL
+            # Implementation depends on API response format
+
+        except Exception:
+            pass
+        return None
+
+    def _try_isbndb(self, title, author):
+        """Try to get cover from ISBNdb"""
+        try:
+            api_key = os.getenv('ISBNDB_API_KEY')
+            if not api_key:
+                return None
+
+            headers = {'Authorization': api_key}
+            response = requests.get(
+                f"https://api2.isbndb.com/book/{quote(title)}",
+                headers=headers,
+                timeout=5
+            )
+            data = response.json()
+
+            if 'book' in data and 'image' in data['book']:
+                return data['book']['image']
+
+        except Exception:
+            pass
+        return None
+
+    def _try_goodreads(self, title, author):
+        """Try to get cover from Goodreads"""
+        try:
+            api_key = os.getenv('GOODREADS_API_KEY')
+            if not api_key:
+                return None
+
+            # Note: Goodreads API is being deprecated, but still works for now
+            response = requests.get(
+                "https://www.goodreads.com/search/index.xml",
+                params={
+                    'key': api_key,
+                    'q': f"{title} {author}"
+                },
+                timeout=5
+            )
+
+            # Parse XML response and extract cover URL
+            # Implementation depends on API response format
+
+        except Exception:
+            pass
+        return None
 
     def _format_reading_to_html(self, reading, is_current=True):
         """Format a reading entry as HTML table row"""
         today = date.today()
-
-        # DEBUG: Print reading info
-        print(f"Processing reading: {reading.book.title}")
-        print(f"date_est_end: {reading.date_est_end}")
-        print(f"is_current: {is_current}")
 
         # Get color based on media type
         if reading.media.lower() == 'audio':
@@ -138,14 +301,25 @@ class EmailReport:
             bg_color = '#F8FAFC'
 
         # Get book cover with improved styling
-        cover_url = self._get_book_cover_url(reading.book.title, reading.book.author)
-        cover_html = f"""
-            <td class="cover-cell">
-                <img src="{cover_url}" alt="Cover of {reading.book.title}"
-                     style="width: 60px; height: auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-                     onerror="this.style.display='none'"/>
-            </td>
-        """
+        cover_url = self._get_book_cover_url(
+            reading.book.title,
+            reading.book.author,
+            book_id=reading.book.id
+        )
+        print(f"DEBUG - Cover URL length: {len(cover_url) if cover_url else 0}")
+        print(f"DEBUG - Cover URL start: {cover_url[:100] if cover_url else 'None'}")
+
+        # Simplified and more robust cover HTML
+        cover_html = (
+            '<td class="cover-cell" style="width: 60px; padding: 8px;">'
+            f'<img src="{cover_url}" '
+            f'alt="Cover of {reading.book.title}" '
+            'style="width: 60px; height: auto; border-radius: 4px; '
+            'box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: block;" />'
+            '</td>'
+        )
+
+        print(f"DEBUG - Final cover HTML: {cover_html}")
 
         # Format media badge
         media_badge = f"""
@@ -205,9 +379,6 @@ class EmailReport:
             progress_bar = ""
             days_elapsed = "0"
             days_to_finish = str((reading.date_est_end - reading.date_est_start).days) if (reading.date_est_end and reading.date_est_start) else "Unknown"
-
-        # Debug: Print final est_end_date value before row construction
-        print(f"Final est_end_date for {reading.book.title}: {est_end_date}")
 
         # Create table row
         row = f"""
@@ -415,7 +586,7 @@ class EmailReport:
                             font-weight: 600;
                             margin: 30px 0 20px 0;
                             padding-bottom: 10px;
-                            border-bottom: 2px solid #edf2f7;
+                            /* border-bottom: 2px solid #edf2f7; */
                         }}
                         .table-section {{
                             margin-bottom: 40px;
@@ -424,7 +595,9 @@ class EmailReport:
                         .table-wrapper {{
                             border-radius: 8px;
                             overflow: hidden;
+                            /* Removing this line:
                             border: 1px solid #e2e8f0;
+                            */
                         }}
 
                         table {{
@@ -436,14 +609,15 @@ class EmailReport:
 
                         .table-header {{
                             font-size: 14px;
-                            font-weight: 600;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
+                            font-weight: 600;  /* changed from 500 to 600 for bold */
+                            text-transform: none;
+                            letter-spacing: 0.3px;
                             background-color: #f8fafc;
                             border-bottom: 2px solid #e2e8f0;
                             padding: 16px 12px;
                             text-align: left;
                             color: #64748b;
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                         }}
 
                         .cover-header {{
@@ -478,8 +652,12 @@ class EmailReport:
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h1>Reading Status Report</h1>
-                            <div class="date">{date.today().strftime("%B %d, %Y")}</div>
+                            <h1>Your Daily Reading Update for {date.today().strftime('%B %d')}!</h1>
+                            <div class="intro-text">
+                                Here's your personalized reading dashboard for today. Below you'll find your current reading progress,
+                                upcoming books in your queue, and a forecast of your reading journey for the next 10 days.
+                                Keep turning those pages! 📚
+                            </div>
                         </div>
                         {current_table}
                         {upcoming_table}
@@ -490,10 +668,14 @@ class EmailReport:
             """
 
             # Create email message
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = f"Reading Status Report - {date.today().strftime('%Y-%m-%d')}"
+            msg = MIMEMultipart('related')  # Change to 'related' instead of 'alternative'
+            msg['Subject'] = f"Your Daily Reading Update for {date.today().strftime('%B %d')}!"
             msg['From'] = self.sender_email
             msg['To'] = self.receiver_email
+
+            # Create message container
+            msg_alternative = MIMEMultipart('alternative')
+            msg.attach(msg_alternative)
 
             # Create plain text alternative
             text_content = """
@@ -502,8 +684,15 @@ class EmailReport:
             Please view this email in an HTML-capable email client to see the formatted tables.
             """
 
-            msg.attach(MIMEText(text_content, 'plain'))
-            msg.attach(MIMEText(html_content, 'html'))
+            msg_alternative.attach(MIMEText(text_content, 'plain'))
+            msg_alternative.attach(MIMEText(html_content, 'html'))
+
+            # Attach all images
+            for cid, (content_id, img_data, mime_type) in self.image_cids.items():
+                img = MIMEImage(img_data)
+                img.add_header('Content-ID', f'<{content_id}>')
+                img.add_header('Content-Disposition', 'inline')
+                msg.attach(img)
 
             # Enhanced SMTP connection and authentication
             try:
