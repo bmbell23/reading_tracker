@@ -1,0 +1,16 @@
+overdrive:
+  base_url: "https://api.overdrive.com/v1"
+  oauth_url: "https://oauth.overdrive.com/token"
+  # These will come from your Overdrive API registration
+  client_id: ""
+  client_secret: ""
+  library_id: ""  # Your library's Overdrive ID
+  website_id: ""  # Your library's website ID
+
+  # API endpoints
+  endpoints:
+    availability: "/availability"
+    holds: "/holds"
+    loans: "/loans"
+    metadata: "/metadata"
+    search: "/search"
