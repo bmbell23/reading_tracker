@@ -459,48 +459,82 @@ class EmailReport:
         ))
 
         table = """
-        <div class="table-container">
+        <div class="table-section">
             <h2>Weekly Progress Forecast</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Format</th>
-                        <th>Title</th>
-                        <th>Author</th>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="table-header">Format</th>
+                            <th class="table-header">Title</th>
         """
 
-        # Add date columns
+        # Add date columns with matching header style
         for forecast_date in dates:
-            table += f"<th>{forecast_date.strftime('%m/%d')}</th>"
+            day_of_week = forecast_date.strftime('%a')  # Gets abbreviated day name (Mon, Tue, etc)
+            date_str = forecast_date.strftime('%m/%d')
+            table += f"""
+                <th class="table-header">
+                    <div style="color: #64748b;">{day_of_week}</div>
+                    {date_str}
+                </th>"""
 
         table += """
-                    </tr>
-                </thead>
-                <tbody>
+                        </tr>
+                    </thead>
+                    <tbody>
         """
 
         for reading in readings:
             # Get color based on media type
             if reading.media.lower() == 'audio':
-                color = '#FFA500'
+                color = '#FB923C'  # warm orange
+                bg_color = '#FFF7ED'
             elif reading.media.lower() == 'hardcover':
-                color = '#9370DB'
+                color = '#A855F7'  # purple
+                bg_color = '#FAF5FF'
             elif reading.media.lower() == 'kindle':
-                color = '#4169E1'
+                color = '#3B82F6'  # blue
+                bg_color = '#EFF6FF'
             else:
-                color = '#333333'
+                color = '#64748B'  # slate
+                bg_color = '#F8FAFC'
+
+            # Format media badge
+            media_badge = f"""
+                <span style="
+                    display: inline-block;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    background-color: {bg_color};
+                    color: {color};
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                ">{reading.media}</span>
+            """
+
+            # Format title and author in the same style as other tables
+            title_author = f"""
+                <div style="font-weight: 600; color: #1a202c; margin-bottom: 4px;">
+                    {reading.book.title}
+                </div>
+                <div style="color: #64748b; font-size: 14px;">
+                    {reading.book.author}
+                </div>
+            """
 
             row = f"""
-                <tr style="color: {color}">
-                    <td>{reading.media}</td>
-                    <td>{reading.book.title}</td>
-                    <td>{reading.book.author}</td>
+                <tr>
+                    <td>{media_badge}</td>
+                    <td>{title_author}</td>
             """
 
             # Add progress forecasts for each date
             for forecast_date in dates:
                 progress = self._calculate_future_progress(reading, forecast_date)
-                row += f"<td>{progress}</td>"
+                row += f'<td style="color: {color}; font-weight: 600;">{progress}</td>'
 
             row += "</tr>"
             table += row

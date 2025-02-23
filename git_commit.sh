@@ -8,9 +8,6 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
-# Update the read table
-python scripts/updates/update_read_db.py --all
-
 # Run cleanup all scripts
 python scripts/cleanup/run_cleanup.py
 
