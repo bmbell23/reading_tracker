@@ -448,9 +448,9 @@ class EmailReport:
         return table
 
     def _create_forecast_table(self, readings):
-        """Create HTML table for 10-day reading progress forecast"""
+        """Create HTML table for weekly progress forecast"""
         today = date.today()
-        dates = [today + timedelta(days=i) for i in range(10)]
+        dates = [today + timedelta(days=i) for i in range(7)]  # Changed from 10 to 7
 
         # Sort readings by start date and media type
         readings = sorted(readings, key=lambda r: (
@@ -460,7 +460,7 @@ class EmailReport:
 
         table = """
         <div class="table-container">
-            <h2>10-Day Reading Progress Forecast</h2>
+            <h2>Weekly Progress Forecast</h2>
             <table>
                 <thead>
                     <tr>
@@ -527,10 +527,10 @@ class EmailReport:
             current_readings = status.queries.get_current_unfinished_readings()
             upcoming_readings = status.queries.get_upcoming_readings()
 
-            # Filter upcoming readings for forecast (next 10 days only)
-            ten_days_future = date.today() + timedelta(days=10)
+            # Filter upcoming readings for forecast (next 7 days only)
+            seven_days_future = date.today() + timedelta(days=7)
             forecast_upcoming = [r for r in upcoming_readings
-                               if r.date_est_start and r.date_est_start <= ten_days_future]
+                               if r.date_est_start and r.date_est_start <= seven_days_future]
 
             # Create HTML tables
             current_table = self._create_html_table(
