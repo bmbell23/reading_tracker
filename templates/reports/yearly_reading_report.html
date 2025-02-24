@@ -6,6 +6,7 @@
     <title>My Reading Journey in {{ year }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/styles/reading_report.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>My Reading Journey in {{ year }}</h1>
@@ -16,17 +17,102 @@
             <div class="stat-card">
                 <div class="stat-value">{{ total_books }}</div>
                 <div class="stat-label">Books Completed</div>
+                <canvas id="booksChart" width="300" height="200"></canvas>
             </div>
             <div class="stat-card">
                 <div class="stat-value">{{ "{:,}".format(total_words) }}</div>
                 <div class="stat-label">Words Read</div>
+                <canvas id="wordsChart" width="300" height="200"></canvas>
             </div>
             <div class="stat-card">
                 <div class="stat-value">{{ "{:,}".format(total_pages) }}</div>
                 <div class="stat-label">Pages Read</div>
+                <canvas id="pagesChart" width="300" height="200"></canvas>
             </div>
         </div>
     </div>
+
+    <script>
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        maxTicksLimit: 5
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        };
+
+        // Set fixed dimensions for the chart containers
+        const chartContainers = document.querySelectorAll('.stat-card canvas');
+        chartContainers.forEach(container => {
+            container.style.height = '200px';
+        });
+
+        // Create charts with fixed dimensions
+        const charts = {
+            books: new Chart(document.getElementById('booksChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: {{ monthly_books_data }},
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            words: new Chart(document.getElementById('wordsChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: {{ monthly_words_data }},
+                        backgroundColor: '#10b981',
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            pages: new Chart(document.getElementById('pagesChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: {{ monthly_pages_data }},
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            })
+        };
+
+        // Handle resize events
+        window.addEventListener('resize', () => {
+            Object.values(charts).forEach(chart => {
+                chart.resize();
+            });
+        });
+    </script>
 
     {% for month in months %}
     {% if month.books %}

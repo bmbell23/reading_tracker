@@ -38,17 +38,17 @@ def process_readings_data(readings):
     """Process raw readings data into a format suitable for the template"""
     months_data = {}
 
+    # Initialize all months with zero values
+    for month in range(1, 13):
+        months_data[month] = {
+            'books': [],
+            'total_books': 0,
+            'total_pages': 0,
+            'total_words': 0
+        }
+
     for reading in readings:
         month = int(reading.month)
-
-        if month not in months_data:
-            months_data[month] = {
-                'books': [],
-                'total_books': 0,
-                'total_pages': 0,
-                'total_words': 0
-            }
-
         book_data = {
             'id': reading.id,
             'title': reading.title,
@@ -85,12 +85,20 @@ def generate_html_report(year: int):
         # Process the data into the format expected by the template
         months_data = process_readings_data(readings)
 
+        # Prepare monthly data for charts
+        monthly_books_data = [months_data[m]['total_books'] for m in range(1, 13)]
+        monthly_words_data = [months_data[m]['total_words'] for m in range(1, 13)]
+        monthly_pages_data = [months_data[m]['total_pages'] for m in range(1, 13)]
+
         # Prepare template context
         context = {
             'year': year,
             'total_books': sum(m['total_books'] for m in months_data.values()),
             'total_pages': sum(m['total_pages'] for m in months_data.values()),
             'total_words': sum(m['total_words'] for m in months_data.values()),
+            'monthly_books_data': monthly_books_data,
+            'monthly_words_data': monthly_words_data,
+            'monthly_pages_data': monthly_pages_data,
             'months': [
                 {
                     'number': month,
