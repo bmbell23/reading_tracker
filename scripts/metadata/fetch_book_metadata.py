@@ -96,7 +96,7 @@ class FetchBookMetadata:
             return False, False
 
         for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-            path = self.assets_path / f"book_{book_id}{ext}"
+            path = self.assets_path / f"{book_id}{ext}"  # Removed book_ prefix
             if path.exists():
                 is_rect = self.is_cover_rectangular(path)
                 return True, is_rect
@@ -186,12 +186,12 @@ class FetchBookMetadata:
 
                 mime_type = response.headers.get('content-type', 'image/jpeg')
                 ext = '.jpg' if 'jpeg' in mime_type else '.' + mime_type.split('/')[-1]
-                cover_path = self.assets_path / f"book_{book_id}{ext}"
+                cover_path = self.assets_path / f"{book_id}{ext}"  # Removed book_ prefix
 
                 # Remove any existing covers
                 if self.force_update:
                     for existing_ext in ['.jpg', '.jpeg', '.png', '.webp']:
-                        existing_path = self.assets_path / f"book_{book_id}{existing_ext}"
+                        existing_path = self.assets_path / f"{book_id}{existing_ext}"  # Removed book_ prefix
                         if existing_path.exists():
                             existing_path.unlink()
 

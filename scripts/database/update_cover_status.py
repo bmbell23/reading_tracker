@@ -33,7 +33,7 @@ def update_cover_status():
                 has_cover = False
                 # Check for any image file with matching book ID
                 for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-                    if (covers_path / f"book_{book_id}{ext}").exists():
+                    if (covers_path / f"{book_id}{ext}").exists():  # Removed book_ prefix
                         has_cover = True
                         break
 

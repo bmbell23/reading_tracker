@@ -121,8 +121,8 @@ def generate_cover_gallery():
                         ELSE b.author_name_first
                     END as author
                 FROM books b
-                WHERE b.has_cover = TRUE
-                ORDER BY b.id  -- Changed from ORDER BY b.title
+                WHERE b.cover = TRUE  -- Changed from has_cover to cover
+                ORDER BY b.id
             """))
 
             books = []
@@ -130,7 +130,7 @@ def generate_cover_gallery():
                 # Find the corresponding cover file
                 cover_file = None
                 for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-                    potential_file = f"book_{book_id}{ext}"
+                    potential_file = f"{book_id}{ext}"  # Removed 'book_' prefix
                     if (covers_path / potential_file).exists():
                         cover_file = potential_file
                         break

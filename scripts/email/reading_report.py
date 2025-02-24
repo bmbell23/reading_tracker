@@ -88,7 +88,7 @@ class EmailReport:
             return None, None
 
         for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-            cover_path = os.path.join(self.assets_path, f"book_{book_id}{ext}")
+            cover_path = os.path.join(self.assets_path, f"{book_id}{ext}")  # Removed book_ prefix
             if os.path.exists(cover_path):
                 with open(cover_path, 'rb') as img_file:
                     img_data = img_file.read()
