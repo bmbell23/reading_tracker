@@ -37,171 +37,111 @@ def get_current_readings(conn):
 
 def get_reading_chain(conn, reading_id, direction='both', limit=10):
     """Get the reading chain around a specific reading"""
-    if direction == 'both':
-        query = """
-            WITH RECURSIVE backward AS (
-                -- Initial reading
-                SELECT
-                    r.id as read_id,
-                    r.id_previous,
-                    r.book_id,
-                    r.media,
-                    r.date_started,
-                    r.date_finished_actual,
-                    r.date_est_start,
-                    r.date_est_end,
-                    b.title,
-                    b.author_name_first,
-                    b.author_name_second,
-                    0 as position
-                FROM read r
-                JOIN books b ON r.book_id = b.id
-                WHERE r.id = :reading_id
-
-                UNION ALL
-
-                -- Previous books
-                SELECT
-                    r.id,
-                    r.id_previous,
-                    r.book_id,
-                    r.media,
-                    r.date_started,
-                    r.date_finished_actual,
-                    r.date_est_start,
-                    r.date_est_end,
-                    b.title,
-                    b.author_name_first,
-                    b.author_name_second,
-                    bw.position - 1
-                FROM read r
-                JOIN books b ON r.book_id = b.id
-                JOIN backward bw ON bw.id_previous = r.id
-                WHERE bw.position > -:limit
-            ),
-            forward AS (
-                -- Initial reading (already included in backward)
-                SELECT
-                    r.id as read_id,
-                    r.id_previous,
-                    r.book_id,
-                    r.media,
-                    r.date_started,
-                    r.date_finished_actual,
-                    r.date_est_start,
-                    r.date_est_end,
-                    b.title,
-                    b.author_name_first,
-                    b.author_name_second,
-                    0 as position
-                FROM read r
-                JOIN books b ON r.book_id = b.id
-                WHERE r.id = :reading_id
-
-                UNION ALL
-
-                -- Next books
-                SELECT
-                    r.id,
-                    r.id_previous,
-                    r.book_id,
-                    r.media,
-                    r.date_started,
-                    r.date_finished_actual,
-                    r.date_est_start,
-                    r.date_est_end,
-                    b.title,
-                    b.author_name_first,
-                    b.author_name_second,
-                    fw.position + 1
-                FROM read r
-                JOIN books b ON r.book_id = b.id
-                JOIN forward fw ON r.id_previous = fw.read_id
-                WHERE fw.position < :limit
-            )
-            SELECT DISTINCT
-                read_id,
-                id_previous,
-                book_id,
-                media,
-                date_started,
-                date_finished_actual,
-                date_est_start,
-                date_est_end,
-                title,
-                author_name_first,
-                author_name_second,
-                position,
-                (SELECT r2.id FROM read r2 WHERE r2.id_previous = read_id) as next_id
-            FROM (
-                SELECT * FROM backward
-                UNION ALL
-                SELECT * FROM forward WHERE position > 0
-            )
-            ORDER BY position;
-        """
-    else:
-        # Single direction query
-        query = """
-            WITH RECURSIVE chain AS (
-                -- Initial reading
-                SELECT
-                    r.id as read_id,
-                    r.id_previous,
-                    r.book_id,
-                    r.media,
-                    b.title,
-                    b.author_name_first,
-                    b.author_name_second,
-                    0 as position
-                FROM read r
-                JOIN books b ON r.book_id = b.id
-                WHERE r.id = :reading_id
-
-                UNION ALL
-
-                -- Next/Previous books
-                SELECT
-                    r.id,
-                    r.id_previous,
-                    r.book_id,
-                    r.media,
-                    b.title,
-                    b.author_name_first,
-                    b.author_name_second,
-                    CASE
-                        WHEN :direction = 'forward' THEN c.position + 1
-                        ELSE c.position - 1
-                    END
-                FROM read r
-                JOIN books b ON r.book_id = b.id
-                JOIN chain c ON CASE
-                    WHEN :direction = 'forward' THEN r.id_previous = c.read_id
-                    ELSE c.id_previous = r.id
-                END
-                WHERE CASE
-                    WHEN :direction = 'forward' THEN c.position < :limit
-                    ELSE c.position > -:limit
-                END
-            )
+    query = """
+        WITH RECURSIVE backward AS (
+            -- Initial reading
             SELECT
-                read_id,
-                id_previous,
-                book_id,
-                media,
-                title,
-                author_name_first,
-                author_name_second,
-                position,
-                (SELECT r2.id FROM read r2 WHERE r2.id_previous = read_id) as next_id
-            FROM chain
-            ORDER BY position;
-        """
+                r.id as read_id,
+                r.id_previous,
+                r.book_id,
+                r.media,
+                r.date_started,
+                r.date_finished_actual,
+                r.date_est_start,
+                r.date_est_end,
+                b.title,
+                b.author_name_first,
+                b.author_name_second,
+                0 as position
+            FROM read r
+            JOIN books b ON r.book_id = b.id
+            WHERE r.id = :reading_id
+
+            UNION ALL
+
+            -- Previous books (limit to 3)
+            SELECT
+                r.id,
+                r.id_previous,
+                r.book_id,
+                r.media,
+                r.date_started,
+                r.date_finished_actual,
+                r.date_est_start,
+                r.date_est_end,
+                b.title,
+                b.author_name_first,
+                b.author_name_second,
+                bw.position - 1
+            FROM read r
+            JOIN books b ON r.book_id = b.id
+            JOIN backward bw ON bw.id_previous = r.id
+            WHERE bw.position > -3
+        ),
+        forward AS (
+            -- Initial reading (already included in backward)
+            SELECT
+                r.id as read_id,
+                r.id_previous,
+                r.book_id,
+                r.media,
+                r.date_started,
+                r.date_finished_actual,
+                r.date_est_start,
+                r.date_est_end,
+                b.title,
+                b.author_name_first,
+                b.author_name_second,
+                0 as position
+            FROM read r
+            JOIN books b ON r.book_id = b.id
+            WHERE r.id = :reading_id
+
+            UNION ALL
+
+            -- Next books (no limit)
+            SELECT
+                r.id,
+                r.id_previous,
+                r.book_id,
+                r.media,
+                r.date_started,
+                r.date_finished_actual,
+                r.date_est_start,
+                r.date_est_end,
+                b.title,
+                b.author_name_first,
+                b.author_name_second,
+                fw.position + 1
+            FROM read r
+            JOIN books b ON r.book_id = b.id
+            JOIN forward fw ON r.id_previous = fw.read_id
+            WHERE fw.position < 100  -- Large number to get all upcoming books
+        )
+        SELECT DISTINCT
+            read_id,
+            id_previous,
+            book_id,
+            media,
+            date_started,
+            date_finished_actual,
+            date_est_start,
+            date_est_end,
+            title,
+            author_name_first,
+            author_name_second,
+            position,
+            (SELECT r2.id FROM read r2 WHERE r2.id_previous = read_id) as next_id
+        FROM (
+            SELECT * FROM backward
+            UNION ALL
+            SELECT * FROM forward WHERE position > 0
+        )
+        ORDER BY position;
+    """
 
     return conn.execute(text(query), {
-        'reading_id': reading_id,
-        'direction': direction,
-        'limit': limit
+        'reading_id': reading_id
     }).fetchall()
 
 def format_author_name(first, second):
