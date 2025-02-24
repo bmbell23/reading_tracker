@@ -322,19 +322,7 @@ class EmailReport:
         print(f"DEBUG - Final cover HTML: {cover_html}")
 
         # Format media badge
-        media_badge = f"""
-            <span style="
-                display: inline-block;
-                padding: 4px 8px;
-                border-radius: 4px;
-                background-color: {bg_color};
-                color: {color};
-                font-size: 12px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            ">{reading.media}</span>
-        """
+        media_badge = self._format_media_badge(reading.media)
 
         # Format title and author
         title_author = f"""
@@ -550,6 +538,66 @@ class EmailReport:
     def _calculate_future_progress(self, reading, target_date):
         """Calculate estimated progress for a book on a future date"""
         return calculate_reading_progress(reading, target_date, html_format=True)
+
+    def _format_media_badge(self, media: str) -> str:
+        """Format media type with enhanced styling"""
+        # Media type styling
+        styles = {
+            'audio': ('#FB923C', '#FFF7ED'),
+            'hardcover': ('#A855F7', '#FAF5FF'),
+            'kindle': ('#3B82F6', '#EFF6FF'),
+            'default': ('#64748B', '#F8FAFC')
+        }
+
+        color, bg_color = styles.get(media.lower(), styles['default'])
+
+        return f"""
+            <span style="
+                display: inline-block;
+                padding: 8px 16px;
+                border-radius: 8px;
+                background-color: {bg_color};
+                color: {color};
+                font-size: 18px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.075em;
+                margin: 6px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: all 0.2s ease;
+            ">
+                {media}
+            </span>
+        """
+
+    def _get_media_styles(self):
+        """Get enhanced CSS styles for media badges"""
+        return """
+            .media-badge {
+                display: inline-block;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 18px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.075em;
+                margin: 6px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: all 0.2s ease;
+            }
+            .kindle {
+                background-color: #EFF6FF;
+                color: #3B82F6;
+            }
+            .hardcover {
+                background-color: #FAF5FF;
+                color: #A855F7;
+            }
+            .audio {
+                background-color: #FFF7ED;
+                color: #FB923C;
+            }
+        """
 
     def send_reading_status(self):
         """Send reading status report via email"""

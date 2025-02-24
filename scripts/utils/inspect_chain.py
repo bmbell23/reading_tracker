@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 from scripts.utils.paths import find_project_root
+from datetime import datetime, date
 
 # Add project root to Python path
 project_root = find_project_root()
@@ -24,10 +25,12 @@ def create_section_header(title, style="bold cyan"):
     console.print(f"[{style}]{title}[/{style}]", justify="center")
     console.print(Rule(style=style))
 
-def inspect_chain_around_book(title_fragment, num_books=10):
-    """Display the reading chain around a book using Rich formatting"""
+def inspect_chain_around_book(title_fragment):
+    """Display the reading chain around a book, focusing on upcoming books in 2025"""
     queries = CommonQueries()
     session = SessionLocal()
+    target_year = 2025  # Specifically looking at 2025 books
+
     try:
         # Find the target book's reading
         target = (session.query(Reading)
@@ -45,38 +48,34 @@ def inspect_chain_around_book(title_fragment, num_books=10):
         # Print header
         console.print("\n")
         console.print(Panel(
-            f"[bold white]Reading Chain Analysis[/bold white]\n"
-            f"[dim]Showing reading chain around:[/dim] [cyan]{target.book.title}[/cyan] (ID: [yellow]{target.id}[/yellow])",
+            f"[bold white]Reading Chain Analysis (2025)[/bold white]\n"
+            f"[dim]Showing reading chain around:[/dim] [cyan]{target.book.title}[/cyan]",
             border_style="cyan",
             expand=False
         ))
 
-        # Collect books before
-        before_chain = []
-        current = target
-        for _ in range(num_books):
-            if not current.id_previous:
-                break
-            current = session.get(Reading, current.id_previous)
-            if current:
-                before_chain.insert(0, current)
+        # Get just 1-2 most recent completed books
+        before_chain = (session.query(Reading)
+                       .join(Book)
+                       .filter(Reading.date_finished_actual.isnot(None))
+                       .filter(Reading.id_previous == target.id_previous)
+                       .order_by(Reading.date_finished_actual.desc())
+                       .limit(2)
+                       .all())
 
-        # Collect books after
-        after_chain = []
-        current = target
-        for _ in range(num_books):
-            next_reading = (session.query(Reading)
-                          .filter(Reading.id_previous == current.id)
-                          .first())
-            if not next_reading:
-                break
-            after_chain.append(next_reading)
-            current = next_reading
+        # Get upcoming books for 2025
+        after_chain = (session.query(Reading)
+                      .join(Book)
+                      .filter(Reading.date_est_start >= date(2025, 1, 1))
+                      .filter(Reading.date_est_start < date(2026, 1, 1))
+                      .filter(Reading.date_finished_actual.is_(None))
+                      .order_by(Reading.date_est_start)
+                      .all())
 
-        # Print books before
+        # Print recent completed books
         if before_chain:
             console.print("\n")
-            create_section_header("📚 PREVIOUS BOOKS", "blue")
+            create_section_header("📚 RECENT COMPLETED", "blue")
             with console.capture() as capture:
                 for reading in before_chain:
                     queries.print_readings_by_title(reading.book.title, exact_match=True)
@@ -84,15 +83,15 @@ def inspect_chain_around_book(title_fragment, num_books=10):
 
         # Print target book
         console.print("\n")
-        create_section_header("🎯 TARGET BOOK", "yellow")
+        create_section_header("🎯 CURRENT BOOK", "yellow")
         with console.capture() as capture:
             queries.print_readings_by_title(target.book.title, exact_match=True)
         console.print(Panel(capture.get(), border_style="yellow", expand=False))
 
-        # Print books after
+        # Print upcoming books
         if after_chain:
             console.print("\n")
-            create_section_header("📚 NEXT BOOKS", "green")
+            create_section_header("📚 UPCOMING BOOKS (2025)", "green")
             with console.capture() as capture:
                 for reading in after_chain:
                     queries.print_readings_by_title(reading.book.title, exact_match=True)
@@ -103,13 +102,15 @@ def inspect_chain_around_book(title_fragment, num_books=10):
         console.print("\n")
         console.print(Panel(
             f"[bold white]Chain Summary[/bold white]\n"
-            f"Previous Books: [blue]{len(before_chain)}[/blue]\n"
-            f"Next Books: [green]{len(after_chain)}[/green]\n"
+            f"Recent Completed: [blue]{len(before_chain)}[/blue]\n"
+            f"Upcoming Books (2025): [green]{len(after_chain)}[/green]\n"
             f"Total in Chain: [yellow]{total_books}[/yellow]",
             border_style="cyan",
             expand=False
         ))
 
+    except Exception as e:
+        console.print(f"[red]Error: {str(e)}[/red]")
     finally:
         session.close()
 

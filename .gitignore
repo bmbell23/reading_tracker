@@ -35,8 +35,6 @@ ENV/
 config/.env
 *.sqlite
 *.sqlite-journal
-templates/excel/*.xlsx
-!templates/excel/reading_list_template.xlsx
 logs/
 .coverage
 htmlcov/
@@ -68,6 +66,3 @@ logs/*
 # Assets
 assets/
 assets/book_covers/
-
-# Reports
-reports/

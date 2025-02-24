@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading Journey in 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/styles/reading_report.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="title-section">
+        <h1>My Reading Journey in 2025</h1>
+        <p class="intro-text">A look ahead at my projected reading journey for 2025. These are the books I plan to complete, charting a path through the year ahead.</p>
+        <div class="title-decoration">
+            <span class="dot"></span>
+            <span class="line"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+
+    <div class="year-summary">
+        <h2>Year at a Glance</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">46</div>
+                <div class="stat-label">Books Completed</div>
+                <canvas id="booksChart" width="300" height="200"></canvas>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">9,182,324</div>
+                <div class="stat-label">Words Read</div>
+                <canvas id="wordsChart" width="300" height="200"></canvas>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">22,963</div>
+                <div class="stat-label">Pages Read</div>
+                <canvas id="pagesChart" width="300" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        maxTicksLimit: 5
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        };
+
+        // Set fixed dimensions for the chart containers
+        const chartContainers = document.querySelectorAll('.stat-card canvas');
+        chartContainers.forEach(container => {
+            container.style.height = '200px';
+        });
+
+        // Create charts with fixed dimensions
+        const charts = {
+            books: new Chart(document.getElementById('booksChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [5, 5, 4, 3, 4, 4, 3, 5, 3, 4, 4, 2],
+                        backgroundColor: '#3b82f6',  // blue
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            words: new Chart(document.getElementById('wordsChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [887195, 909868, 795145, 546260, 814741, 734508, 694278, 960509, 562520, 873000, 888000, 516300],
+                        backgroundColor: '#10b981',  // green
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            pages: new Chart(document.getElementById('pagesChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [3029, 2739, 2372, 1724, 2100, 2065, 1836, 2408, 1525, 1337, 1204, 624],
+                        backgroundColor: '#f59e0b',  // orange
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            })
+        };
+
+        // Handle resize events
+        window.addEventListener('resize', () => {
+            Object.values(charts).forEach(chart => {
+                chart.resize();
+            });
+        });
+    </script>
+
+    
+    
+    <section class="month-section" data-month="1">
+        <div class="month-header">
+            <h2 class="month-title">January</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">887,195</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">3,029</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/448.jpg"
+                         alt="Cover of Jade City"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 448">
+                        <span class="book-title">Jade City</span>
+                    </div>
+                    <div class="book-author">Fonda Lee</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/346.jpg"
+                         alt="Cover of The Lies of Locke Lamora"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 346">
+                        <span class="book-title">The Lies of Locke Lamora</span>
+                    </div>
+                    <div class="book-author">Scott Lynch</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/376.jpg"
+                         alt="Cover of The Poppy War"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 376">
+                        <span class="book-title">The Poppy War</span>
+                    </div>
+                    <div class="book-author">RF Kuang</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/194.jpg"
+                         alt="Cover of Dune"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 194">
+                        <span class="book-title">Dune</span>
+                    </div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/627.jpg"
+                         alt="Cover of Jade War"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 627">
+                        <span class="book-title">Jade War</span>
+                    </div>
+                    <div class="book-author">Fonda Lee</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="2">
+        <div class="month-header">
+            <h2 class="month-title">February</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">909,868</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,739</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/598.jpg"
+                         alt="Cover of Onyx Storm"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 598">
+                        <span class="book-title">Onyx Storm</span>
+                    </div>
+                    <div class="book-author">Rebecca Yarros</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/377.jpg"
+                         alt="Cover of The Dragon Republic"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 377">
+                        <span class="book-title">The Dragon Republic</span>
+                    </div>
+                    <div class="book-author">RF Kuang</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/347.jpg"
+                         alt="Cover of Red Seas Under Red Skies"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 347">
+                        <span class="book-title">Red Seas Under Red Skies</span>
+                    </div>
+                    <div class="book-author">Scott Lynch</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/195.jpg"
+                         alt="Cover of Dune Messiah"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 195">
+                        <span class="book-title">Dune Messiah</span>
+                    </div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/628.jpg"
+                         alt="Cover of Jade Legacy"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 628">
+                        <span class="book-title">Jade Legacy</span>
+                    </div>
+                    <div class="book-author">Fonda Lee</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="3">
+        <div class="month-header">
+            <h2 class="month-title">March</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">795,145</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,372</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/348.jpg"
+                         alt="Cover of The Republic of Thieves"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 348">
+                        <span class="book-title">The Republic of Thieves</span>
+                    </div>
+                    <div class="book-author">Scott Lynch</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/937.jpg"
+                         alt="Cover of Secret Windows: Essays and Fiction on the Craft of Writing"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 937">
+                        <span class="book-title">Secret Windows: Essays and Fiction on the Craft of Writing</span>
+                    </div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/378.jpg"
+                         alt="Cover of The Burning God"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 378">
+                        <span class="book-title">The Burning God</span>
+                    </div>
+                    <div class="book-author">RF Kuang</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/327.jpg"
+                         alt="Cover of Malice"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 327">
+                        <span class="book-title">Malice</span>
+                    </div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="4">
+        <div class="month-header">
+            <h2 class="month-title">April</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">3</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">546,260</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,724</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/371.jpg"
+                         alt="Cover of The Blade Itself"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 371">
+                        <span class="book-title">The Blade Itself</span>
+                    </div>
+                    <div class="book-author">Joe Abercrombie</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/197.jpg"
+                         alt="Cover of Children of Dune"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 197">
+                        <span class="book-title">Children of Dune</span>
+                    </div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/328.jpg"
+                         alt="Cover of Valor"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 328">
+                        <span class="book-title">Valor</span>
+                    </div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="5">
+        <div class="month-header">
+            <h2 class="month-title">May</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">814,741</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,100</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/92.jpg"
+                         alt="Cover of The Long Walk"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 92">
+                        <span class="book-title">The Long Walk</span>
+                    </div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/372.jpg"
+                         alt="Cover of Before They Are Hanged"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 372">
+                        <span class="book-title">Before They Are Hanged</span>
+                    </div>
+                    <div class="book-author">Joe Abercrombie</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/813.jpg"
+                         alt="Cover of Kushiel's Dart"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 813">
+                        <span class="book-title">Kushiel's Dart</span>
+                    </div>
+                    <div class="book-author">Jacqueline Carey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/329.jpg"
+                         alt="Cover of Ruin"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 329">
+                        <span class="book-title">Ruin</span>
+                    </div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="6">
+        <div class="month-header">
+            <h2 class="month-title">June</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">734,508</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,065</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/373.jpg"
+                         alt="Cover of Last Argument of Kings"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 373">
+                        <span class="book-title">Last Argument of Kings</span>
+                    </div>
+                    <div class="book-author">Joe Abercrombie</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/205.jpg"
+                         alt="Cover of Empire of Silence"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 205">
+                        <span class="book-title">Empire of Silence</span>
+                    </div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/1038.jpg"
+                         alt="Cover of The Lesser Devil"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 1038">
+                        <span class="book-title">The Lesser Devil</span>
+                    </div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/330.jpg"
+                         alt="Cover of Wrath"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 330">
+                        <span class="book-title">Wrath</span>
+                    </div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="7">
+        <div class="month-header">
+            <h2 class="month-title">July</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">3</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">694,278</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,836</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/715.jpg"
+                         alt="Cover of Kushiel's Chosen"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 715">
+                        <span class="book-title">Kushiel's Chosen</span>
+                    </div>
+                    <div class="book-author">Jacqueline Carey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/735.jpg"
+                         alt="Cover of Empire of Grass"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 735">
+                        <span class="book-title">Empire of Grass</span>
+                    </div>
+                    <div class="book-author">Tad Williams</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/507.jpg"
+                         alt="Cover of The Fifth Season"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 507">
+                        <span class="book-title">The Fifth Season</span>
+                    </div>
+                    <div class="book-author">NK Jemisin</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="8">
+        <div class="month-header">
+            <h2 class="month-title">August</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">960,509</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,408</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/827.jpg"
+                         alt="Cover of Into the Narrowdark"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 827">
+                        <span class="book-title">Into the Narrowdark</span>
+                    </div>
+                    <div class="book-author">Tad Williams</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/208.jpg"
+                         alt="Cover of Howling Dark"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 208">
+                        <span class="book-title">Howling Dark</span>
+                    </div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/1039.jpg"
+                         alt="Cover of Queen Amid Ashes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 1039">
+                        <span class="book-title">Queen Amid Ashes</span>
+                    </div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/452.jpg"
+                         alt="Cover of The Obelisk Gate"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 452">
+                        <span class="book-title">The Obelisk Gate</span>
+                    </div>
+                    <div class="book-author">NK Jemisin</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/798.jpg"
+                         alt="Cover of Kushiel's Avatar"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 798">
+                        <span class="book-title">Kushiel's Avatar</span>
+                    </div>
+                    <div class="book-author">Jacqueline Carey</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="9">
+        <div class="month-header">
+            <h2 class="month-title">September</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">3</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">562,520</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,525</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/828.jpg"
+                         alt="Cover of The Navigator's Children"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 828">
+                        <span class="book-title">The Navigator's Children</span>
+                    </div>
+                    <div class="book-author">Tad Williams</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/883.jpg"
+                         alt="Cover of Isles Of The Emberdark"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 883">
+                        <span class="book-title">Isles Of The Emberdark</span>
+                    </div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/509.jpg"
+                         alt="Cover of The Stone Sky"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 509">
+                        <span class="book-title">The Stone Sky</span>
+                    </div>
+                    <div class="book-author">NK Jemisin</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="10">
+        <div class="month-header">
+            <h2 class="month-title">October</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">873,000</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,337</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/464.jpg"
+                         alt="Cover of The Black Prism"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 464">
+                        <span class="book-title">The Black Prism</span>
+                    </div>
+                    <div class="book-author">Brent Weeks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/322.jpg"
+                         alt="Cover of God Emperor of Dune"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 322">
+                        <span class="book-title">God Emperor of Dune</span>
+                    </div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/222.jpg"
+                         alt="Cover of Demon in White"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 222">
+                        <span class="book-title">Demon in White</span>
+                    </div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/465.jpg"
+                         alt="Cover of The Blinding Knife"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 465">
+                        <span class="book-title">The Blinding Knife</span>
+                    </div>
+                    <div class="book-author">Brent Weeks</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="11">
+        <div class="month-header">
+            <h2 class="month-title">November</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">888,000</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,204</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/466.jpg"
+                         alt="Cover of The Broken Eye"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 466">
+                        <span class="book-title">The Broken Eye</span>
+                    </div>
+                    <div class="book-author">Brent Weeks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/323.jpg"
+                         alt="Cover of Heretics of Dune"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 323">
+                        <span class="book-title">Heretics of Dune</span>
+                    </div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/467.jpg"
+                         alt="Cover of The Blood Mirror"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 467">
+                        <span class="book-title">The Blood Mirror</span>
+                    </div>
+                    <div class="book-author">Brent Weeks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/226.jpg"
+                         alt="Cover of Kingdoms of Death"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 226">
+                        <span class="book-title">Kingdoms of Death</span>
+                    </div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="12">
+        <div class="month-header">
+            <h2 class="month-title">December</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">2</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">516,300</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">624</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/324.jpg"
+                         alt="Cover of Chapterhouse: Dune"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 324">
+                        <span class="book-title">Chapterhouse: Dune</span>
+                    </div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/468.jpg"
+                         alt="Cover of The Burning White"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 468">
+                        <span class="book-title">The Burning White</span>
+                    </div>
+                    <div class="book-author">Brent Weeks</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+
+</body>
+</html>

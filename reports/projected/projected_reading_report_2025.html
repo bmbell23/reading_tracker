@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Projected Reading Report 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 40px;
+            color: #1e293b;
+            background-color: #f8fafc;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .title-section {
+            text-align: center;
+            margin: 60px auto 80px;
+            max-width: 800px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
+        h2 {
+            text-align: center;
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .intro-text {
+            color: #475569;
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin: 1.5rem auto;
+            font-weight: 400;
+        }
+        .title-decoration {
+            margin: 2rem auto;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(to right, #3b82f6, #10b981);
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .stat-box {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .stat-box h3 {
+            color: #64748b;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+        .stat-box h2 {
+            color: #1e293b;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+        .chart-container {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+        .month-section {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        .book-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .book-item {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .book-item:last-child {
+            border-bottom: none;
+        }
+        .book-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1.1rem;
+        }
+        .book-author {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-left: 8px;
+        }
+        .book-stats {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        .media-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 12px;
+        }
+        .media-audio {
+            background-color: #f3e8ff;
+            color: #7e22ce;
+        }
+        .media-kindle {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .media-hardcover {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-section">
+            <h1>2025 Reading Projection</h1>
+            <p class="intro-text">A look ahead at your reading journey for 2025. This projection shows your anticipated reading schedule and goals.</p>
+            <div class="title-decoration"></div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <h3>Total Books</h3>
+                <h2>49</h2>
+            </div>
+            <div class="stat-box">
+                <h3>Total Pages</h3>
+                <h2>26,759.14285714286</h2>
+            </div>
+            <div class="stat-box">
+                <h3>Total Words</h3>
+                <h2>10,581,127</h2>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="cumulativeChart"></canvas>
+        </div>
+
+        
+        <div class="month-section">
+            <h2>January (3 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Jade City</span>
+                    <span class="book-author">by Fonda Lee</span>
+                    <div class="book-stats">
+                        Pages: 560 | Words: 140,000
+                        <br>
+                        Started: January 01, 2025 | Expected finish: January 10, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Lies of Locke Lamora</span>
+                    <span class="book-author">by Scott Lynch</span>
+                    <div class="book-stats">
+                        Pages: 752 | Words: 190,000
+                        <br>
+                        Started: January 10, 2025 | Expected finish: January 22, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Oathbringer</span>
+                    <span class="book-author">by Brandon Sanderson</span>
+                    <div class="book-stats">
+                        Pages: 1,233 | Words: 451,912
+                        <br>
+                        Started: October 26, 2024 | Expected finish: January 24, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>February (7 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">The Poppy War</span>
+                    <span class="book-author">by RF Kuang</span>
+                    <div class="book-stats">
+                        Pages: 527 | Words: 162,955
+                        <br>
+                        Started: January 01, 2025 | Expected finish: February 02, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Jade War</span>
+                    <span class="book-author">by Fonda Lee</span>
+                    <div class="book-stats">
+                        Pages: 587 | Words: 207,000
+                        <br>
+                        Started: January 21, 2025 | Expected finish: February 03, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Dune</span>
+                    <span class="book-author">by Frank Herbert</span>
+                    <div class="book-stats">
+                        Pages: 603 | Words: 187,240
+                        <br>
+                        Started: January 01, 2025 | Expected finish: February 07, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Rhythm of War</span>
+                    <span class="book-author">by Brandon Sanderson</span>
+                    <div class="book-stats">
+                        Pages: 1,219 | Words: 455,891
+                        <br>
+                        Started: November 12, 2024 | Expected finish: February 11, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Dune Messiah</span>
+                    <span class="book-author">by Frank Herbert</span>
+                    <div class="book-stats">
+                        Pages: 267 | Words: 72,449
+                        <br>
+                        Started: January 30, 2025 | Expected finish: February 13, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Red Seas Under Red Skies</span>
+                    <span class="book-author">by Scott Lynch</span>
+                    <div class="book-stats">
+                        Pages: 578 | Words: 200,000
+                        <br>
+                        Started: February 01, 2025 | Expected finish: February 14, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Jade Legacy</span>
+                    <span class="book-author">by Fonda Lee</span>
+                    <div class="book-stats">
+                        Pages: 713 | Words: 261,477
+                        <br>
+                        Started: February 11, 2025 | Expected finish: February 28, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>March (7 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">The Dragon Republic</span>
+                    <span class="book-author">by RF Kuang</span>
+                    <div class="book-stats">
+                        Pages: 654 | Words: 196,742
+                        <br>
+                        Started: January 21, 2025 | Expected finish: March 01, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Onyx Storm</span>
+                    <span class="book-author">by Rebecca Yarros</span>
+                    <div class="book-stats">
+                        Pages: 527 | Words: 179,200
+                        <br>
+                        Started: January 28, 2025 | Expected finish: March 04, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Wind and Truth</span>
+                    <span class="book-author">by Brandon Sanderson</span>
+                    <div class="book-stats">
+                        Pages: 1,344 | Words: 491,000
+                        <br>
+                        Started: November 27, 2024 | Expected finish: March 05, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Republic of Thieves</span>
+                    <span class="book-author">by Scott Lynch</span>
+                    <div class="book-stats">
+                        Pages: 650 | Words: 218,000
+                        <br>
+                        Started: Not started | Expected finish: March 15, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Secret Windows: Essays and Fiction on the Craft of Writing</span>
+                    <span class="book-author">by Stephen King</span>
+                    <div class="book-stats">
+                        Pages: 433 | Words: 166,272
+                        <br>
+                        Started: February 11, 2025 | Expected finish: March 16, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">The Burning God</span>
+                    <span class="book-author">by RF Kuang</span>
+                    <div class="book-stats">
+                        Pages: 617 | Words: 185,978
+                        <br>
+                        Started: February 14, 2025 | Expected finish: March 23, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Malice</span>
+                    <span class="book-author">by John Gwynne</span>
+                    <div class="book-stats">
+                        Pages: 672 | Words: 224,895
+                        <br>
+                        Started: Not started | Expected finish: March 30, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>April (3 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Blade Itself</span>
+                    <span class="book-author">by Joe Abercrombie</span>
+                    <div class="book-stats">
+                        Pages: 609 | Words: 191,200
+                        <br>
+                        Started: Not started | Expected finish: April 12, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Children of Dune</span>
+                    <span class="book-author">by Frank Herbert</span>
+                    <div class="book-stats">
+                        Pages: 475 | Words: 148,000
+                        <br>
+                        Started: Not started | Expected finish: April 15, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Valor</span>
+                    <span class="book-author">by John Gwynne</span>
+                    <div class="book-stats">
+                        Pages: 640 | Words: 207,060
+                        <br>
+                        Started: Not started | Expected finish: April 26, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>May (4 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">The Long Walk</span>
+                    <span class="book-author">by Stephen King</span>
+                    <div class="book-stats">
+                        Pages: 190 | Words: 93,525
+                        <br>
+                        Started: Not started | Expected finish: May 04, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Before They Are Hanged</span>
+                    <span class="book-author">by Joe Abercrombie</span>
+                    <div class="book-stats">
+                        Pages: 441 | Words: 198,300
+                        <br>
+                        Started: Not started | Expected finish: May 10, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">Kushiel's Dart</span>
+                    <span class="book-author">by Jacqueline Carey</span>
+                    <div class="book-stats">
+                        Pages: 701 | Words: 276,706
+                        <br>
+                        Started: Not started | Expected finish: May 18, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Ruin</span>
+                    <span class="book-author">by John Gwynne</span>
+                    <div class="book-stats">
+                        Pages: 768 | Words: 246,210
+                        <br>
+                        Started: Not started | Expected finish: May 27, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>June (4 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Last Argument of Kings</span>
+                    <span class="book-author">by Joe Abercrombie</span>
+                    <div class="book-stats">
+                        Pages: 536 | Words: 234,100
+                        <br>
+                        Started: Not started | Expected finish: June 12, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Empire of Silence</span>
+                    <span class="book-author">by Christopher Ruocchio</span>
+                    <div class="book-stats">
+                        Pages: 624 | Words: 238,000
+                        <br>
+                        Started: Not started | Expected finish: June 21, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Lesser Devil</span>
+                    <span class="book-author">by Christopher Ruocchio</span>
+                    <div class="book-stats">
+                        Pages: 185 | Words: 59,118
+                        <br>
+                        Started: Not started | Expected finish: June 25, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Wrath</span>
+                    <span class="book-author">by John Gwynne</span>
+                    <div class="book-stats">
+                        Pages: 720 | Words: 203,290
+                        <br>
+                        Started: Not started | Expected finish: June 26, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>July (3 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">Kushiel's Chosen</span>
+                    <span class="book-author">by Jacqueline Carey</span>
+                    <div class="book-stats">
+                        Pages: 700 | Words: 241,878
+                        <br>
+                        Started: Not started | Expected finish: July 06, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Empire of Grass</span>
+                    <span class="book-author">by Tad Williams</span>
+                    <div class="book-stats">
+                        Pages: 668 | Words: 317,985
+                        <br>
+                        Started: Not started | Expected finish: July 18, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Fifth Season</span>
+                    <span class="book-author">by NK Jemisin</span>
+                    <div class="book-stats">
+                        Pages: 468 | Words: 134,415
+                        <br>
+                        Started: Not started | Expected finish: July 27, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>August (5 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Into the Narrowdark</span>
+                    <span class="book-author">by Tad Williams</span>
+                    <div class="book-stats">
+                        Pages: 608 | Words: 272,000
+                        <br>
+                        Started: Not started | Expected finish: August 15, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Howling Dark</span>
+                    <span class="book-author">by Christopher Ruocchio</span>
+                    <div class="book-stats">
+                        Pages: 688 | Words: 260,000
+                        <br>
+                        Started: Not started | Expected finish: August 17, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">Queen Amid Ashes</span>
+                    <span class="book-author">by Christopher Ruocchio</span>
+                    <div class="book-stats">
+                        Pages: 0 | Words: 49,585
+                        <br>
+                        Started: Not started | Expected finish: August 21, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Obelisk Gate</span>
+                    <span class="book-author">by NK Jemisin</span>
+                    <div class="book-stats">
+                        Pages: 410 | Words: 115,885
+                        <br>
+                        Started: Not started | Expected finish: August 23, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">Kushiel's Avatar</span>
+                    <span class="book-author">by Jacqueline Carey</span>
+                    <div class="book-stats">
+                        Pages: 702 | Words: 263,039
+                        <br>
+                        Started: Not started | Expected finish: August 28, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>September (3 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Navigator's Children</span>
+                    <span class="book-author">by Tad Williams</span>
+                    <div class="book-stats">
+                        Pages: 752 | Words: 338,400
+                        <br>
+                        Started: Not started | Expected finish: September 15, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">Isles Of The Emberdark</span>
+                    <span class="book-author">by Brandon Sanderson</span>
+                    <div class="book-stats">
+                        Pages: 357.14285714285717 | Words: 100,000
+                        <br>
+                        Started: Not started | Expected finish: September 18, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Stone Sky</span>
+                    <span class="book-author">by NK Jemisin</span>
+                    <div class="book-stats">
+                        Pages: 416 | Words: 124,120
+                        <br>
+                        Started: Not started | Expected finish: September 24, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>October (4 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Black Prism</span>
+                    <span class="book-author">by Brent Weeks</span>
+                    <div class="book-stats">
+                        Pages: 0 | Words: 205,000
+                        <br>
+                        Started: Not started | Expected finish: October 08, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">God Emperor of Dune</span>
+                    <span class="book-author">by Frank Herbert</span>
+                    <div class="book-stats">
+                        Pages: 587 | Words: 138,000
+                        <br>
+                        Started: Not started | Expected finish: October 16, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Demon in White</span>
+                    <span class="book-author">by Christopher Ruocchio</span>
+                    <div class="book-stats">
+                        Pages: 750 | Words: 295,000
+                        <br>
+                        Started: Not started | Expected finish: October 20, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Blinding Knife</span>
+                    <span class="book-author">by Brent Weeks</span>
+                    <div class="book-stats">
+                        Pages: 0 | Words: 235,000
+                        <br>
+                        Started: Not started | Expected finish: October 24, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>November (4 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Broken Eye</span>
+                    <span class="book-author">by Brent Weeks</span>
+                    <div class="book-stats">
+                        Pages: 0 | Words: 306,000
+                        <br>
+                        Started: Not started | Expected finish: November 14, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">Heretics of Dune</span>
+                    <span class="book-author">by Frank Herbert</span>
+                    <div class="book-stats">
+                        Pages: 669 | Words: 164,000
+                        <br>
+                        Started: Not started | Expected finish: November 18, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Blood Mirror</span>
+                    <span class="book-author">by Brent Weeks</span>
+                    <div class="book-stats">
+                        Pages: 0 | Words: 218,000
+                        <br>
+                        Started: Not started | Expected finish: November 29, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-hardcover">Hardcover</span>
+                    <span class="book-title">Kingdoms of Death</span>
+                    <span class="book-author">by Christopher Ruocchio</span>
+                    <div class="book-stats">
+                        Pages: 535 | Words: 200,000
+                        <br>
+                        Started: Not started | Expected finish: November 30, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+        <div class="month-section">
+            <h2>December (2 books)</h2>
+            <ul class="book-list">
+                
+                <li class="book-item">
+                    <span class="media-badge media-kindle">Kindle</span>
+                    <span class="book-title">Chapterhouse: Dune</span>
+                    <span class="book-author">by Frank Herbert</span>
+                    <div class="book-stats">
+                        Pages: 624 | Words: 141,000
+                        <br>
+                        Started: Not started | Expected finish: December 17, 2025
+                    </div>
+                </li>
+                
+                <li class="book-item">
+                    <span class="media-badge media-audio">Audio</span>
+                    <span class="book-title">The Burning White</span>
+                    <span class="book-author">by Brent Weeks</span>
+                    <div class="book-stats">
+                        Pages: 0 | Words: 375,300
+                        <br>
+                        Started: Not started | Expected finish: December 25, 2025
+                    </div>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+
+    <script>
+        // Monthly progress chart
+        new Chart(document.getElementById('monthlyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Books',
+                    data: [3, 7, 7, 3, 4, 4, 3, 5, 3, 4, 4, 2],
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Reading Projection',
+                        font: {
+                            size: 16,
+                            weight: 'bold',
+                            family: "'Plus Jakarta Sans', sans-serif"
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Cumulative progress chart
+        new Chart(document.getElementById('cumulativeChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Cumulative Books',
+                    data: [3, 10, 17, 20, 24, 28, 31, 36, 39, 43, 47, 49],
+                    borderColor: '#10b981',
+                    backgroundColor: '#10b98120',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Cumulative Reading Progress',
+                        font: {
+                            size: 16,
+                            weight: 'bold',
+                            family: "'Plus Jakarta Sans', sans-serif"
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: "'Plus Jakarta Sans', sans-serif"
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

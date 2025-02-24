@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading Journey in 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/styles/reading_report.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="title-section">
+        <h1>My Reading Journey in 2025</h1>
+        <p class="intro-text">A visual journey through my reading adventures in 2025. Each book, word, and page contributing to a year of discovery and growth.</p>
+        <div class="title-decoration">
+            <span class="dot"></span>
+            <span class="line"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+
+    <div class="year-summary">
+        <h2>Year at a Glance</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">9</div>
+                <div class="stat-label">Books Completed</div>
+                <canvas id="booksChart" width="300" height="200"></canvas>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1,535,586</div>
+                <div class="stat-label">Words Read</div>
+                <canvas id="wordsChart" width="300" height="200"></canvas>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5,055</div>
+                <div class="stat-label">Pages Read</div>
+                <canvas id="pagesChart" width="300" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        maxTicksLimit: 5
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        };
+
+        // Set fixed dimensions for the chart containers
+        const chartContainers = document.querySelectorAll('.stat-card canvas');
+        chartContainers.forEach(container => {
+            container.style.height = '200px';
+        });
+
+        // Create charts with fixed dimensions
+        const charts = {
+            books: new Chart(document.getElementById('booksChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [5, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: '#3b82f6',  // blue
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            words: new Chart(document.getElementById('wordsChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [887195, 648391, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: '#10b981',  // green
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            pages: new Chart(document.getElementById('pagesChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [3029, 2026, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: '#f59e0b',  // orange
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            })
+        };
+
+        // Handle resize events
+        window.addEventListener('resize', () => {
+            Object.values(charts).forEach(chart => {
+                chart.resize();
+            });
+        });
+    </script>
+
+    
+    
+    <section class="month-section" data-month="1">
+        <div class="month-header">
+            <h2 class="month-title">January</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">887,195</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">3,029</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/448.jpg"
+                         alt="Cover of Jade City"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Jade City</div>
+                    <div class="book-author">Fonda Lee</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/346.jpg"
+                         alt="Cover of The Lies of Locke Lamora"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Lies of Locke Lamora</div>
+                    <div class="book-author">Scott Lynch</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/376.jpg"
+                         alt="Cover of The Poppy War"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Poppy War</div>
+                    <div class="book-author">RF Kuang</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/194.jpg"
+                         alt="Cover of Dune"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dune</div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/627.jpg"
+                         alt="Cover of Jade War"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Jade War</div>
+                    <div class="book-author">Fonda Lee</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="2">
+        <div class="month-header">
+            <h2 class="month-title">February</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">648,391</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,026</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/598.jpg"
+                         alt="Cover of Onyx Storm"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Onyx Storm</div>
+                    <div class="book-author">Rebecca Yarros</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/377.jpg"
+                         alt="Cover of The Dragon Republic"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Dragon Republic</div>
+                    <div class="book-author">RF Kuang</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/347.jpg"
+                         alt="Cover of Red Seas Under Red Skies"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Red Seas Under Red Skies</div>
+                    <div class="book-author">Scott Lynch</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/195.jpg"
+                         alt="Cover of Dune Messiah"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dune Messiah</div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+</body>
+</html>
