@@ -44,7 +44,7 @@ def display_reading_group(readings, title, style="cyan"):
 
     console.print(table)
 
-def get_chain(session, reading_id):
+def get_chain(session, reading_id, max_length=50):
     """Get the complete reading chain containing the specified reading"""
     # First find the reading
     reading = session.get(Reading, reading_id)
@@ -54,7 +54,13 @@ def get_chain(session, reading_id):
     # Build chain by going backwards to start
     chain = []
     current = reading
-    while current:
+    visited = set()  # Track visited readings to prevent loops
+
+    # Go backwards to find start of chain
+    while current and len(chain) < max_length:
+        if current.id in visited:  # Detect cycles
+            break
+        visited.add(current.id)
         chain.insert(0, current)  # Add to start of list
         if not current.id_previous:
             break
@@ -62,11 +68,12 @@ def get_chain(session, reading_id):
 
     # Now go forwards to get any subsequent readings
     current = reading
-    while True:
+    while current and len(chain) < max_length:
         # Find the next reading that points to current
         next_reading = session.query(Reading).filter(Reading.id_previous == current.id).first()
-        if not next_reading:
+        if not next_reading or next_reading.id in visited:  # Stop if we hit a cycle
             break
+        visited.add(next_reading.id)
         chain.append(next_reading)
         current = next_reading
 
@@ -153,67 +160,102 @@ def get_chain_segment_between(session, start_id, end_id, chain=None):
     if start_pos is None or end_pos is None:
         return None, None, None
 
+    # Ensure we're getting the segment in the correct order
+    if start_pos > end_pos:
+        start_pos, end_pos = end_pos, start_pos
+
+    # Limit the segment size to prevent infinite loops
+    if end_pos - start_pos > 20:  # Maximum of 20 books in a segment
+        end_pos = start_pos + 20
+
     # Return the segment and positions
     return chain[start_pos:end_pos + 1], start_pos, end_pos
 
 def reorder_chain(reading_id, target_id):
-    """Reorder a reading in the chain to be after the target reading"""
+    """Reorder a reading in the chain, potentially moving it between chains"""
     session = SessionLocal()
     try:
-        # Get the full chain first
-        full_chain = get_chain(session, reading_id)
-        if not full_chain:
-            console.print("[red]Could not find reading in the chain[/red]")
+        # Get both chains
+        source_chain = get_chain(session, reading_id)
+        target_chain = get_chain(session, target_id)
+
+        if not source_chain or not target_chain:
+            console.print("[red]Could not find one or both chains[/red]")
             return
 
-        # Find positions for the move
-        reading_pos = next(i for i, r in enumerate(full_chain) if r.id == reading_id)
-        target_pos = next(i for i, r in enumerate(full_chain) if r.id == target_id)
+        # Find positions
+        reading_pos = next(i for i, r in enumerate(source_chain) if r.id == reading_id)
+        target_pos = next(i for i, r in enumerate(target_chain) if r.id == target_id)
 
-        # Get book before the one we're moving (A)
-        book_before_moving = full_chain[reading_pos - 1] if reading_pos > 0 else None
+        # Get boundary books for source chain
+        source_before = source_chain[reading_pos - 1] if reading_pos > 0 else None
+        source_after = source_chain[reading_pos + 1] if reading_pos + 1 < len(source_chain) else None
 
-        # Get book after our target (B)
-        book_after_target = full_chain[target_pos + 1] if target_pos + 1 < len(full_chain) else None
+        # Get boundary books for target chain
+        target_after = target_chain[target_pos + 1] if target_pos + 1 < len(target_chain) else None
 
-        # Get the original chain segment from A to B
-        if book_before_moving and book_after_target:
-            segment, _, _ = get_chain_segment_between(session, book_before_moving.id, book_after_target.id, full_chain)
-            if segment:
-                console.print("\n[bold]Current chain order:[/bold]")
-                display_reading_group(segment, "Current Reading Chain")
+        # Show original state of both chains
+        console.print("\n[bold]Current chain orders:[/bold]")
 
-        # Remove reading from current position
-        reading_to_move = full_chain.pop(reading_pos)
+        # Show source chain segment
+        if source_before and source_after:
+            source_segment, _, _ = get_chain_segment_between(session, source_before.id, source_after.id, source_chain)
+            if source_segment:
+                console.print("\n[bold cyan]Source Chain (before move):[/bold cyan]")
+                display_reading_group(source_segment, "Source Chain Segment")
 
-        # Insert immediately after target position
-        # If we removed an item before the target, adjust the target position
-        adjusted_target_pos = target_pos if reading_pos > target_pos else target_pos - 1
-        new_pos = adjusted_target_pos + 1
-        full_chain.insert(new_pos, reading_to_move)
+        # Show target chain segment
+        if target_chain[target_pos] and target_after:
+            target_segment, _, _ = get_chain_segment_between(session, target_chain[target_pos].id, target_after.id, target_chain)
+            if target_segment:
+                console.print("\n[bold cyan]Target Chain (before move):[/bold cyan]")
+                display_reading_group(target_segment, "Target Chain Segment")
 
-        # Update chain references
-        for i, reading in enumerate(full_chain):
+        # Remove reading from source chain
+        reading_to_move = source_chain.pop(reading_pos)
+
+        # Update source chain references
+        for i, reading in enumerate(source_chain):
             if i == 0:
                 reading.id_previous = None
             else:
-                reading.id_previous = full_chain[i-1].id
+                reading.id_previous = source_chain[i-1].id
 
-        # Update estimated dates
-        start_pos = min(reading_pos, new_pos)
-        update_chain_dates(session, full_chain, start_pos)
+        # Insert into target chain
+        target_chain.insert(target_pos + 1, reading_to_move)
 
-        # Show the proposed new chain using the same A to B segment
-        if book_before_moving and book_after_target:
-            segment, _, _ = get_chain_segment_between(session, book_before_moving.id, book_after_target.id, full_chain)
-            if segment:
-                console.print("\n[bold]Proposed new chain order:[/bold]")
-                display_reading_group(segment, "Updated Reading Chain")
+        # Update target chain references
+        for i, reading in enumerate(target_chain):
+            if i == 0:
+                reading.id_previous = None
+            else:
+                reading.id_previous = target_chain[i-1].id
+
+        # Update dates in both chains
+        update_chain_dates(session, source_chain, max(0, reading_pos - 1))
+        update_chain_dates(session, target_chain, target_pos)
+
+        # Show proposed new state of both chains
+        console.print("\n[bold]Proposed new chain orders:[/bold]")
+
+        # Show updated source chain segment
+        if source_before and source_after:
+            source_segment, _, _ = get_chain_segment_between(session, source_before.id, source_after.id, source_chain)
+            if source_segment:
+                console.print("\n[bold green]Source Chain (after move):[/bold green]")
+                display_reading_group(source_segment, "Updated Source Chain Segment")
+
+        # Show updated target chain segment
+        if target_chain[target_pos] and target_after:
+            target_segment, _, _ = get_chain_segment_between(session, target_chain[target_pos].id, target_after.id, target_chain)
+            if target_segment:
+                console.print("\n[bold green]Target Chain (after move):[/bold green]")
+                display_reading_group(target_segment, "Updated Target Chain Segment")
 
         # Confirm changes
         if Confirm.ask("\nDo you want to save these changes?"):
             session.commit()
-            console.print("[green]Chain updated successfully![/green]")
+            console.print("[green]Chains updated successfully![/green]")
             run_chain_report()
         else:
             session.rollback()
