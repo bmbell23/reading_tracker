@@ -127,13 +127,38 @@ def generate_html_report(year: int):
         report_file.write_text(html_content)
         console.print(f"[green]Report generated: {report_file}[/green]")
 
+def generate_report(year: int, format: str = 'both'):
+    """Generate report in the specified format(s)"""
+    if format in ['html', 'both']:
+        generate_html_report(year)
+
+    if format in ['pdf', 'both']:
+        # First generate HTML, then convert to PDF
+        project_paths = get_project_paths()
+        workspace = project_paths['workspace']
+        html_file = workspace / 'reports' / 'yearly' / f'reading_report_{year}.html'
+        pdf_file = workspace / 'reports' / 'yearly' / f'reading_report_{year}.pdf'
+
+        if html_file.exists():
+            try:
+                from weasyprint import HTML, CSS
+                HTML(filename=str(html_file)).write_pdf(str(pdf_file))
+                console.print(f"[green]PDF report generated: {pdf_file}[/green]")
+            except ImportError:
+                console.print("[yellow]WeasyPrint not installed. Skipping PDF generation.[/yellow]")
+                console.print("To enable PDF support, install WeasyPrint: pip install weasyprint")
+        else:
+            console.print("[red]HTML report not found. Generate HTML report first.[/red]")
+
 def main():
     parser = argparse.ArgumentParser(description='Generate yearly reading report with statistics and book covers')
-    parser.add_argument('--year', '-y', type=int, default=datetime.now().year,
+    parser.add_argument('year', type=int, nargs='?', default=datetime.now().year,
                        help='Year to generate report for (default: current year)')
+    parser.add_argument('--format', '-f', choices=['html', 'pdf', 'both'], default='both',
+                       help='Output format (default: both)')
 
     args = parser.parse_args()
-    generate_html_report(args.year)
+    generate_report(args.year, args.format)
 
 if __name__ == "__main__":
     main()
