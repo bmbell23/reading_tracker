@@ -618,6 +618,19 @@ class EmailReport:
                             color: transparent;  /* Fallback for non-webkit browsers */
                             margin: 0;
                         }}
+                        h2 {{
+                            text-align: center;
+                            font-size: 2.25rem;
+                            font-weight: 800;
+                            letter-spacing: -0.025em;
+                            background: linear-gradient(135deg, #3b82f6, #10b981);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                            color: transparent;
+                            margin-top: 1.5rem;
+                            margin-bottom: 1.5rem;
+                        }}
                         .intro-text {{
                             color: #475569;
                             font-size: 1.25rem;
