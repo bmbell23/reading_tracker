@@ -63,6 +63,30 @@ class CommonQueries:
             return 'blue'
         return 'white'
 
+    def print_reading(self, reading):
+        """
+        Print a specific reading instance in a formatted way
+
+        Args:
+            reading: The Reading instance to print
+        """
+        self.console.print(f"\n[bold]{reading.book.title}[/bold]")
+        self.console.print(f"Reading ID: {reading.id}")
+        self.console.print(f"Book ID: {reading.book.id}")
+
+        # Format dates
+        start_date = reading.date_started or reading.date_est_start
+        end_date = reading.date_finished_actual or reading.date_est_end
+
+        if start_date:
+            self.console.print(f"Start: {start_date}")
+        if end_date:
+            self.console.print(f"End: {end_date}")
+
+        # Show media type with appropriate color
+        media_color = self._get_media_color(reading.media)
+        self.console.print(f"Media: [{media_color}]{reading.media}[/{media_color}]")
+
     def print_readings_by_title(self, title: str, exact_match: bool = True):
         """
         Print all readings for a book in a formatted way
@@ -79,81 +103,7 @@ class CommonQueries:
         self.console.print(f"\n[bold cyan]Readings for '{title}':[/bold cyan]")
 
         for reading in readings:
-            # Get subsequent reading if it exists
-            next_reading = (self.session.query(Reading)
-                          .filter(Reading.id_previous == reading.id)
-                          .first())
-
-            # Get previous reading if it exists
-            prev_reading = (self.session.get(Reading, reading.id_previous)
-                          if reading.id_previous else None)
-
-            # Create table for reading details
-            table = Table(show_header=False, box=None)
-            table.add_column("Field", style="dim")
-            table.add_column("Value")
-
-            # Get media color
-            media_color = self._get_media_color(reading.media)
-
-            # Add rows to table
-            table.add_row("Reading ID", f"[yellow]{reading.id}[/yellow]")
-            table.add_row("Book ID", f"[yellow]{reading.book_id}[/yellow]")
-            table.add_row("Book", f"[bold white]{reading.book.title}[/bold white]")
-            table.add_row("Word Count", f"[cyan]{reading.book.word_count:,}[/cyan]" if reading.book.word_count else "[dim]None[/dim]")
-            table.add_row("Media", f"[{media_color}]{reading.media}[/{media_color}]")
-
-            # Previous reading info
-            prev_book = f"[italic]{prev_reading.book.title}[/italic]" if prev_reading else "[dim]None[/dim]"
-            table.add_row(
-                "Previous Reading",
-                f"ID: [yellow]{reading.id_previous or 'None'}[/yellow], Book: {prev_book}"
-            )
-
-            # Next reading info
-            next_book = f"[italic]{next_reading.book.title}[/italic]" if next_reading else "[dim]None[/dim]"
-            table.add_row(
-                "Next Reading",
-                f"ID: [yellow]{next_reading.id if next_reading else 'None'}[/yellow], Book: {next_book}"
-            )
-
-            # Est. Days to Read
-            table.add_row(
-                "Est. Days to Read",
-                f"[cyan]{reading.days_estimate}[/cyan]" if reading.days_estimate else "[dim]None[/dim]"
-            )
-
-            # Dates
-            table.add_row(
-                "Started",
-                f"[green]{reading.date_started}[/green]" if reading.date_started else "[dim]None[/dim]"
-            )
-            table.add_row(
-                "Finished",
-                f"[green]{reading.date_finished_actual}[/green]" if reading.date_finished_actual else "[dim]None[/dim]"
-            )
-            table.add_row(
-                "Est. Start",
-                f"[blue]{reading.date_est_start}[/blue]" if reading.date_est_start else "[dim]None[/dim]"
-            )
-            table.add_row(
-                "Est. End",
-                f"[blue]{reading.date_est_end}[/blue]" if reading.date_est_end else "[dim]None[/dim]"
-            )
-
-            if reading.rating_enjoyment:
-                table.add_row("Enjoyment Rating", f"[yellow]{reading.rating_enjoyment}★[/yellow]")
-
-            # Create panel with table
-            panel = Panel(
-                table,
-                border_style="bright_black",
-                padding=(1, 2),
-                title=f"[{media_color}]Reading Details[/{media_color}]",
-            )
-
-            self.console.print(panel)
-            self.console.print()
+            self.print_reading(reading)
 
 
 if __name__ == "__main__":

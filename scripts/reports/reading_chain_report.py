@@ -188,7 +188,7 @@ def generate_report(limit=10):
                            est_start_date > today)
 
                 processed_chain.append({
-                    'read_id': book.read_id,
+                    'read_id': book.read_id,  # Make sure this is included
                     'book_id': book.book_id,
                     'title': book.title,
                     'author': format_author_name(book.author_name_first, book.author_name_second),

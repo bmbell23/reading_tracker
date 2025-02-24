@@ -49,11 +49,33 @@
             margin-bottom: 20px;
         }
         .book-card {
+            position: relative;
             border-radius: 8px;
             padding: 15px;
             margin: 8px 0;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            margin-bottom: 5px;
+        }
+
+        .book-card:hover .tooltip {
+            visibility: visible;
         }
 
         /* Media-specific card backgrounds */
@@ -174,6 +196,24 @@
             color: #64748b;
             font-size: 0.9em;
         }
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .book-card:hover .tooltip {
+            visibility: visible;
+        }
     </style>
 </head>
 <body>
@@ -190,7 +230,12 @@
                         </div>
                         {% if chains[media_type]['chain'] %}
                             {% for book in chains[media_type]['chain'] %}
-                                <div class="book-card {{ book.media.lower() }}">
+                                <div class="book-card {{ book.media.lower() }}"
+                                     data-reading-id="{{ book.read_id }}"
+                                     data-position="{{ loop.index }}">
+                                    <div class="tooltip">
+                                        Reading ID: {{ book.read_id }}
+                                    </div>
                                     <div class="book-info">
                                         <div class="book-title">{{ book.title }}</div>
                                         <div class="book-author">
