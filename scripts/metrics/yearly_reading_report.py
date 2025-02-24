@@ -99,6 +99,10 @@ def generate_html_report(year: int):
             'monthly_books_data': monthly_books_data,
             'monthly_words_data': monthly_words_data,
             'monthly_pages_data': monthly_pages_data,
+            'intro_text': (
+                f"A visual journey through my reading adventures in {year}. "
+                "Each book, word, and page contributing to a year of discovery and growth."
+            ),
             'months': [
                 {
                     'number': month,

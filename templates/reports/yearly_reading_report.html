@@ -9,7 +9,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>My Reading Journey in {{ year }}</h1>
+    <div class="title-section">
+        <h1>My Reading Journey in {{ year }}</h1>
+        <p class="intro-text">{{ intro_text }}</p>
+        <div class="title-decoration">
+            <span class="dot"></span>
+            <span class="line"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
 
     <div class="year-summary">
         <h2>Year at a Glance</h2>
@@ -71,7 +79,7 @@
                     labels: monthNames,
                     datasets: [{
                         data: {{ monthly_books_data }},
-                        backgroundColor: '#3b82f6',
+                        backgroundColor: '#3b82f6',  // blue
                         borderRadius: 4,
                         barThickness: 16
                     }]
@@ -84,7 +92,7 @@
                     labels: monthNames,
                     datasets: [{
                         data: {{ monthly_words_data }},
-                        backgroundColor: '#10b981',
+                        backgroundColor: '#10b981',  // green
                         borderRadius: 4,
                         barThickness: 16
                     }]
@@ -97,7 +105,7 @@
                     labels: monthNames,
                     datasets: [{
                         data: {{ monthly_pages_data }},
-                        backgroundColor: '#f59e0b',
+                        backgroundColor: '#f59e0b',  // orange
                         borderRadius: 4,
                         barThickness: 16
                     }]
