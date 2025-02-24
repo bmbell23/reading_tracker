@@ -37,8 +37,8 @@ The three database tables are:
    date_published, year_published, author_gender, series,
    series_number, series_word_count, genre
 
-2. reading_database with columns:
-   id_read, id_previous, id_book, format, title, author,
+2. read table with columns:
+   id_read, id_previous, id_book, media, title, author,
    author_gender, actual_days, estimated_days, date_started,
    date_finished_actual, date_finished_delta, date_finished_estimate,
    date_published, word_count, words_per_day_actual, words_per_day_goal,

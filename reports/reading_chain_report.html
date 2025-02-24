@@ -75,27 +75,7 @@
             transition: transform 0.2s;
             height: 120px; /* Set fixed height */
             overflow: hidden; /* Prevent content from expanding card */
-        }
-
-        .tooltip {
-            visibility: hidden;
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 1000;
-            pointer-events: none;
-            margin-bottom: 5px;
-        }
-
-        .book-card:hover .tooltip {
-            visibility: visible;
+            cursor: pointer;
         }
 
         /* Media-specific card backgrounds */
@@ -307,9 +287,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="377"
                                      data-position="1">
-                                    <div class="tooltip">
-                                        Reading ID: 377
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -347,9 +324,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="378"
                                      data-position="2">
-                                    <div class="tooltip">
-                                        Reading ID: 378
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -387,9 +361,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="362"
                                      data-position="3">
-                                    <div class="tooltip">
-                                        Reading ID: 362
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -427,9 +398,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="599"
                                      data-position="4">
-                                    <div class="tooltip">
-                                        Reading ID: 599
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -467,9 +435,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="600"
                                      data-position="5">
-                                    <div class="tooltip">
-                                        Reading ID: 600
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -507,9 +472,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="984"
                                      data-position="6">
-                                    <div class="tooltip">
-                                        Reading ID: 984
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -547,9 +509,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="836"
                                      data-position="7">
-                                    <div class="tooltip">
-                                        Reading ID: 836
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -587,9 +546,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="425"
                                      data-position="8">
-                                    <div class="tooltip">
-                                        Reading ID: 425
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -627,9 +583,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="426"
                                      data-position="9">
-                                    <div class="tooltip">
-                                        Reading ID: 426
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -667,9 +620,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="427"
                                      data-position="10">
-                                    <div class="tooltip">
-                                        Reading ID: 427
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -707,9 +657,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="493"
                                      data-position="11">
-                                    <div class="tooltip">
-                                        Reading ID: 493
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -747,9 +694,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="494"
                                      data-position="12">
-                                    <div class="tooltip">
-                                        Reading ID: 494
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -787,9 +731,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="495"
                                      data-position="13">
-                                    <div class="tooltip">
-                                        Reading ID: 495
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -827,9 +768,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="357"
                                      data-position="14">
-                                    <div class="tooltip">
-                                        Reading ID: 357
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -867,9 +805,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="358"
                                      data-position="15">
-                                    <div class="tooltip">
-                                        Reading ID: 358
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -907,9 +842,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="359"
                                      data-position="16">
-                                    <div class="tooltip">
-                                        Reading ID: 359
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -947,9 +879,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="484"
                                      data-position="17">
-                                    <div class="tooltip">
-                                        Reading ID: 484
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -987,9 +916,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="485"
                                      data-position="18">
-                                    <div class="tooltip">
-                                        Reading ID: 485
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1027,9 +953,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="486"
                                      data-position="19">
-                                    <div class="tooltip">
-                                        Reading ID: 486
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1067,9 +990,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="487"
                                      data-position="20">
-                                    <div class="tooltip">
-                                        Reading ID: 487
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1107,9 +1027,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="431"
                                      data-position="21">
-                                    <div class="tooltip">
-                                        Reading ID: 431
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1147,9 +1064,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="432"
                                      data-position="22">
-                                    <div class="tooltip">
-                                        Reading ID: 432
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1187,9 +1101,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="433"
                                      data-position="23">
-                                    <div class="tooltip">
-                                        Reading ID: 433
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1227,9 +1138,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="354"
                                      data-position="24">
-                                    <div class="tooltip">
-                                        Reading ID: 354
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1267,9 +1175,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="355"
                                      data-position="25">
-                                    <div class="tooltip">
-                                        Reading ID: 355
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1307,9 +1212,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="356"
                                      data-position="26">
-                                    <div class="tooltip">
-                                        Reading ID: 356
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1347,9 +1249,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="629"
                                      data-position="27">
-                                    <div class="tooltip">
-                                        Reading ID: 629
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1387,9 +1286,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="416"
                                      data-position="28">
-                                    <div class="tooltip">
-                                        Reading ID: 416
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1427,9 +1323,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="417"
                                      data-position="29">
-                                    <div class="tooltip">
-                                        Reading ID: 417
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1467,9 +1360,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="418"
                                      data-position="30">
-                                    <div class="tooltip">
-                                        Reading ID: 418
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1507,9 +1397,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="476"
                                      data-position="31">
-                                    <div class="tooltip">
-                                        Reading ID: 476
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1547,9 +1434,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="477"
                                      data-position="32">
-                                    <div class="tooltip">
-                                        Reading ID: 477
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1587,9 +1471,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="478"
                                      data-position="33">
-                                    <div class="tooltip">
-                                        Reading ID: 478
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1627,9 +1508,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="479"
                                      data-position="34">
-                                    <div class="tooltip">
-                                        Reading ID: 479
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1667,9 +1545,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="480"
                                      data-position="35">
-                                    <div class="tooltip">
-                                        Reading ID: 480
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1707,9 +1582,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="481"
                                      data-position="36">
-                                    <div class="tooltip">
-                                        Reading ID: 481
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1747,9 +1619,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="482"
                                      data-position="37">
-                                    <div class="tooltip">
-                                        Reading ID: 482
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1787,9 +1656,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="483"
                                      data-position="38">
-                                    <div class="tooltip">
-                                        Reading ID: 483
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1827,9 +1693,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="488"
                                      data-position="39">
-                                    <div class="tooltip">
-                                        Reading ID: 488
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1867,9 +1730,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="489"
                                      data-position="40">
-                                    <div class="tooltip">
-                                        Reading ID: 489
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1907,9 +1767,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="490"
                                      data-position="41">
-                                    <div class="tooltip">
-                                        Reading ID: 490
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1947,9 +1804,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="491"
                                      data-position="42">
-                                    <div class="tooltip">
-                                        Reading ID: 491
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -1987,9 +1841,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="492"
                                      data-position="43">
-                                    <div class="tooltip">
-                                        Reading ID: 492
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2027,9 +1878,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="325"
                                      data-position="44">
-                                    <div class="tooltip">
-                                        Reading ID: 325
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2067,9 +1915,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="326"
                                      data-position="45">
-                                    <div class="tooltip">
-                                        Reading ID: 326
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2107,9 +1952,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="331"
                                      data-position="46">
-                                    <div class="tooltip">
-                                        Reading ID: 331
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2147,9 +1989,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="332"
                                      data-position="47">
-                                    <div class="tooltip">
-                                        Reading ID: 332
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2187,9 +2026,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="333"
                                      data-position="48">
-                                    <div class="tooltip">
-                                        Reading ID: 333
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2227,9 +2063,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="334"
                                      data-position="49">
-                                    <div class="tooltip">
-                                        Reading ID: 334
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2267,9 +2100,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="335"
                                      data-position="50">
-                                    <div class="tooltip">
-                                        Reading ID: 335
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2307,9 +2137,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="336"
                                      data-position="51">
-                                    <div class="tooltip">
-                                        Reading ID: 336
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2347,9 +2174,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="337"
                                      data-position="52">
-                                    <div class="tooltip">
-                                        Reading ID: 337
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2387,9 +2211,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="338"
                                      data-position="53">
-                                    <div class="tooltip">
-                                        Reading ID: 338
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2427,9 +2248,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="500"
                                      data-position="54">
-                                    <div class="tooltip">
-                                        Reading ID: 500
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2467,9 +2285,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="501"
                                      data-position="55">
-                                    <div class="tooltip">
-                                        Reading ID: 501
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2507,9 +2322,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="502"
                                      data-position="56">
-                                    <div class="tooltip">
-                                        Reading ID: 502
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2547,9 +2359,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="503"
                                      data-position="57">
-                                    <div class="tooltip">
-                                        Reading ID: 503
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2587,9 +2396,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="504"
                                      data-position="58">
-                                    <div class="tooltip">
-                                        Reading ID: 504
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2627,9 +2433,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="505"
                                      data-position="59">
-                                    <div class="tooltip">
-                                        Reading ID: 505
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2667,9 +2470,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="506"
                                      data-position="60">
-                                    <div class="tooltip">
-                                        Reading ID: 506
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2707,9 +2507,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="507"
                                      data-position="61">
-                                    <div class="tooltip">
-                                        Reading ID: 507
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2747,9 +2544,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="508"
                                      data-position="62">
-                                    <div class="tooltip">
-                                        Reading ID: 508
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2787,9 +2581,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="509"
                                      data-position="63">
-                                    <div class="tooltip">
-                                        Reading ID: 509
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2827,9 +2618,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="510"
                                      data-position="64">
-                                    <div class="tooltip">
-                                        Reading ID: 510
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2867,9 +2655,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="511"
                                      data-position="65">
-                                    <div class="tooltip">
-                                        Reading ID: 511
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2907,9 +2692,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="512"
                                      data-position="66">
-                                    <div class="tooltip">
-                                        Reading ID: 512
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2947,9 +2729,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="513"
                                      data-position="67">
-                                    <div class="tooltip">
-                                        Reading ID: 513
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -2987,9 +2766,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="514"
                                      data-position="68">
-                                    <div class="tooltip">
-                                        Reading ID: 514
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3027,9 +2803,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="515"
                                      data-position="69">
-                                    <div class="tooltip">
-                                        Reading ID: 515
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3067,9 +2840,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="516"
                                      data-position="70">
-                                    <div class="tooltip">
-                                        Reading ID: 516
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3107,9 +2877,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="517"
                                      data-position="71">
-                                    <div class="tooltip">
-                                        Reading ID: 517
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3147,9 +2914,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="518"
                                      data-position="72">
-                                    <div class="tooltip">
-                                        Reading ID: 518
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3187,9 +2951,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="519"
                                      data-position="73">
-                                    <div class="tooltip">
-                                        Reading ID: 519
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3227,9 +2988,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="520"
                                      data-position="74">
-                                    <div class="tooltip">
-                                        Reading ID: 520
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3267,9 +3025,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="521"
                                      data-position="75">
-                                    <div class="tooltip">
-                                        Reading ID: 521
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3307,9 +3062,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="522"
                                      data-position="76">
-                                    <div class="tooltip">
-                                        Reading ID: 522
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3347,9 +3099,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="523"
                                      data-position="77">
-                                    <div class="tooltip">
-                                        Reading ID: 523
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3387,9 +3136,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="524"
                                      data-position="78">
-                                    <div class="tooltip">
-                                        Reading ID: 524
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3427,9 +3173,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="525"
                                      data-position="79">
-                                    <div class="tooltip">
-                                        Reading ID: 525
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3467,9 +3210,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="526"
                                      data-position="80">
-                                    <div class="tooltip">
-                                        Reading ID: 526
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3507,9 +3247,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="415"
                                      data-position="81">
-                                    <div class="tooltip">
-                                        Reading ID: 415
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3547,9 +3284,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="751"
                                      data-position="82">
-                                    <div class="tooltip">
-                                        Reading ID: 751
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3587,9 +3321,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="407"
                                      data-position="83">
-                                    <div class="tooltip">
-                                        Reading ID: 407
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3627,9 +3358,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="764"
                                      data-position="84">
-                                    <div class="tooltip">
-                                        Reading ID: 764
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3667,9 +3395,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="763"
                                      data-position="85">
-                                    <div class="tooltip">
-                                        Reading ID: 763
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3707,9 +3432,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="765"
                                      data-position="86">
-                                    <div class="tooltip">
-                                        Reading ID: 765
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3747,9 +3469,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="766"
                                      data-position="87">
-                                    <div class="tooltip">
-                                        Reading ID: 766
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3787,9 +3506,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="767"
                                      data-position="88">
-                                    <div class="tooltip">
-                                        Reading ID: 767
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3827,9 +3543,6 @@
                                 <div class="book-card kindle"
                                      data-reading-id="768"
                                      data-position="89">
-                                    <div class="tooltip">
-                                        Reading ID: 768
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3878,9 +3591,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="423"
                                      data-position="1">
-                                    <div class="tooltip">
-                                        Reading ID: 423
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3918,9 +3628,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="736"
                                      data-position="2">
-                                    <div class="tooltip">
-                                        Reading ID: 736
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3958,9 +3665,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="602"
                                      data-position="3">
-                                    <div class="tooltip">
-                                        Reading ID: 602
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -3998,9 +3702,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="603"
                                      data-position="4">
-                                    <div class="tooltip">
-                                        Reading ID: 603
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4038,9 +3739,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="604"
                                      data-position="5">
-                                    <div class="tooltip">
-                                        Reading ID: 604
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4078,9 +3776,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="605"
                                      data-position="6">
-                                    <div class="tooltip">
-                                        Reading ID: 605
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4118,9 +3813,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="735"
                                      data-position="7">
-                                    <div class="tooltip">
-                                        Reading ID: 735
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4158,9 +3850,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="606"
                                      data-position="8">
-                                    <div class="tooltip">
-                                        Reading ID: 606
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4198,9 +3887,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="607"
                                      data-position="9">
-                                    <div class="tooltip">
-                                        Reading ID: 607
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4238,9 +3924,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="728"
                                      data-position="10">
-                                    <div class="tooltip">
-                                        Reading ID: 728
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4278,9 +3961,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="414"
                                      data-position="11">
-                                    <div class="tooltip">
-                                        Reading ID: 414
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4318,9 +3998,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="405"
                                      data-position="12">
-                                    <div class="tooltip">
-                                        Reading ID: 405
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4358,9 +4035,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="406"
                                      data-position="13">
-                                    <div class="tooltip">
-                                        Reading ID: 406
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4398,9 +4072,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="733"
                                      data-position="14">
-                                    <div class="tooltip">
-                                        Reading ID: 733
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4438,9 +4109,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="424"
                                      data-position="15">
-                                    <div class="tooltip">
-                                        Reading ID: 424
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4478,9 +4146,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="395"
                                      data-position="16">
-                                    <div class="tooltip">
-                                        Reading ID: 395
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4518,9 +4183,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="396"
                                      data-position="17">
-                                    <div class="tooltip">
-                                        Reading ID: 396
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4558,9 +4220,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="397"
                                      data-position="18">
-                                    <div class="tooltip">
-                                        Reading ID: 397
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4598,9 +4257,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="398"
                                      data-position="19">
-                                    <div class="tooltip">
-                                        Reading ID: 398
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4638,9 +4294,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="399"
                                      data-position="20">
-                                    <div class="tooltip">
-                                        Reading ID: 399
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4678,9 +4331,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="400"
                                      data-position="21">
-                                    <div class="tooltip">
-                                        Reading ID: 400
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4718,13 +4368,10 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="726"
                                      data-position="22">
-                                    <div class="tooltip">
-                                        Reading ID: 726
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
-                                            <img src="../assets/book_covers/default-cover.png"
+                                            <img src="../assets/book_covers/363.png"
                                                  alt="Cover of Red God"
                                                  style="width: 60px; height: auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                         </div>
@@ -4758,9 +4405,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="729"
                                      data-position="23">
-                                    <div class="tooltip">
-                                        Reading ID: 729
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4798,9 +4442,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="730"
                                      data-position="24">
-                                    <div class="tooltip">
-                                        Reading ID: 730
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4838,9 +4479,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="731"
                                      data-position="25">
-                                    <div class="tooltip">
-                                        Reading ID: 731
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4878,9 +4516,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="732"
                                      data-position="26">
-                                    <div class="tooltip">
-                                        Reading ID: 732
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4918,9 +4553,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="499"
                                      data-position="27">
-                                    <div class="tooltip">
-                                        Reading ID: 499
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4958,9 +4590,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="388"
                                      data-position="28">
-                                    <div class="tooltip">
-                                        Reading ID: 388
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -4998,9 +4627,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="389"
                                      data-position="29">
-                                    <div class="tooltip">
-                                        Reading ID: 389
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5038,9 +4664,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="647"
                                      data-position="30">
-                                    <div class="tooltip">
-                                        Reading ID: 647
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5078,9 +4701,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="648"
                                      data-position="31">
-                                    <div class="tooltip">
-                                        Reading ID: 648
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5118,9 +4738,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="649"
                                      data-position="32">
-                                    <div class="tooltip">
-                                        Reading ID: 649
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5158,9 +4775,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="650"
                                      data-position="33">
-                                    <div class="tooltip">
-                                        Reading ID: 650
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5198,9 +4812,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="651"
                                      data-position="34">
-                                    <div class="tooltip">
-                                        Reading ID: 651
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5238,9 +4849,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="727"
                                      data-position="35">
-                                    <div class="tooltip">
-                                        Reading ID: 727
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5278,9 +4886,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="986"
                                      data-position="36">
-                                    <div class="tooltip">
-                                        Reading ID: 986
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5318,9 +4923,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="987"
                                      data-position="37">
-                                    <div class="tooltip">
-                                        Reading ID: 987
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5358,9 +4960,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="988"
                                      data-position="38">
-                                    <div class="tooltip">
-                                        Reading ID: 988
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5398,9 +4997,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="992"
                                      data-position="39">
-                                    <div class="tooltip">
-                                        Reading ID: 992
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5438,9 +5034,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="993"
                                      data-position="40">
-                                    <div class="tooltip">
-                                        Reading ID: 993
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5478,9 +5071,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="994"
                                      data-position="41">
-                                    <div class="tooltip">
-                                        Reading ID: 994
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5518,9 +5108,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="995"
                                      data-position="42">
-                                    <div class="tooltip">
-                                        Reading ID: 995
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5558,9 +5145,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="989"
                                      data-position="43">
-                                    <div class="tooltip">
-                                        Reading ID: 989
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5598,9 +5182,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="990"
                                      data-position="44">
-                                    <div class="tooltip">
-                                        Reading ID: 990
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5638,9 +5219,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="991"
                                      data-position="45">
-                                    <div class="tooltip">
-                                        Reading ID: 991
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5678,9 +5256,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="706"
                                      data-position="46">
-                                    <div class="tooltip">
-                                        Reading ID: 706
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5718,9 +5293,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="707"
                                      data-position="47">
-                                    <div class="tooltip">
-                                        Reading ID: 707
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5758,9 +5330,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="708"
                                      data-position="48">
-                                    <div class="tooltip">
-                                        Reading ID: 708
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5798,9 +5367,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="709"
                                      data-position="49">
-                                    <div class="tooltip">
-                                        Reading ID: 709
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5838,9 +5404,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="408"
                                      data-position="50">
-                                    <div class="tooltip">
-                                        Reading ID: 408
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5878,9 +5441,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="409"
                                      data-position="51">
-                                    <div class="tooltip">
-                                        Reading ID: 409
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5918,9 +5478,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="410"
                                      data-position="52">
-                                    <div class="tooltip">
-                                        Reading ID: 410
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5958,9 +5515,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="722"
                                      data-position="53">
-                                    <div class="tooltip">
-                                        Reading ID: 722
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -5998,9 +5552,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="710"
                                      data-position="54">
-                                    <div class="tooltip">
-                                        Reading ID: 710
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6038,9 +5589,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="711"
                                      data-position="55">
-                                    <div class="tooltip">
-                                        Reading ID: 711
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6078,9 +5626,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="712"
                                      data-position="56">
-                                    <div class="tooltip">
-                                        Reading ID: 712
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6118,9 +5663,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="723"
                                      data-position="57">
-                                    <div class="tooltip">
-                                        Reading ID: 723
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6158,9 +5700,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="713"
                                      data-position="58">
-                                    <div class="tooltip">
-                                        Reading ID: 713
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6198,9 +5737,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="714"
                                      data-position="59">
-                                    <div class="tooltip">
-                                        Reading ID: 714
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6238,9 +5774,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="716"
                                      data-position="60">
-                                    <div class="tooltip">
-                                        Reading ID: 716
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6278,9 +5811,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="715"
                                      data-position="61">
-                                    <div class="tooltip">
-                                        Reading ID: 715
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6318,9 +5848,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="724"
                                      data-position="62">
-                                    <div class="tooltip">
-                                        Reading ID: 724
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6358,9 +5885,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="401"
                                      data-position="63">
-                                    <div class="tooltip">
-                                        Reading ID: 401
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6398,9 +5922,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="402"
                                      data-position="64">
-                                    <div class="tooltip">
-                                        Reading ID: 402
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6438,9 +5959,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="403"
                                      data-position="65">
-                                    <div class="tooltip">
-                                        Reading ID: 403
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6478,9 +5996,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="404"
                                      data-position="66">
-                                    <div class="tooltip">
-                                        Reading ID: 404
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6518,9 +6033,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="608"
                                      data-position="67">
-                                    <div class="tooltip">
-                                        Reading ID: 608
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6558,9 +6070,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="609"
                                      data-position="68">
-                                    <div class="tooltip">
-                                        Reading ID: 609
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6598,9 +6107,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="610"
                                      data-position="69">
-                                    <div class="tooltip">
-                                        Reading ID: 610
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6638,9 +6144,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="611"
                                      data-position="70">
-                                    <div class="tooltip">
-                                        Reading ID: 611
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6678,9 +6181,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="612"
                                      data-position="71">
-                                    <div class="tooltip">
-                                        Reading ID: 612
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6718,9 +6218,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="686"
                                      data-position="72">
-                                    <div class="tooltip">
-                                        Reading ID: 686
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6758,9 +6255,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="687"
                                      data-position="73">
-                                    <div class="tooltip">
-                                        Reading ID: 687
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6798,9 +6292,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="688"
                                      data-position="74">
-                                    <div class="tooltip">
-                                        Reading ID: 688
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6838,9 +6329,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="689"
                                      data-position="75">
-                                    <div class="tooltip">
-                                        Reading ID: 689
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6878,9 +6366,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="690"
                                      data-position="76">
-                                    <div class="tooltip">
-                                        Reading ID: 690
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6918,9 +6403,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="691"
                                      data-position="77">
-                                    <div class="tooltip">
-                                        Reading ID: 691
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6958,9 +6440,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="692"
                                      data-position="78">
-                                    <div class="tooltip">
-                                        Reading ID: 692
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -6998,9 +6477,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="474"
                                      data-position="79">
-                                    <div class="tooltip">
-                                        Reading ID: 474
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7038,9 +6514,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="613"
                                      data-position="80">
-                                    <div class="tooltip">
-                                        Reading ID: 613
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7078,9 +6551,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="614"
                                      data-position="81">
-                                    <div class="tooltip">
-                                        Reading ID: 614
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7118,9 +6588,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="615"
                                      data-position="82">
-                                    <div class="tooltip">
-                                        Reading ID: 615
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7158,9 +6625,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="616"
                                      data-position="83">
-                                    <div class="tooltip">
-                                        Reading ID: 616
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7198,9 +6662,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="617"
                                      data-position="84">
-                                    <div class="tooltip">
-                                        Reading ID: 617
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7238,9 +6699,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="618"
                                      data-position="85">
-                                    <div class="tooltip">
-                                        Reading ID: 618
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7278,9 +6736,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="619"
                                      data-position="86">
-                                    <div class="tooltip">
-                                        Reading ID: 619
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7318,9 +6773,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="620"
                                      data-position="87">
-                                    <div class="tooltip">
-                                        Reading ID: 620
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7358,9 +6810,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="621"
                                      data-position="88">
-                                    <div class="tooltip">
-                                        Reading ID: 621
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7398,9 +6847,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="622"
                                      data-position="89">
-                                    <div class="tooltip">
-                                        Reading ID: 622
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7438,9 +6884,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="623"
                                      data-position="90">
-                                    <div class="tooltip">
-                                        Reading ID: 623
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7478,9 +6921,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="624"
                                      data-position="91">
-                                    <div class="tooltip">
-                                        Reading ID: 624
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7518,9 +6958,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="625"
                                      data-position="92">
-                                    <div class="tooltip">
-                                        Reading ID: 625
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7558,9 +6995,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="626"
                                      data-position="93">
-                                    <div class="tooltip">
-                                        Reading ID: 626
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7598,9 +7032,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="717"
                                      data-position="94">
-                                    <div class="tooltip">
-                                        Reading ID: 717
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7638,9 +7069,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="718"
                                      data-position="95">
-                                    <div class="tooltip">
-                                        Reading ID: 718
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7678,9 +7106,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="719"
                                      data-position="96">
-                                    <div class="tooltip">
-                                        Reading ID: 719
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7718,9 +7143,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="720"
                                      data-position="97">
-                                    <div class="tooltip">
-                                        Reading ID: 720
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7758,9 +7180,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="721"
                                      data-position="98">
-                                    <div class="tooltip">
-                                        Reading ID: 721
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7798,9 +7217,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="693"
                                      data-position="99">
-                                    <div class="tooltip">
-                                        Reading ID: 693
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7838,9 +7254,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="694"
                                      data-position="100">
-                                    <div class="tooltip">
-                                        Reading ID: 694
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7878,9 +7291,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="695"
                                      data-position="101">
-                                    <div class="tooltip">
-                                        Reading ID: 695
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7918,9 +7328,6 @@
                                 <div class="book-card hardcover"
                                      data-reading-id="696"
                                      data-position="102">
-                                    <div class="tooltip">
-                                        Reading ID: 696
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -7969,9 +7376,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="347"
                                      data-position="1">
-                                    <div class="tooltip">
-                                        Reading ID: 347
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8009,9 +7413,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="628"
                                      data-position="2">
-                                    <div class="tooltip">
-                                        Reading ID: 628
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8049,9 +7450,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="348"
                                      data-position="3">
-                                    <div class="tooltip">
-                                        Reading ID: 348
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8089,9 +7487,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="327"
                                      data-position="4">
-                                    <div class="tooltip">
-                                        Reading ID: 327
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8129,9 +7524,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="371"
                                      data-position="5">
-                                    <div class="tooltip">
-                                        Reading ID: 371
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8169,9 +7561,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="328"
                                      data-position="6">
-                                    <div class="tooltip">
-                                        Reading ID: 328
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8209,9 +7598,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="833"
                                      data-position="7">
-                                    <div class="tooltip">
-                                        Reading ID: 833
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8249,9 +7635,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="372"
                                      data-position="8">
-                                    <div class="tooltip">
-                                        Reading ID: 372
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8289,9 +7672,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="329"
                                      data-position="9">
-                                    <div class="tooltip">
-                                        Reading ID: 329
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8329,9 +7709,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="373"
                                      data-position="10">
-                                    <div class="tooltip">
-                                        Reading ID: 373
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8369,9 +7746,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="330"
                                      data-position="11">
-                                    <div class="tooltip">
-                                        Reading ID: 330
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8409,9 +7783,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="834"
                                      data-position="12">
-                                    <div class="tooltip">
-                                        Reading ID: 834
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8449,9 +7820,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="835"
                                      data-position="13">
-                                    <div class="tooltip">
-                                        Reading ID: 835
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8489,9 +7857,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="496"
                                      data-position="14">
-                                    <div class="tooltip">
-                                        Reading ID: 496
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8529,9 +7894,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="352"
                                      data-position="15">
-                                    <div class="tooltip">
-                                        Reading ID: 352
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8569,9 +7931,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="497"
                                      data-position="16">
-                                    <div class="tooltip">
-                                        Reading ID: 497
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8609,9 +7968,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="351"
                                      data-position="17">
-                                    <div class="tooltip">
-                                        Reading ID: 351
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8649,9 +8005,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="498"
                                      data-position="18">
-                                    <div class="tooltip">
-                                        Reading ID: 498
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8689,9 +8042,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="353"
                                      data-position="19">
-                                    <div class="tooltip">
-                                        Reading ID: 353
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8729,9 +8079,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="382"
                                      data-position="20">
-                                    <div class="tooltip">
-                                        Reading ID: 382
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8769,9 +8116,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="383"
                                      data-position="21">
-                                    <div class="tooltip">
-                                        Reading ID: 383
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8809,9 +8153,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="384"
                                      data-position="22">
-                                    <div class="tooltip">
-                                        Reading ID: 384
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8849,9 +8190,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="385"
                                      data-position="23">
-                                    <div class="tooltip">
-                                        Reading ID: 385
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8889,9 +8227,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="386"
                                      data-position="24">
-                                    <div class="tooltip">
-                                        Reading ID: 386
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8929,9 +8264,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="322"
                                      data-position="25">
-                                    <div class="tooltip">
-                                        Reading ID: 322
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -8969,9 +8301,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="323"
                                      data-position="26">
-                                    <div class="tooltip">
-                                        Reading ID: 323
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9009,9 +8338,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="324"
                                      data-position="27">
-                                    <div class="tooltip">
-                                        Reading ID: 324
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9049,9 +8375,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="360"
                                      data-position="28">
-                                    <div class="tooltip">
-                                        Reading ID: 360
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9089,9 +8412,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="361"
                                      data-position="29">
-                                    <div class="tooltip">
-                                        Reading ID: 361
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9129,9 +8449,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="419"
                                      data-position="30">
-                                    <div class="tooltip">
-                                        Reading ID: 419
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9169,9 +8486,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="420"
                                      data-position="31">
-                                    <div class="tooltip">
-                                        Reading ID: 420
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9209,9 +8523,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="421"
                                      data-position="32">
-                                    <div class="tooltip">
-                                        Reading ID: 421
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9249,9 +8560,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="363"
                                      data-position="33">
-                                    <div class="tooltip">
-                                        Reading ID: 363
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9289,9 +8597,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="364"
                                      data-position="34">
-                                    <div class="tooltip">
-                                        Reading ID: 364
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9329,9 +8634,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="365"
                                      data-position="35">
-                                    <div class="tooltip">
-                                        Reading ID: 365
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9369,9 +8671,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="366"
                                      data-position="36">
-                                    <div class="tooltip">
-                                        Reading ID: 366
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9409,9 +8708,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="367"
                                      data-position="37">
-                                    <div class="tooltip">
-                                        Reading ID: 367
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9449,9 +8745,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="368"
                                      data-position="38">
-                                    <div class="tooltip">
-                                        Reading ID: 368
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9489,9 +8782,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="369"
                                      data-position="39">
-                                    <div class="tooltip">
-                                        Reading ID: 369
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9529,9 +8819,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="339"
                                      data-position="40">
-                                    <div class="tooltip">
-                                        Reading ID: 339
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9569,9 +8856,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="340"
                                      data-position="41">
-                                    <div class="tooltip">
-                                        Reading ID: 340
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9609,9 +8893,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="341"
                                      data-position="42">
-                                    <div class="tooltip">
-                                        Reading ID: 341
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9649,9 +8930,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="342"
                                      data-position="43">
-                                    <div class="tooltip">
-                                        Reading ID: 342
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9689,9 +8967,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="343"
                                      data-position="44">
-                                    <div class="tooltip">
-                                        Reading ID: 343
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9729,9 +9004,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="344"
                                      data-position="45">
-                                    <div class="tooltip">
-                                        Reading ID: 344
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9769,9 +9041,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="345"
                                      data-position="46">
-                                    <div class="tooltip">
-                                        Reading ID: 345
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9809,9 +9078,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="349"
                                      data-position="47">
-                                    <div class="tooltip">
-                                        Reading ID: 349
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9849,9 +9115,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="350"
                                      data-position="48">
-                                    <div class="tooltip">
-                                        Reading ID: 350
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9889,9 +9152,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="581"
                                      data-position="49">
-                                    <div class="tooltip">
-                                        Reading ID: 581
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9929,9 +9189,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="582"
                                      data-position="50">
-                                    <div class="tooltip">
-                                        Reading ID: 582
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -9969,9 +9226,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="583"
                                      data-position="51">
-                                    <div class="tooltip">
-                                        Reading ID: 583
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10009,9 +9263,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="584"
                                      data-position="52">
-                                    <div class="tooltip">
-                                        Reading ID: 584
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10049,9 +9300,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="585"
                                      data-position="53">
-                                    <div class="tooltip">
-                                        Reading ID: 585
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10089,9 +9337,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="586"
                                      data-position="54">
-                                    <div class="tooltip">
-                                        Reading ID: 586
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10129,9 +9374,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="587"
                                      data-position="55">
-                                    <div class="tooltip">
-                                        Reading ID: 587
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10169,9 +9411,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="588"
                                      data-position="56">
-                                    <div class="tooltip">
-                                        Reading ID: 588
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10209,9 +9448,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="589"
                                      data-position="57">
-                                    <div class="tooltip">
-                                        Reading ID: 589
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10249,9 +9485,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="590"
                                      data-position="58">
-                                    <div class="tooltip">
-                                        Reading ID: 590
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10289,9 +9522,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="591"
                                      data-position="59">
-                                    <div class="tooltip">
-                                        Reading ID: 591
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10329,9 +9559,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="592"
                                      data-position="60">
-                                    <div class="tooltip">
-                                        Reading ID: 592
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10369,9 +9596,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="593"
                                      data-position="61">
-                                    <div class="tooltip">
-                                        Reading ID: 593
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10409,9 +9633,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="594"
                                      data-position="62">
-                                    <div class="tooltip">
-                                        Reading ID: 594
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10449,9 +9670,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="595"
                                      data-position="63">
-                                    <div class="tooltip">
-                                        Reading ID: 595
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10489,9 +9707,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="596"
                                      data-position="64">
-                                    <div class="tooltip">
-                                        Reading ID: 596
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10529,9 +9744,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="597"
                                      data-position="65">
-                                    <div class="tooltip">
-                                        Reading ID: 597
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10569,9 +9781,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="598"
                                      data-position="66">
-                                    <div class="tooltip">
-                                        Reading ID: 598
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10609,9 +9818,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="601"
                                      data-position="67">
-                                    <div class="tooltip">
-                                        Reading ID: 601
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10649,9 +9855,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="428"
                                      data-position="68">
-                                    <div class="tooltip">
-                                        Reading ID: 428
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10689,9 +9892,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="429"
                                      data-position="69">
-                                    <div class="tooltip">
-                                        Reading ID: 429
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10729,9 +9929,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="430"
                                      data-position="70">
-                                    <div class="tooltip">
-                                        Reading ID: 430
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10769,9 +9966,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="434"
                                      data-position="71">
-                                    <div class="tooltip">
-                                        Reading ID: 434
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10809,9 +10003,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="435"
                                      data-position="72">
-                                    <div class="tooltip">
-                                        Reading ID: 435
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10849,9 +10040,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="436"
                                      data-position="73">
-                                    <div class="tooltip">
-                                        Reading ID: 436
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10889,9 +10077,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="437"
                                      data-position="74">
-                                    <div class="tooltip">
-                                        Reading ID: 437
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10929,9 +10114,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="438"
                                      data-position="75">
-                                    <div class="tooltip">
-                                        Reading ID: 438
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -10969,9 +10151,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="439"
                                      data-position="76">
-                                    <div class="tooltip">
-                                        Reading ID: 439
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11009,9 +10188,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="440"
                                      data-position="77">
-                                    <div class="tooltip">
-                                        Reading ID: 440
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11049,9 +10225,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="441"
                                      data-position="78">
-                                    <div class="tooltip">
-                                        Reading ID: 441
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11089,9 +10262,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="442"
                                      data-position="79">
-                                    <div class="tooltip">
-                                        Reading ID: 442
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11129,9 +10299,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="443"
                                      data-position="80">
-                                    <div class="tooltip">
-                                        Reading ID: 443
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11169,9 +10336,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="444"
                                      data-position="81">
-                                    <div class="tooltip">
-                                        Reading ID: 444
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11209,9 +10373,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="445"
                                      data-position="82">
-                                    <div class="tooltip">
-                                        Reading ID: 445
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11249,9 +10410,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="446"
                                      data-position="83">
-                                    <div class="tooltip">
-                                        Reading ID: 446
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11289,9 +10447,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="447"
                                      data-position="84">
-                                    <div class="tooltip">
-                                        Reading ID: 447
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11329,9 +10484,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="449"
                                      data-position="85">
-                                    <div class="tooltip">
-                                        Reading ID: 449
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11369,9 +10521,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="450"
                                      data-position="86">
-                                    <div class="tooltip">
-                                        Reading ID: 450
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11409,9 +10558,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="451"
                                      data-position="87">
-                                    <div class="tooltip">
-                                        Reading ID: 451
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11449,9 +10595,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="452"
                                      data-position="88">
-                                    <div class="tooltip">
-                                        Reading ID: 452
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11489,9 +10632,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="453"
                                      data-position="89">
-                                    <div class="tooltip">
-                                        Reading ID: 453
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11529,9 +10669,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="454"
                                      data-position="90">
-                                    <div class="tooltip">
-                                        Reading ID: 454
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11569,9 +10706,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="455"
                                      data-position="91">
-                                    <div class="tooltip">
-                                        Reading ID: 455
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11609,9 +10743,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="456"
                                      data-position="92">
-                                    <div class="tooltip">
-                                        Reading ID: 456
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11649,9 +10780,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="457"
                                      data-position="93">
-                                    <div class="tooltip">
-                                        Reading ID: 457
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11689,9 +10817,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="458"
                                      data-position="94">
-                                    <div class="tooltip">
-                                        Reading ID: 458
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11729,9 +10854,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="459"
                                      data-position="95">
-                                    <div class="tooltip">
-                                        Reading ID: 459
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11769,9 +10891,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="460"
                                      data-position="96">
-                                    <div class="tooltip">
-                                        Reading ID: 460
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11809,9 +10928,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="461"
                                      data-position="97">
-                                    <div class="tooltip">
-                                        Reading ID: 461
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11849,9 +10965,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="462"
                                      data-position="98">
-                                    <div class="tooltip">
-                                        Reading ID: 462
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11889,9 +11002,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="463"
                                      data-position="99">
-                                    <div class="tooltip">
-                                        Reading ID: 463
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11929,9 +11039,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="464"
                                      data-position="100">
-                                    <div class="tooltip">
-                                        Reading ID: 464
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -11969,9 +11076,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="465"
                                      data-position="101">
-                                    <div class="tooltip">
-                                        Reading ID: 465
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -12009,9 +11113,6 @@
                                 <div class="book-card audio"
                                      data-reading-id="466"
                                      data-position="102">
-                                    <div class="tooltip">
-                                        Reading ID: 466
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
@@ -12052,7 +11153,7 @@
             
         </div>
         <div class="generated-date">
-            Generated on 2025-02-24 16:18:30
+            Generated on 2025-02-24 16:51:37
         </div>
     </div>
 </body>

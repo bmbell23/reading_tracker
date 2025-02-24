@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading Journey in 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/styles/reading_report.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="title-section">
+        <h1>My Reading Journey in 2026</h1>
+        <p class="intro-text">A look ahead at my projected reading journey for 2026. These are the books I plan to complete, charting a path through the year ahead.</p>
+        <div class="title-decoration">
+            <span class="dot"></span>
+            <span class="line"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+
+    <div class="year-summary">
+        <h2>Year at a Glance</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">71</div>
+                <div class="stat-label">Books Completed</div>
+                <canvas id="booksChart" width="300" height="200"></canvas>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">10,792,270</div>
+                <div class="stat-label">Words Read</div>
+                <canvas id="wordsChart" width="300" height="200"></canvas>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">19,234</div>
+                <div class="stat-label">Pages Read</div>
+                <canvas id="pagesChart" width="300" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        maxTicksLimit: 5
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        };
+
+        // Set fixed dimensions for the chart containers
+        const chartContainers = document.querySelectorAll('.stat-card canvas');
+        chartContainers.forEach(container => {
+            container.style.height = '200px';
+        });
+
+        // Create charts with fixed dimensions
+        const charts = {
+            books: new Chart(document.getElementById('booksChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [4, 5, 6, 10, 5, 6, 4, 8, 5, 6, 4, 8],
+                        backgroundColor: '#3b82f6',  // blue
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            words: new Chart(document.getElementById('wordsChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [879602, 884726, 1049880, 792669, 792702, 897613, 649592, 1173395, 772059, 974464, 601764, 1323804],
+                        backgroundColor: '#10b981',  // green
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            pages: new Chart(document.getElementById('pagesChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [0, 1597, 2424, 1277, 1646, 2712, 2347, 2434, 1280, 1197, 528, 1792],
+                        backgroundColor: '#f59e0b',  // orange
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            })
+        };
+
+        // Handle resize events
+        window.addEventListener('resize', () => {
+            Object.values(charts).forEach(chart => {
+                chart.resize();
+            });
+        });
+    </script>
+
+    
+    
+    <section class="month-section" data-month="1">
+        <div class="month-header">
+            <h2 class="month-title">January</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">879,602</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">0</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/468.jpg"
+                         alt="Cover of The Burning White"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 468">
+                        <span class="book-title">The Burning White</span>
+                    </div>
+                    <div class="book-author">Brent Weeks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/683.jpg"
+                         alt="Cover of The Shadow of What Was Lost"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 683">
+                        <span class="book-title">The Shadow of What Was Lost</span>
+                    </div>
+                    <div class="book-author">James Islington</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/830.jpg"
+                         alt="Cover of A Time of Dread"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 830">
+                        <span class="book-title">A Time of Dread</span>
+                    </div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/831.jpg"
+                         alt="Cover of A Time of Blood"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 831">
+                        <span class="book-title">A Time of Blood</span>
+                    </div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="2">
+        <div class="month-header">
+            <h2 class="month-title">February</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">884,726</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,597</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/210.jpg"
+                         alt="Cover of The Will of the Many"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 210">
+                        <span class="book-title">The Will of the Many</span>
+                    </div>
+                    <div class="book-author">James Islington</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/832.jpg"
+                         alt="Cover of A Time of Courage"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 832">
+                        <span class="book-title">A Time of Courage</span>
+                    </div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/684.jpg"
+                         alt="Cover of An Echo of Things to Come"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 684">
+                        <span class="book-title">An Echo of Things to Come</span>
+                    </div>
+                    <div class="book-author">James Islington</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/929.jpg"
+                         alt="Cover of Vicious"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 929">
+                        <span class="book-title">Vicious</span>
+                    </div>
+                    <div class="book-author">VE Schwab</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/930.jpg"
+                         alt="Cover of Vengeful"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 930">
+                        <span class="book-title">Vengeful</span>
+                    </div>
+                    <div class="book-author">VE Schwab</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="3">
+        <div class="month-header">
+            <h2 class="month-title">March</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">6</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,049,880</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,424</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/919.jpg"
+                         alt="Cover of Foundryside"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 919">
+                        <span class="book-title">Foundryside</span>
+                    </div>
+                    <div class="book-author">Robert Jackson Bennett</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/894.jpg"
+                         alt="Cover of The Strength of the Few"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 894">
+                        <span class="book-title">The Strength of the Few</span>
+                    </div>
+                    <div class="book-author">James Islington</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/920.jpg"
+                         alt="Cover of Shorefall"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 920">
+                        <span class="book-title">Shorefall</span>
+                    </div>
+                    <div class="book-author">Robert Jackson Bennett</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/92.jpg"
+                         alt="Cover of The Long Walk"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 92">
+                        <span class="book-title">The Long Walk</span>
+                    </div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/341.jpg"
+                         alt="Cover of The Light of All That Falls"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 341">
+                        <span class="book-title">The Light of All That Falls</span>
+                    </div>
+                    <div class="book-author">James Islington</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/921.jpg"
+                         alt="Cover of Locklands"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 921">
+                        <span class="book-title">Locklands</span>
+                    </div>
+                    <div class="book-author">Robert Jackson Bennett</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="4">
+        <div class="month-header">
+            <h2 class="month-title">April</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">10</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">792,669</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,277</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/909.jpg"
+                         alt="Cover of All Systems Red"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 909">
+                        <span class="book-title">All Systems Red</span>
+                    </div>
+                    <div class="book-author">Martha Wells</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/910.jpg"
+                         alt="Cover of Artificial Condition"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 910">
+                        <span class="book-title">Artificial Condition</span>
+                    </div>
+                    <div class="book-author">Martha Wells</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/911.jpg"
+                         alt="Cover of Rogue Protocol"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 911">
+                        <span class="book-title">Rogue Protocol</span>
+                    </div>
+                    <div class="book-author">Martha Wells</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/912.jpg"
+                         alt="Cover of Exit Strategy"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 912">
+                        <span class="book-title">Exit Strategy</span>
+                    </div>
+                    <div class="book-author">Martha Wells</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/197.jpg"
+                         alt="Cover of Children of Dune"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 197">
+                        <span class="book-title">Children of Dune</span>
+                    </div>
+                    <div class="book-author">Frank Herbert</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/733.jpg"
+                         alt="Cover of Magician: Apprentice"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 733">
+                        <span class="book-title">Magician: Apprentice</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/913.jpg"
+                         alt="Cover of Network Effect"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 913">
+                        <span class="book-title">Network Effect</span>
+                    </div>
+                    <div class="book-author">Martha Wells</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/914.jpg"
+                         alt="Cover of Fugitive Telemetry"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 914">
+                        <span class="book-title">Fugitive Telemetry</span>
+                    </div>
+                    <div class="book-author">Martha Wells</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/915.jpg"
+                         alt="Cover of System Collapse"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 915">
+                        <span class="book-title">System Collapse</span>
+                    </div>
+                    <div class="book-author">Martha Wells</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/70.jpg"
+                         alt="Cover of Red Rising"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 70">
+                        <span class="book-title">Red Rising</span>
+                    </div>
+                    <div class="book-author">Pierce Brown</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="5">
+        <div class="month-header">
+            <h2 class="month-title">May</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">792,702</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,646</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/825.jpg"
+                         alt="Cover of Magician: Master"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 825">
+                        <span class="book-title">Magician: Master</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/895.jpg"
+                         alt="Cover of Leviathan Wakes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 895">
+                        <span class="book-title">Leviathan Wakes</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/72.jpg"
+                         alt="Cover of Golden Son"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 72">
+                        <span class="book-title">Golden Son</span>
+                    </div>
+                    <div class="book-author">Pierce Brown</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/896.jpg"
+                         alt="Cover of Caliban's War"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 896">
+                        <span class="book-title">Caliban's War</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/745.jpg"
+                         alt="Cover of Silverthorn"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 745">
+                        <span class="book-title">Silverthorn</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="6">
+        <div class="month-header">
+            <h2 class="month-title">June</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">6</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">897,613</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,712</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/897.jpg"
+                         alt="Cover of Abaddon's Gate"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 897">
+                        <span class="book-title">Abaddon's Gate</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/898.jpg"
+                         alt="Cover of Cibola Burn"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 898">
+                        <span class="book-title">Cibola Burn</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/76.jpg"
+                         alt="Cover of Morning Star"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 76">
+                        <span class="book-title">Morning Star</span>
+                    </div>
+                    <div class="book-author">Pierce Brown</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/899.jpg"
+                         alt="Cover of Nemesis Games"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 899">
+                        <span class="book-title">Nemesis Games</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/608.jpg"
+                         alt="Cover of A Darkness at Sethanon"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 608">
+                        <span class="book-title">A Darkness at Sethanon</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/900.jpg"
+                         alt="Cover of Babylon's Ashes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 900">
+                        <span class="book-title">Babylon's Ashes</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="7">
+        <div class="month-header">
+            <h2 class="month-title">July</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">649,592</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,347</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/81.jpg"
+                         alt="Cover of Iron Gold"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 81">
+                        <span class="book-title">Iron Gold</span>
+                    </div>
+                    <div class="book-author">Pierce Brown</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/901.jpg"
+                         alt="Cover of Persepolis Rising"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 901">
+                        <span class="book-title">Persepolis Rising</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/431.jpg"
+                         alt="Cover of The Pariah"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 431">
+                        <span class="book-title">The Pariah</span>
+                    </div>
+                    <div class="book-author">Anthony Ryan</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/902.jpg"
+                         alt="Cover of Tiamat's Wrath"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 902">
+                        <span class="book-title">Tiamat's Wrath</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="8">
+        <div class="month-header">
+            <h2 class="month-title">August</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">8</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,173,395</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,434</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/903.jpg"
+                         alt="Cover of Leviathan Falls"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 903">
+                        <span class="book-title">Leviathan Falls</span>
+                    </div>
+                    <div class="book-author">James SA Corey</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/82.jpg"
+                         alt="Cover of Dark Age"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 82">
+                        <span class="book-title">Dark Age</span>
+                    </div>
+                    <div class="book-author">Pierce Brown</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/432.jpg"
+                         alt="Cover of The Martyr"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 432">
+                        <span class="book-title">The Martyr</span>
+                    </div>
+                    <div class="book-author">Anthony Ryan</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/811.jpg"
+                         alt="Cover of Storm Front"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 811">
+                        <span class="book-title">Storm Front</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/812.jpg"
+                         alt="Cover of Fool Moon"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 812">
+                        <span class="book-title">Fool Moon</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/611.jpg"
+                         alt="Cover of Grave Peril"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 611">
+                        <span class="book-title">Grave Peril</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/433.jpg"
+                         alt="Cover of The Traitor"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 433">
+                        <span class="book-title">The Traitor</span>
+                    </div>
+                    <div class="book-author">Anthony Ryan</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/814.jpg"
+                         alt="Cover of Summer Knight"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 814">
+                        <span class="book-title">Summer Knight</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="9">
+        <div class="month-header">
+            <h2 class="month-title">September</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">772,059</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,280</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/800.jpg"
+                         alt="Cover of Death Masks"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 800">
+                        <span class="book-title">Death Masks</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/106.jpg"
+                         alt="Cover of Light Bringer"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 106">
+                        <span class="book-title">Light Bringer</span>
+                    </div>
+                    <div class="book-author">Pierce Brown</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/755.jpg"
+                         alt="Cover of Blood Rites"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 755">
+                        <span class="book-title">Blood Rites</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/876.jpg"
+                         alt="Cover of Children of Time"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 876">
+                        <span class="book-title">Children of Time</span>
+                    </div>
+                    <div class="book-author">Adrian Tchaikovsky</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/799.jpg"
+                         alt="Cover of Dead Beat"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 799">
+                        <span class="book-title">Dead Beat</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="10">
+        <div class="month-header">
+            <h2 class="month-title">October</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">6</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">974,464</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,197</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/801.jpg"
+                         alt="Cover of Proven Guilty"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 801">
+                        <span class="book-title">Proven Guilty</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/948.jpg"
+                         alt="Cover of Children of Ruin"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 948">
+                        <span class="book-title">Children of Ruin</span>
+                    </div>
+                    <div class="book-author">Adrian Tchaikovsky</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/363.jpg"
+                         alt="Cover of Red God"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 363">
+                        <span class="book-title">Red God</span>
+                    </div>
+                    <div class="book-author">Pierce Brown</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/803.jpg"
+                         alt="Cover of White Night"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 803">
+                        <span class="book-title">White Night</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/333.jpg"
+                         alt="Cover of Small Favor"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 333">
+                        <span class="book-title">Small Favor</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/875.jpg"
+                         alt="Cover of Shards of Earth"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 875">
+                        <span class="book-title">Shards of Earth</span>
+                    </div>
+                    <div class="book-author">Adrian Tchaikovsky</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="11">
+        <div class="month-header">
+            <h2 class="month-title">November</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">601,764</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">528</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/85.jpg"
+                         alt="Cover of Fourth Wing"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 85">
+                        <span class="book-title">Fourth Wing</span>
+                    </div>
+                    <div class="book-author">Rebecca Yarros</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/235.jpg"
+                         alt="Cover of Turn Coat"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 235">
+                        <span class="book-title">Turn Coat</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/760.jpg"
+                         alt="Cover of Changes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 760">
+                        <span class="book-title">Changes</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/772.jpg"
+                         alt="Cover of Ghost story"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 772">
+                        <span class="book-title">Ghost story</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="12">
+        <div class="month-header">
+            <h2 class="month-title">December</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">8</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,323,804</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,792</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/968.jpg"
+                         alt="Cover of Dragonsteel Prime"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 968">
+                        <span class="book-title">Dragonsteel Prime</span>
+                    </div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/176.jpg"
+                         alt="Cover of Iron Flame"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 176">
+                        <span class="book-title">Iron Flame</span>
+                    </div>
+                    <div class="book-author">Rebecca Yarros</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/797.jpg"
+                         alt="Cover of Cold Days"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 797">
+                        <span class="book-title">Cold Days</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/612.jpg"
+                         alt="Cover of Steelheart"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 612">
+                        <span class="book-title">Steelheart</span>
+                    </div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/783.jpg"
+                         alt="Cover of Skin Game"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 783">
+                        <span class="book-title">Skin Game</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/785.jpg"
+                         alt="Cover of Peace Talks"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 785">
+                        <span class="book-title">Peace Talks</span>
+                    </div>
+                    <div class="book-author">Jim Butcher</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/598.jpg"
+                         alt="Cover of Onyx Storm"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 598">
+                        <span class="book-title">Onyx Storm</span>
+                    </div>
+                    <div class="book-author">Rebecca Yarros</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/613.jpg"
+                         alt="Cover of Firefight"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 613">
+                        <span class="book-title">Firefight</span>
+                    </div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+
+</body>
+</html>

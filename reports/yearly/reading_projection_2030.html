@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading Journey in 2030</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/styles/reading_report.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="title-section">
+        <h1>My Reading Journey in 2030</h1>
+        <p class="intro-text">A look ahead at my projected reading journey for 2030. These are the books I plan to complete, charting a path through the year ahead.</p>
+        <div class="title-decoration">
+            <span class="dot"></span>
+            <span class="line"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+
+    <div class="year-summary">
+        <h2>Year at a Glance</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">70</div>
+                <div class="stat-label">Books Completed</div>
+                <canvas id="booksChart" width="300" height="200"></canvas>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">9,131,306</div>
+                <div class="stat-label">Words Read</div>
+                <canvas id="wordsChart" width="300" height="200"></canvas>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">9,377</div>
+                <div class="stat-label">Pages Read</div>
+                <canvas id="pagesChart" width="300" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        maxTicksLimit: 5
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        };
+
+        // Set fixed dimensions for the chart containers
+        const chartContainers = document.querySelectorAll('.stat-card canvas');
+        chartContainers.forEach(container => {
+            container.style.height = '200px';
+        });
+
+        // Create charts with fixed dimensions
+        const charts = {
+            books: new Chart(document.getElementById('booksChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [6, 8, 7, 7, 7, 7, 6, 7, 5, 3, 3, 4],
+                        backgroundColor: '#3b82f6',  // blue
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            words: new Chart(document.getElementById('wordsChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [774680, 1078109, 875487, 936938, 700715, 1019204, 687360, 897452, 782968, 484509, 420762, 473122],
+                        backgroundColor: '#10b981',  // green
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            }),
+            pages: new Chart(document.getElementById('pagesChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        data: [0, 1170, 694, 969, 0, 1179, 0, 1061, 1125, 1067, 1184, 928],
+                        backgroundColor: '#f59e0b',  // orange
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: chartOptions
+            })
+        };
+
+        // Handle resize events
+        window.addEventListener('resize', () => {
+            Object.values(charts).forEach(chart => {
+                chart.resize();
+            });
+        });
+    </script>
+
+    
+    
+    <section class="month-section" data-month="1">
+        <div class="month-header">
+            <h2 class="month-title">January</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">6</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">774,680</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">0</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/768.jpg"
+                         alt="Cover of Tanequil"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 768">
+                        <span class="book-title">Tanequil</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/426.jpg"
+                         alt="Cover of Rage of a Demon King"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 426">
+                        <span class="book-title">Rage of a Demon King</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/769.jpg"
+                         alt="Cover of Straken"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 769">
+                        <span class="book-title">Straken</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/778.jpg"
+                         alt="Cover of Wards of Faerie"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 778">
+                        <span class="book-title">Wards of Faerie</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/712.jpg"
+                         alt="Cover of Shards of a Broken Crown"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 712">
+                        <span class="book-title">Shards of a Broken Crown</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/775.jpg"
+                         alt="Cover of Bloodfire Quest"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 775">
+                        <span class="book-title">Bloodfire Quest</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="2">
+        <div class="month-header">
+            <h2 class="month-title">February</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">8</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,078,109</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,170</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/144.jpg"
+                         alt="Cover of The Wise Man's Fear"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 144">
+                        <span class="book-title">The Wise Man's Fear</span>
+                    </div>
+                    <div class="book-author">Patrick Rothfuss</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/152.jpg"
+                         alt="Cover of The Slow Regard of Silent Things"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 152">
+                        <span class="book-title">The Slow Regard of Silent Things</span>
+                    </div>
+                    <div class="book-author">Patrick Rothfuss</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/299.jpg"
+                         alt="Cover of Witch Wraith"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 299">
+                        <span class="book-title">Witch Wraith</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/713.jpg"
+                         alt="Cover of Krondor: The Betrayal"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 713">
+                        <span class="book-title">Krondor: The Betrayal</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/782.jpg"
+                         alt="Cover of The High Druid's Blade"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 782">
+                        <span class="book-title">The High Druid's Blade</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/425.jpg"
+                         alt="Cover of The Darkling Child"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 425">
+                        <span class="book-title">The Darkling Child</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/428.jpg"
+                         alt="Cover of Krondor: The Assassins"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 428">
+                        <span class="book-title">Krondor: The Assassins</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/787.jpg"
+                         alt="Cover of The Sorcerer's Daughter"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 787">
+                        <span class="book-title">The Sorcerer's Daughter</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="3">
+        <div class="month-header">
+            <h2 class="month-title">March</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">7</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">875,487</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">694</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/788.jpg"
+                         alt="Cover of The Black Elfstone"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 788">
+                        <span class="book-title">The Black Elfstone</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/724.jpg"
+                         alt="Cover of Krondor: Tear of the Gods"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 724">
+                        <span class="book-title">Krondor: Tear of the Gods</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/789.jpg"
+                         alt="Cover of The Skaar Invasion"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 789">
+                        <span class="book-title">The Skaar Invasion</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/123.jpg"
+                         alt="Cover of A Game of Thrones"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 123">
+                        <span class="book-title">A Game of Thrones</span>
+                    </div>
+                    <div class="book-author">George RR Martin</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/725.jpg"
+                         alt="Cover of Honoured Enemy"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 725">
+                        <span class="book-title">Honoured Enemy</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/790.jpg"
+                         alt="Cover of The Stiehl Assassin"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 790">
+                        <span class="book-title">The Stiehl Assassin</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/791.jpg"
+                         alt="Cover of The Last Druid"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 791">
+                        <span class="book-title">The Last Druid</span>
+                    </div>
+                    <div class="book-author">Terry Brooks</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="4">
+        <div class="month-header">
+            <h2 class="month-title">April</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">7</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">936,938</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">969</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/434.jpg"
+                         alt="Cover of Murder in LaMut"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 434">
+                        <span class="book-title">Murder in LaMut</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/697.jpg"
+                         alt="Cover of Lord Brocktree"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 697">
+                        <span class="book-title">Lord Brocktree</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/690.jpg"
+                         alt="Cover of Martin the Warrior"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 690">
+                        <span class="book-title">Martin the Warrior</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/435.jpg"
+                         alt="Cover of Talon of the Silver Hawk"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 435">
+                        <span class="book-title">Talon of the Silver Hawk</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/686.jpg"
+                         alt="Cover of Mossflower"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 686">
+                        <span class="book-title">Mossflower</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/696.jpg"
+                         alt="Cover of The Legend of Luke"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 696">
+                        <span class="book-title">The Legend of Luke</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/126.jpg"
+                         alt="Cover of A Clash of Kings"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 126">
+                        <span class="book-title">A Clash of Kings</span>
+                    </div>
+                    <div class="book-author">George RR Martin</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="5">
+        <div class="month-header">
+            <h2 class="month-title">May</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">7</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">700,715</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">0</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/752.jpg"
+                         alt="Cover of Jimmy the Hand"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 752">
+                        <span class="book-title">Jimmy the Hand</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/692.jpg"
+                         alt="Cover of Outcast of Redwall"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 692">
+                        <span class="book-title">Outcast of Redwall</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/688.jpg"
+                         alt="Cover of Mariel of Redwall"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 688">
+                        <span class="book-title">Mariel of Redwall</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/656.jpg"
+                         alt="Cover of King of Foxes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 656">
+                        <span class="book-title">King of Foxes</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/691.jpg"
+                         alt="Cover of The Bellmaker"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 691">
+                        <span class="book-title">The Bellmaker</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/689.jpg"
+                         alt="Cover of Salamandastron"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 689">
+                        <span class="book-title">Salamandastron</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/657.jpg"
+                         alt="Cover of Exiles Return"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 657">
+                        <span class="book-title">Exiles Return</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="6">
+        <div class="month-header">
+            <h2 class="month-title">June</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">7</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,019,204</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,179</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/364.jpg"
+                         alt="Cover of Redwall"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 364">
+                        <span class="book-title">Redwall</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/687.jpg"
+                         alt="Cover of Mattimeo"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 687">
+                        <span class="book-title">Mattimeo</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/658.jpg"
+                         alt="Cover of Flight of the Nighthawks"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 658">
+                        <span class="book-title">Flight of the Nighthawks</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/693.jpg"
+                         alt="Cover of The Pearls of Lutra"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 693">
+                        <span class="book-title">The Pearls of Lutra</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/127.jpg"
+                         alt="Cover of A Storm of Swords"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 127">
+                        <span class="book-title">A Storm of Swords</span>
+                    </div>
+                    <div class="book-author">George RR Martin</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/659.jpg"
+                         alt="Cover of Into a Dark Realm"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 659">
+                        <span class="book-title">Into a Dark Realm</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/694.jpg"
+                         alt="Cover of The Long Patrol"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 694">
+                        <span class="book-title">The Long Patrol</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="7">
+        <div class="month-header">
+            <h2 class="month-title">July</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">6</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">687,360</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">0</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/695.jpg"
+                         alt="Cover of Marlfox"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 695">
+                        <span class="book-title">Marlfox</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/660.jpg"
+                         alt="Cover of Wrath of a Mad God"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 660">
+                        <span class="book-title">Wrath of a Mad God</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/698.jpg"
+                         alt="Cover of The Taggerung"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 698">
+                        <span class="book-title">The Taggerung</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/699.jpg"
+                         alt="Cover of Triss"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 699">
+                        <span class="book-title">Triss</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/661.jpg"
+                         alt="Cover of Rides a Dread Legion"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 661">
+                        <span class="book-title">Rides a Dread Legion</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/500.jpg"
+                         alt="Cover of Loamhedge"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 500">
+                        <span class="book-title">Loamhedge</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="8">
+        <div class="month-header">
+            <h2 class="month-title">August</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">7</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">897,452</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,061</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/130.jpg"
+                         alt="Cover of A Feast for Crows"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 130">
+                        <span class="book-title">A Feast for Crows</span>
+                    </div>
+                    <div class="book-author">George RR Martin</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/501.jpg"
+                         alt="Cover of Rakkety Tam"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 501">
+                        <span class="book-title">Rakkety Tam</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/741.jpg"
+                         alt="Cover of At the Gates of Darkness"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 741">
+                        <span class="book-title">At the Gates of Darkness</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/502.jpg"
+                         alt="Cover of High Rhulain"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 502">
+                        <span class="book-title">High Rhulain</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/451.jpg"
+                         alt="Cover of Eulalia!"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 451">
+                        <span class="book-title">Eulalia!</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/247.jpg"
+                         alt="Cover of A Kingdom Besieged"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 247">
+                        <span class="book-title">A Kingdom Besieged</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/504.jpg"
+                         alt="Cover of Doomwyte"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 504">
+                        <span class="book-title">Doomwyte</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="9">
+        <div class="month-header">
+            <h2 class="month-title">September</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">782,968</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,125</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/505.jpg"
+                         alt="Cover of The Sable Quean"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 505">
+                        <span class="book-title">The Sable Quean</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/335.jpg"
+                         alt="Cover of A Crown Imperiled"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 335">
+                        <span class="book-title">A Crown Imperiled</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/337.jpg"
+                         alt="Cover of Jimmy and the Crawler"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 337">
+                        <span class="book-title">Jimmy and the Crawler</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/506.jpg"
+                         alt="Cover of The Rogue Crew"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 506">
+                        <span class="book-title">The Rogue Crew</span>
+                    </div>
+                    <div class="book-author">Brian Jacques</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/132.jpg"
+                         alt="Cover of A Dance with Dragons"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 132">
+                        <span class="book-title">A Dance with Dragons</span>
+                    </div>
+                    <div class="book-author">George RR Martin</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="10">
+        <div class="month-header">
+            <h2 class="month-title">October</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">3</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">484,509</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,067</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/338.jpg"
+                         alt="Cover of Magicians End"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 338">
+                        <span class="book-title">Magicians End</span>
+                    </div>
+                    <div class="book-author">Raymond E Feist</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/19.jpg"
+                         alt="Cover of A Court of Thorns and Roses"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 19">
+                        <span class="book-title">A Court of Thorns and Roses</span>
+                    </div>
+                    <div class="book-author">Sarah J Maas</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/244.jpg"
+                         alt="Cover of The Sword of Kaigen"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 244">
+                        <span class="book-title">The Sword of Kaigen</span>
+                    </div>
+                    <div class="book-author">ML Wang</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="11">
+        <div class="month-header">
+            <h2 class="month-title">November</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">3</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">420,762</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">1,184</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/1024.jpg"
+                         alt="Cover of The Road"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 1024">
+                        <span class="book-title">The Road</span>
+                    </div>
+                    <div class="book-author">Comac McCarthy</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/30.jpg"
+                         alt="Cover of A Court of Mist and Fury"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 30">
+                        <span class="book-title">A Court of Mist and Fury</span>
+                    </div>
+                    <div class="book-author">Sarah J Maas</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/951.jpg"
+                         alt="Cover of The Devils"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 951">
+                        <span class="book-title">The Devils</span>
+                    </div>
+                    <div class="book-author">Joe Abercrombie</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="12">
+        <div class="month-header">
+            <h2 class="month-title">December</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">473,122</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">928</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/36.jpg"
+                         alt="Cover of A Court of Wings and Ruin"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 36">
+                        <span class="book-title">A Court of Wings and Ruin</span>
+                    </div>
+                    <div class="book-author">Sarah J Maas</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/37.jpg"
+                         alt="Cover of A Court of Frost and Starlight"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 37">
+                        <span class="book-title">A Court of Frost and Starlight</span>
+                    </div>
+                    <div class="book-author">Sarah J Maas</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/988.jpg"
+                         alt="Cover of Jurassic Park"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 988">
+                        <span class="book-title">Jurassic Park</span>
+                    </div>
+                    <div class="book-author">Michael Crichton</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/989.jpg"
+                         alt="Cover of The Lost World"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title-container" data-book-id="Book ID: 989">
+                        <span class="book-title">The Lost World</span>
+                    </div>
+                    <div class="book-author">Michael Crichton</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+
+</body>
+</html>

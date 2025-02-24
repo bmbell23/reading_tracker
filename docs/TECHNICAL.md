@@ -257,11 +257,11 @@ CREATE TABLE books (
 
 ### Readings Table
 ```sql
-CREATE TABLE readings (
+CREATE TABLE read (
     id_read INTEGER PRIMARY KEY,
     id_previous INTEGER,
     id_book INTEGER NOT NULL,
-    format TEXT,
+    media TEXT,
     date_started DATE,
     date_finished_actual DATE,
     date_finished_estimate DATE,

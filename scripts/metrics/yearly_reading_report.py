@@ -21,7 +21,10 @@ def get_monthly_readings(year: int, conn):
             b.author_name_first,
             b.author_name_second,
             b.page_count,
-            b.word_count
+            b.word_count,
+            r.media,
+            r.date_started,
+            r.date_finished_actual
         FROM read r
         JOIN books b ON r.book_id = b.id
         WHERE strftime('%Y', r.date_finished_actual) = :year

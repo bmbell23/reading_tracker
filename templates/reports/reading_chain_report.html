@@ -75,27 +75,7 @@
             transition: transform 0.2s;
             height: 120px; /* Set fixed height */
             overflow: hidden; /* Prevent content from expanding card */
-        }
-
-        .tooltip {
-            visibility: hidden;
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 1000;
-            pointer-events: none;
-            margin-bottom: 5px;
-        }
-
-        .book-card:hover .tooltip {
-            visibility: visible;
+            cursor: pointer;
         }
 
         /* Media-specific card backgrounds */
@@ -307,9 +287,6 @@
                                 <div class="book-card {{ book.media.lower() }}"
                                      data-reading-id="{{ book.read_id }}"
                                      data-position="{{ loop.index }}">
-                                    <div class="tooltip">
-                                        Reading ID: {{ book.read_id }}
-                                    </div>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
