@@ -11,34 +11,38 @@ from jinja2 import Environment, FileSystemLoader
 
 console = Console()
 
-def get_monthly_readings(year: int, conn):
-    """Get all books read in the specified year, grouped by month"""
+def format_author_name(first, second):
+    """Format author's full name"""
+    return f"{first or ''} {second or ''}".strip() or "Unknown Author"
+
+def get_projected_readings(year: int, conn):
+    """Get all books projected to be read in the specified year"""
     query = """
         SELECT
-            strftime('%m', r.date_finished_actual) as month,
+            strftime('%m', COALESCE(r.date_finished_actual, r.date_est_end)) as month,
             b.id,
             b.title,
             b.author_name_first,
             b.author_name_second,
             b.page_count,
-            b.word_count
+            b.word_count,
+            r.media,
+            r.date_started as date_started,
+            r.date_finished_actual as date_finished_actual,
+            r.date_est_end as date_est_end
         FROM read r
         JOIN books b ON r.book_id = b.id
-        WHERE strftime('%Y', r.date_finished_actual) = :year
-        AND r.date_finished_actual IS NOT NULL
-        ORDER BY r.date_finished_actual
+        WHERE strftime('%Y', COALESCE(r.date_finished_actual, r.date_est_end)) = :year
+        AND (r.date_finished_actual IS NOT NULL OR r.date_est_end IS NOT NULL)
+        ORDER BY COALESCE(r.date_finished_actual, r.date_est_end)
     """
     return conn.execute(text(query), {"year": str(year)}).fetchall()
-
-def format_author_name(first, second):
-    """Format author's full name"""
-    return f"{first or ''} {second or ''}".strip() or "Unknown Author"
 
 def process_readings_data(readings):
     """Process raw readings data into a format suitable for the template"""
     months_data = {}
 
-    # Initialize all months
+    # Initialize all months with zero values
     for month in range(1, 13):
         months_data[month] = {
             'books': [],
@@ -50,14 +54,16 @@ def process_readings_data(readings):
     for reading in readings:
         month = int(reading.month)
         book_data = {
-            'id': reading.id,  # Make sure we're including the ID
+            'id': reading.id,
             'title': reading.title,
             'author': format_author_name(reading.author_name_first, reading.author_name_second),
             'pages': int(reading.page_count or 0),
             'words': int(reading.word_count or 0),
             'media': reading.media,
-            'started': reading.date_started if reading.date_started else None,
-            'finished': reading.date_finished_actual if reading.date_finished_actual else None
+            'started': reading.date_started if reading.date_started else 'Not started',
+            'est_end': (reading.date_finished_actual if reading.date_finished_actual
+                       else reading.date_est_end if reading.date_est_end
+                       else 'Unknown')
         }
 
         months_data[month]['books'].append(book_data)
@@ -69,31 +75,43 @@ def process_readings_data(readings):
 
 def generate_html_report(year: int):
     """Generate HTML report for the specified year"""
-    # Get standardized project paths
     project_paths = get_project_paths()
     workspace = project_paths['workspace']
 
-    # Set up Jinja2 environment
+    # Use the same template as yearly report
     template_dir = workspace / 'templates' / 'reports'
     env = Environment(loader=FileSystemLoader(template_dir))
     template = env.get_template('yearly_reading_report.html')
 
     with engine.connect() as conn:
-        readings = get_monthly_readings(year, conn)
+        readings = get_projected_readings(year, conn)
 
         if not readings:
-            console.print(f"[red]No books found for year {year}[/red]")
+            console.print(f"[red]No projected books found for year {year}[/red]")
             return
 
-        # Process the data into the format expected by the template
         months_data = process_readings_data(readings)
 
-        # Prepare monthly data for charts
         monthly_books_data = [months_data[m]['total_books'] for m in range(1, 13)]
         monthly_words_data = [months_data[m]['total_words'] for m in range(1, 13)]
         monthly_pages_data = [months_data[m]['total_pages'] for m in range(1, 13)]
 
-        # Prepare template context
+        # Calculate cumulative data
+        cumulative_books = []
+        cumulative_words = []
+        cumulative_pages = []
+        running_books = 0
+        running_words = 0
+        running_pages = 0
+
+        for m in range(1, 13):
+            running_books += months_data[m]['total_books']
+            running_words += months_data[m]['total_words']
+            running_pages += months_data[m]['total_pages']
+            cumulative_books.append(running_books)
+            cumulative_words.append(running_words)
+            cumulative_pages.append(running_pages)
+
         context = {
             'year': year,
             'total_books': sum(m['total_books'] for m in months_data.values()),
@@ -102,9 +120,12 @@ def generate_html_report(year: int):
             'monthly_books_data': monthly_books_data,
             'monthly_words_data': monthly_words_data,
             'monthly_pages_data': monthly_pages_data,
+            'cumulative_books': cumulative_books,
+            'cumulative_words': cumulative_words,
+            'cumulative_pages': cumulative_pages,
             'intro_text': (
-                f"A visual journey through my reading adventures in {year}. "
-                "Each book, word, and page contributing to a year of discovery and growth."
+                f"A look ahead at my projected reading journey for {year}. "
+                "These are the books I plan to complete, charting a path through the year ahead."
             ),
             'months': [
                 {
@@ -120,13 +141,11 @@ def generate_html_report(year: int):
             ]
         }
 
-        # Render the template
         html_content = template.render(**context)
 
-        # Write the report
         reports_path = workspace / 'reports' / 'yearly'
         reports_path.mkdir(parents=True, exist_ok=True)
-        report_file = reports_path / f'reading_report_{year}.html'
+        report_file = reports_path / f'reading_projection_{year}.html'
         report_file.write_text(html_content)
         console.print(f"[green]Report generated: {report_file}[/green]")
 
@@ -136,11 +155,10 @@ def generate_report(year: int, format: str = 'both'):
         generate_html_report(year)
 
     if format in ['pdf', 'both']:
-        # First generate HTML, then convert to PDF
         project_paths = get_project_paths()
         workspace = project_paths['workspace']
-        html_file = workspace / 'reports' / 'yearly' / f'reading_report_{year}.html'
-        pdf_file = workspace / 'reports' / 'yearly' / f'reading_report_{year}.pdf'
+        html_file = workspace / 'reports' / 'yearly' / f'reading_projection_{year}.html'
+        pdf_file = workspace / 'reports' / 'yearly' / f'reading_projection_{year}.pdf'
 
         if html_file.exists():
             try:
@@ -154,9 +172,9 @@ def generate_report(year: int, format: str = 'both'):
             console.print("[red]HTML report not found. Generate HTML report first.[/red]")
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate yearly reading report with statistics and book covers')
-    parser.add_argument('year', type=int, nargs='?', default=datetime.now().year,
-                       help='Year to generate report for (default: current year)')
+    parser = argparse.ArgumentParser(description='Generate projected reading report with statistics')
+    parser.add_argument('year', type=int, nargs='?', default=datetime.now().year + 1,
+                       help='Year to generate projection for (default: next year)')
     parser.add_argument('--format', '-f', choices=['html', 'pdf', 'both'], default='both',
                        help='Output format (default: both)')
 

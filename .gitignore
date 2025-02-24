@@ -68,3 +68,6 @@ logs/*
 # Assets
 assets/
 assets/book_covers/
+
+# Reports
+reports/

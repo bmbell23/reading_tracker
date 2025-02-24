@@ -10,25 +10,23 @@ from src.models.base import SessionLocal
 from src.models.reading import Reading
 from src.models.book import Book
 from sqlalchemy import inspect
+from scripts.queries.common_queries import CommonQueries
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.rule import Rule
 
-def print_reading_details(reading):
-    """Print all fields from a reading entry"""
-    # Get all columns from the Reading model
-    mapper = inspect(Reading)
-    attributes = [column.key for column in mapper.attrs]
+console = Console()
 
-    print(f"\nBook ID: {reading.id}")
-    print(f"Title: {reading.book.title}")
-
-    # Print all fields
-    for attr in attributes:
-        # Skip internal SQLAlchemy attributes and the book relationship
-        if not attr.startswith('_') and attr != 'book':
-            value = getattr(reading, attr)
-            print(f"{attr}: {value}")
-    print("-" * 50)
+def create_section_header(title, style="bold cyan"):
+    """Create a visually distinct section header"""
+    console.print(Rule(style=style))
+    console.print(f"[{style}]{title}[/{style}]", justify="center")
+    console.print(Rule(style=style))
 
 def inspect_chain_around_book(title_fragment, num_books=10):
+    """Display the reading chain around a book using Rich formatting"""
+    queries = CommonQueries()
     session = SessionLocal()
     try:
         # Find the target book's reading
@@ -38,10 +36,20 @@ def inspect_chain_around_book(title_fragment, num_books=10):
                  .first())
 
         if not target:
-            print(f"No reading found with title containing '{title_fragment}'")
+            console.print(Panel(
+                f"[red]No reading found with title containing '{title_fragment}'[/red]",
+                border_style="red"
+            ))
             return
 
-        print(f"\nFound target book: {target.book.title} (ID: {target.id})")
+        # Print header
+        console.print("\n")
+        console.print(Panel(
+            f"[bold white]Reading Chain Analysis[/bold white]\n"
+            f"[dim]Showing reading chain around:[/dim] [cyan]{target.book.title}[/cyan] (ID: [yellow]{target.id}[/yellow])",
+            border_style="cyan",
+            expand=False
+        ))
 
         # Collect books before
         before_chain = []
@@ -65,24 +73,51 @@ def inspect_chain_around_book(title_fragment, num_books=10):
             after_chain.append(next_reading)
             current = next_reading
 
-        # Print the chain
-        print("\n=== BOOKS BEFORE TARGET ===")
-        for reading in before_chain:
-            print_reading_details(reading)
+        # Print books before
+        if before_chain:
+            console.print("\n")
+            create_section_header("📚 PREVIOUS BOOKS", "blue")
+            with console.capture() as capture:
+                for reading in before_chain:
+                    queries.print_readings_by_title(reading.book.title, exact_match=True)
+            console.print(Panel(capture.get(), border_style="blue", expand=False))
 
-        print("\n=== TARGET BOOK ===")
-        print_reading_details(target)
-        print("=" * 50)
+        # Print target book
+        console.print("\n")
+        create_section_header("🎯 TARGET BOOK", "yellow")
+        with console.capture() as capture:
+            queries.print_readings_by_title(target.book.title, exact_match=True)
+        console.print(Panel(capture.get(), border_style="yellow", expand=False))
 
-        print("\n=== BOOKS AFTER TARGET ===")
-        for reading in after_chain:
-            print_reading_details(reading)
+        # Print books after
+        if after_chain:
+            console.print("\n")
+            create_section_header("📚 NEXT BOOKS", "green")
+            with console.capture() as capture:
+                for reading in after_chain:
+                    queries.print_readings_by_title(reading.book.title, exact_match=True)
+            console.print(Panel(capture.get(), border_style="green", expand=False))
+
+        # Print summary
+        total_books = len(before_chain) + 1 + len(after_chain)
+        console.print("\n")
+        console.print(Panel(
+            f"[bold white]Chain Summary[/bold white]\n"
+            f"Previous Books: [blue]{len(before_chain)}[/blue]\n"
+            f"Next Books: [green]{len(after_chain)}[/green]\n"
+            f"Total in Chain: [yellow]{total_books}[/yellow]",
+            border_style="cyan",
+            expand=False
+        ))
 
     finally:
         session.close()
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python inspect_chain.py <book_title_fragment>")
+        console.print(Panel(
+            "[red]Usage: python inspect_chain.py <book_title_fragment>[/red]",
+            border_style="red"
+        ))
         sys.exit(1)
     inspect_chain_around_book(sys.argv[1])

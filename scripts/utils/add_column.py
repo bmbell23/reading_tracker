@@ -67,8 +67,16 @@ def add_column(table_name, column_name, column_type, constraints):
     """Add a single column to a table"""
     with engine.connect() as conn:
         try:
-            sql = f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type} {constraints}"
+            # First add the column without UNIQUE constraint
+            base_constraints = constraints.replace('UNIQUE', '').strip()
+            sql = f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type} {base_constraints}"
             conn.execute(text(sql))
+
+            # If UNIQUE was specified, add it as a separate command
+            if 'UNIQUE' in constraints:
+                sql = f"CREATE UNIQUE INDEX idx_{table_name}_{column_name}_unique ON {table_name}({column_name})"
+                conn.execute(text(sql))
+
             conn.commit()
             print(f"\nSuccessfully added {column_name} column to {table_name} table")
         except Exception as e:

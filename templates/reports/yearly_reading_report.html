@@ -153,7 +153,9 @@
                          loading="lazy">
                 </div>
                 <div class="book-info">
-                    <div class="book-title">{{ book.title }}</div>
+                    <div class="book-title-container" data-book-id="Book ID: {{ book.id }}">
+                        <span class="book-title">{{ book.title }}</span>
+                    </div>
                     <div class="book-author">{{ book.author }}</div>
                 </div>
             </div>
