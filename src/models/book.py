@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, Boolean
 from .base import Base
 
 class Book(Base):
@@ -16,6 +16,7 @@ class Book(Base):
     series = Column(String)
     series_number = Column(Integer)
     genre = Column(String)
+    has_cover = Column(Boolean, default=False)
 
     @property
     def words_per_page(self):
