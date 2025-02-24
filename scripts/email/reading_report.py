@@ -321,8 +321,21 @@ class EmailReport:
 
         print(f"DEBUG - Final cover HTML: {cover_html}")
 
-        # Format media badge
-        media_badge = self._format_media_badge(reading.media)
+        # Format media badge with smaller styling
+        media_badge = f"""
+            <span style="
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 4px;
+                background-color: {bg_color};
+                color: {color};
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin: 4px;
+            ">{reading.media}</span>
+        """
 
         # Format title and author
         title_author = f"""
