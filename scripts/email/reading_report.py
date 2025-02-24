@@ -663,12 +663,17 @@ class EmailReport:
                             border-top-right-radius: 8px;
                         }}
                         th {{
-                            background: #f1f5f9;
-                            padding: 12px;
+                            background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+                            padding: 14px 16px;
                             text-align: left;
-                            font-weight: 600;
-                            color: #334155;
+                            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            font-weight: 800;  /* Changed to 800 to match titles */
+                            font-size: 0.9rem;
+                            text-transform: uppercase;
+                            letter-spacing: -0.025em;  /* Matched with titles */
+                            color: #64748b;
                             border-bottom: 1px solid #e2e8f0;
+                            position: relative;
                         }}
                         td {{
                             padding: 12px;
