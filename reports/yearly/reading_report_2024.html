@@ -1,1745 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Report 2024</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/styles/reading_report.css">
+</head>
+<body>
+    <h1>Reading Report 2024</h1>
 
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Reading Report 2024</title>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-            <link rel="stylesheet" href="../../assets/styles/reading_report.css">
-            <script>
-                window.addEventListener('load', function() {
-                    document.querySelectorAll('.book-cover').forEach(function(img) {
-                        console.log('Cover path:', img.src, 'Status:', img.complete ? 'Loaded' : 'Failed');
-                    });
-                });
-            </script>
-        </head>
-        <body>
-            <h1>Reading Report 2024</h1>
-        
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">January</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">4</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">2,660</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">936,748</span> words
-                        </div>
-                    </div>
+    <div class="year-summary">
+        <h2>Year at a Glance</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">122</div>
+                <div class="stat-label">Books Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">22,487,513</div>
+                <div class="stat-label">Words Read</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">68,333</div>
+                <div class="stat-label">Pages Read</div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    <section class="month-section" data-month="1">
+        <div class="month-header">
+            <h2 class="month-title">January</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">4</span>
+                    Books
                 </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/202.jpg"
-                                 alt="Cover of The World of Ice & Fire"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The World of Ice & Fire</div>
-                        <div class="book-author">George RR Martin</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/203.jpg"
-                                 alt="Cover of Four Past Midnight"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Four Past Midnight</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/205.jpg"
-                                 alt="Cover of Empire of Silence"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Empire of Silence</div>
-                        <div class="book-author">Christopher Ruocchio</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/204.jpg"
-                                 alt="Cover of Dragonfly in Amber"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Dragonfly in Amber</div>
-                        <div class="book-author">Diana Gabaldon</div>
-                    </div>
-                
+                <div class="stat-pill words">
+                    <span class="stat-number">936,748</span>
+                    Words
                 </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">March</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">7</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">3,741</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">1,212,931</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/206.jpg"
-                                 alt="Cover of Needful Things"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Needful Things</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/22.jpg"
-                                 alt="Cover of The Final Empire"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Final Empire</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/208.jpg"
-                                 alt="Cover of Howling Dark"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Howling Dark</div>
-                        <div class="book-author">Christopher Ruocchio</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/209.jpg"
-                                 alt="Cover of Tales of the Celestial Kingdom"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Tales of the Celestial Kingdom</div>
-                        <div class="book-author">Sue Lynn Tan</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/211.jpg"
-                                 alt="Cover of Empire of the Vampire"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Empire of the Vampire</div>
-                        <div class="book-author">Jay Kristoff</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/212.jpg"
-                                 alt="Cover of The Ballad of Songbirds and Snakes"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Ballad of Songbirds and Snakes</div>
-                        <div class="book-author">Suzanne Collins</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/213.jpg"
-                                 alt="Cover of The Song of Achilles"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Song of Achilles</div>
-                        <div class="book-author">Madeline Miller</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">April</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">8</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">3,254</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">1,033,060</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/210.jpg"
-                                 alt="Cover of The Will of the Many"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Will of the Many</div>
-                        <div class="book-author">James Islington</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/214.jpg"
-                                 alt="Cover of Gerald's Game"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Gerald's Game</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/215.jpg"
-                                 alt="Cover of White Sand - Volume 1"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">White Sand - Volume 1</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/217.jpg"
-                                 alt="Cover of White Sand - Volume 2"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">White Sand - Volume 2</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/218.jpg"
-                                 alt="Cover of White Sand - Volume 3"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">White Sand - Volume 3</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/216.jpg"
-                                 alt="Cover of The Dragonbone Chair"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Dragonbone Chair</div>
-                        <div class="book-author">Tad Williams</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/219.jpg"
-                                 alt="Cover of Empire of the Damned"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Empire of the Damned</div>
-                        <div class="book-author">Jay Kristoff</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/220.jpg"
-                                 alt="Cover of The Subtle Art of Not Giving a Fuck"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Subtle Art of Not Giving a Fuck</div>
-                        <div class="book-author">Mark Manson</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">May</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">6</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">4,102</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">1,691,080</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/221.jpg"
-                                 alt="Cover of Voyager"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Voyager</div>
-                        <div class="book-author">Diana Gabaldon</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/222.jpg"
-                                 alt="Cover of Demon in White"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Demon in White</div>
-                        <div class="book-author">Christopher Ruocchio</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/223.jpg"
-                                 alt="Cover of Stone of Farewell"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Stone of Farewell</div>
-                        <div class="book-author">Tad Williams</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/224.jpg"
-                                 alt="Cover of Drums of Autumn"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Drums of Autumn</div>
-                        <div class="book-author">Diana Gabaldon</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/225.jpg"
-                                 alt="Cover of You Like it Darker"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">You Like it Darker</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/226.jpg"
-                                 alt="Cover of Kingdoms of Death"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Kingdoms of Death</div>
-                        <div class="book-author">Christopher Ruocchio</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">June</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">5</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">4,165</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">1,646,854</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/163.jpg"
-                                 alt="Cover of To Green Angel Tower"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">To Green Angel Tower</div>
-                        <div class="book-author">Tad Williams</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/228.jpg"
-                                 alt="Cover of The Fiery Cross"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Fiery Cross</div>
-                        <div class="book-author">Diana Gabaldon</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/229.jpg"
-                                 alt="Cover of Ashes of Man"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Ashes of Man</div>
-                        <div class="book-author">Christopher Ruocchio</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/129.jpg"
-                                 alt="Cover of The Blacktongue Theif"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Blacktongue Theif</div>
-                        <div class="book-author">Christopher Buehlman</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/231.jpg"
-                                 alt="Cover of Disquiet Gods"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Disquiet Gods</div>
-                        <div class="book-author">Christopher Ruocchio</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">July</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">13</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">8,714</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">2,650,447</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/232.jpg"
-                                 alt="Cover of The Waste Lands"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Waste Lands</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/233.jpg"
-                                 alt="Cover of The Daughters' War"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Daughters' War</div>
-                        <div class="book-author">Christopher Buehlman</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/234.jpg"
-                                 alt="Cover of A Breath of Snow and Ashes"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">A Breath of Snow and Ashes</div>
-                        <div class="book-author">Diana Gabaldon</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/110.jpg"
-                                 alt="Cover of House of Earth and Blood"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">House of Earth and Blood</div>
-                        <div class="book-author">Sarah J Maas</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/111.jpg"
-                                 alt="Cover of House of Sky and Breath"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">House of Sky and Breath</div>
-                        <div class="book-author">Sarah J Maas</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/237.jpg"
-                                 alt="Cover of House of Flame and Shadow"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">House of Flame and Shadow</div>
-                        <div class="book-author">Sarah J Maas</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/238.jpg"
-                                 alt="Cover of The Rage of Dragons"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Rage of Dragons</div>
-                        <div class="book-author">Evan Winters</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/239.jpg"
-                                 alt="Cover of The Fires of Vengeance"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Fires of Vengeance</div>
-                        <div class="book-author">Evan Winters</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/240.jpg"
-                                 alt="Cover of Dragons of Autumn Twilight"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Dragons of Autumn Twilight</div>
-                        <div class="book-author">Margaret Weis</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/241.jpg"
-                                 alt="Cover of An Echo in the Bone"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">An Echo in the Bone</div>
-                        <div class="book-author">Diana Gabaldon</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/242.jpg"
-                                 alt="Cover of Dragons of Winter Night"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Dragons of Winter Night</div>
-                        <div class="book-author">Margaret Weis</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/243.jpg"
-                                 alt="Cover of Dragons of Spring Dawning"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Dragons of Spring Dawning</div>
-                        <div class="book-author">Margaret Weis</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/244.jpg"
-                                 alt="Cover of The Sword of Kaigen"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Sword of Kaigen</div>
-                        <div class="book-author">ML Wang</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">August</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">23</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">11,469</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">3,692,627</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/245.jpg"
-                                 alt="Cover of Written in My Own Heart's Blood"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Written in My Own Heart's Blood</div>
-                        <div class="book-author">Diana Gabaldon</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/246.jpg"
-                                 alt="Cover of Go Tell the Bees That I Am Gone"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Go Tell the Bees That I Am Gone</div>
-                        <div class="book-author">Diana Gabaldon</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/5.jpg"
-                                 alt="Cover of The Hobbit"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Hobbit</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/248.jpg"
-                                 alt="Cover of Dolores Claiborne"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Dolores Claiborne</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/28.jpg"
-                                 alt="Cover of The Fellowship of the Ring"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Fellowship of the Ring</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/250.jpg"
-                                 alt="Cover of Nightmares & Dreamscapes"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Nightmares & Dreamscapes</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/40.jpg"
-                                 alt="Cover of The Two Towers"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Two Towers</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/252.jpg"
-                                 alt="Cover of Insomnia"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Insomnia</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/254.jpg"
-                                 alt="Cover of Rose Madder"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Rose Madder</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/41.jpg"
-                                 alt="Cover of The Return of the King"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Return of the King</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/255.jpg"
-                                 alt="Cover of The Green Mile"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Green Mile</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/256.jpg"
-                                 alt="Cover of The Silmarillion"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Silmarillion</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/257.jpg"
-                                 alt="Cover of Desperation"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Desperation</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/259.jpg"
-                                 alt="Cover of The Regulators"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Regulators</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/258.jpg"
-                                 alt="Cover of Unfinished Tales of Numenor and Middle-Earth"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Unfinished Tales of Numenor and Middle-Earth</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/260.jpg"
-                                 alt="Cover of Wizard and Glass"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Wizard and Glass</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/261.jpg"
-                                 alt="Cover of The Complete Guide to Middle Earth"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Complete Guide to Middle Earth</div>
-                        <div class="book-author">Robert Foster</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/262.jpg"
-                                 alt="Cover of Bag of Bones"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Bag of Bones</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/264.jpg"
-                                 alt="Cover of The Girl Who Loved Tom Gordon"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Girl Who Loved Tom Gordon</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/263.jpg"
-                                 alt="Cover of Beren and Luthien"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Beren and Luthien</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/266.jpg"
-                                 alt="Cover of The Children of Hurin"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Children of Hurin</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/265.jpg"
-                                 alt="Cover of Dreamcatcher"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Dreamcatcher</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/267.jpg"
-                                 alt="Cover of The Fall of Gondolin"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Fall of Gondolin</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">September</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">24</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">12,746</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">3,924,245</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/268.jpg"
-                                 alt="Cover of The Fall of Numenor"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Fall of Numenor</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/269.jpg"
-                                 alt="Cover of Hearts in Atlantis"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Hearts in Atlantis</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/270.jpg"
-                                 alt="Cover of The Nature of Middle Earth"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Nature of Middle Earth</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/272.jpg"
-                                 alt="Cover of Tales from the Perilous Realm"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Tales from the Perilous Realm</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/271.jpg"
-                                 alt="Cover of Black House"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Black House</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/273.jpg"
-                                 alt="Cover of The History of the Hobbit"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The History of the Hobbit</div>
-                        <div class="book-author">JRR Tolkien</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/274.jpg"
-                                 alt="Cover of From a Buick 8"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">From a Buick 8</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/114.jpg"
-                                 alt="Cover of Gild"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Gild</div>
-                        <div class="book-author">Raven Kennedy</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/276.jpg"
-                                 alt="Cover of Everything's Eventual: 14 Dark Tales"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Everything's Eventual: 14 Dark Tales</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/116.jpg"
-                                 alt="Cover of Glint"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Glint</div>
-                        <div class="book-author">Raven Kennedy</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/278.jpg"
-                                 alt="Cover of Wolves of the Calla"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Wolves of the Calla</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/279.jpg"
-                                 alt="Cover of Somewhere Beyond the Sea"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Somewhere Beyond the Sea</div>
-                        <div class="book-author">TJ Klune</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/280.jpg"
-                                 alt="Cover of Song of Susannah"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Song of Susannah</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/119.jpg"
-                                 alt="Cover of Gleam"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Gleam</div>
-                        <div class="book-author">Raven Kennedy</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/282.jpg"
-                                 alt="Cover of The Dark Tower"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Dark Tower</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/284.jpg"
-                                 alt="Cover of Cell"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Cell</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/145.jpg"
-                                 alt="Cover of The Shadow of the Gods"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Shadow of the Gods</div>
-                        <div class="book-author">John Gwynne</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/285.jpg"
-                                 alt="Cover of Lisey's Story"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Lisey's Story</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/286.jpg"
-                                 alt="Cover of Blaze"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Blaze</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/288.jpg"
-                                 alt="Cover of Duma Key"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Duma Key</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/146.jpg"
-                                 alt="Cover of The Hunger of the Gods"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Hunger of the Gods</div>
-                        <div class="book-author">John Gwynne</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/289.jpg"
-                                 alt="Cover of Just after Sunset"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Just after Sunset</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/290.jpg"
-                                 alt="Cover of Goldfinch"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Goldfinch</div>
-                        <div class="book-author">Raven Kennedy</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/291.jpg"
-                                 alt="Cover of Under the Dome"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Under the Dome</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">October</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">14</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">7,551</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">2,426,145</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/59.jpg"
-                                 alt="Cover of Warbreaker"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Warbreaker</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/293.jpg"
-                                 alt="Cover of Full Dark, No Stars"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Full Dark, No Stars</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/294.jpg"
-                                 alt="Cover of 11/22/63"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">11/22/63</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/296.jpg"
-                                 alt="Cover of Joyland"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Joyland</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/60.jpg"
-                                 alt="Cover of The Way of Kings"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Way of Kings</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/297.jpg"
-                                 alt="Cover of The Wind Through the Keyhole"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Wind Through the Keyhole</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/61.jpg"
-                                 alt="Cover of Words of Radiance"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Words of Radiance</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/304.jpg"
-                                 alt="Cover of The Bazaar of Bad Dreams"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Bazaar of Bad Dreams</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/314.jpg"
-                                 alt="Cover of The Institute"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Institute</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/62.jpg"
-                                 alt="Cover of Edgedancer"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Edgedancer</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/300.jpg"
-                                 alt="Cover of Mr. Mercedes"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Mr. Mercedes</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/302.jpg"
-                                 alt="Cover of Finders Keepers"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Finders Keepers</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/306.jpg"
-                                 alt="Cover of End of Watch"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">End of Watch</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/311.jpg"
-                                 alt="Cover of The Outsider"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Outsider</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">November</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">16</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">7,866</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">2,445,976</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/315.jpg"
-                                 alt="Cover of If It Bleeds"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">If It Bleeds</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/308.jpg"
-                                 alt="Cover of Gwendy's Button Box"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Gwendy's Button Box</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/313.jpg"
-                                 alt="Cover of Elevation"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Elevation</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/317.jpg"
-                                 alt="Cover of Later"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Later</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/319.jpg"
-                                 alt="Cover of Gwendy's Magic Feather"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Gwendy's Magic Feather</div>
-                        <div class="book-author">Richard Chizmar</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/298.jpg"
-                                 alt="Cover of Doctor Sleep"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Doctor Sleep</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/303.jpg"
-                                 alt="Cover of The Fury of the Gods"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Fury of the Gods</div>
-                        <div class="book-author">John Gwynne</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/320.jpg"
-                                 alt="Cover of Gwendy's Final Task"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Gwendy's Final Task</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/309.jpg"
-                                 alt="Cover of Sleeping Beauties"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Sleeping Beauties</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/63.jpg"
-                                 alt="Cover of Oathbringer"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Oathbringer</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/65.jpg"
-                                 alt="Cover of Dawnshard"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Dawnshard</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/318.jpg"
-                                 alt="Cover of Billy Summers"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Billy Summers</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/321.jpg"
-                                 alt="Cover of Holly"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Holly</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/301.jpg"
-                                 alt="Cover of Revival"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Revival</div>
-                        <div class="book-author">Stephen King</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/66.jpg"
-                                 alt="Cover of Rhythm of War"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Rhythm of War</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/700.jpg"
-                                 alt="Cover of The Heart of What Was Lost"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Heart of What Was Lost</div>
-                        <div class="book-author">Tad Williams</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <section class="month-section">
-                <div class="month-header">
-                    <h2 class="month-title">December</h2>
-                    <div class="month-stats">
-                        <div class="stat-pill books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                            <span class="stat-number">2</span> books
-                        </div>
-                        <div class="stat-pill pages">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span class="stat-number">2,065</span> pages
-                        </div>
-                        <div class="stat-pill words">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 7V4h16v3"></path>
-                                <path d="M9 20h6"></path>
-                                <path d="M12 4v16"></path>
-                            </svg>
-                            <span class="stat-number">827,400</span> words
-                        </div>
-                    </div>
-                </div>
-                <div class="books-grid">
-            
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/316.jpg"
-                                 alt="Cover of Wind and Truth"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">Wind and Truth</div>
-                        <div class="book-author">Brandon Sanderson</div>
-                    </div>
-                
-                    <div class="book-card">
-                        <div class="book-cover-container">
-                            <img class="book-cover"
-                                 src="../../assets/book_covers/420.jpg"
-                                 alt="Cover of The Witchwood Crown"
-                                 onerror="this.src='../../assets/book_covers/default-cover.jpg';">
-                        </div>
-                        <div class="book-title">The Witchwood Crown</div>
-                        <div class="book-author">Tad Williams</div>
-                    </div>
-                
-                </div>
-            </section>
-            
-            <div class="year-summary">
-                <h2>2024 Reading Journey</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">122</div>
-                        <div class="stat-label">Books Completed</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">68,333</div>
-                        <div class="stat-label">Pages Read</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">22,487,513</div>
-                        <div class="stat-label">Words Read</div>
-                    </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,660</span>
+                    Pages
                 </div>
             </div>
-        </body>
-        </html>
-        
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/202.jpg"
+                         alt="Cover of The World of Ice & Fire"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The World of Ice & Fire</div>
+                    <div class="book-author">George RR Martin</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/203.jpg"
+                         alt="Cover of Four Past Midnight"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Four Past Midnight</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/205.jpg"
+                         alt="Cover of Empire of Silence"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Empire of Silence</div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/204.jpg"
+                         alt="Cover of Dragonfly in Amber"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dragonfly in Amber</div>
+                    <div class="book-author">Diana Gabaldon</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="3">
+        <div class="month-header">
+            <h2 class="month-title">March</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">7</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,212,931</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">3,741</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/206.jpg"
+                         alt="Cover of Needful Things"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Needful Things</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/22.jpg"
+                         alt="Cover of The Final Empire"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Final Empire</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/208.jpg"
+                         alt="Cover of Howling Dark"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Howling Dark</div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/209.jpg"
+                         alt="Cover of Tales of the Celestial Kingdom"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Tales of the Celestial Kingdom</div>
+                    <div class="book-author">Sue Lynn Tan</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/211.jpg"
+                         alt="Cover of Empire of the Vampire"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Empire of the Vampire</div>
+                    <div class="book-author">Jay Kristoff</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/212.jpg"
+                         alt="Cover of The Ballad of Songbirds and Snakes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Ballad of Songbirds and Snakes</div>
+                    <div class="book-author">Suzanne Collins</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/213.jpg"
+                         alt="Cover of The Song of Achilles"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Song of Achilles</div>
+                    <div class="book-author">Madeline Miller</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="4">
+        <div class="month-header">
+            <h2 class="month-title">April</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">8</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,033,060</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">3,254</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/210.jpg"
+                         alt="Cover of The Will of the Many"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Will of the Many</div>
+                    <div class="book-author">James Islington</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/214.jpg"
+                         alt="Cover of Gerald's Game"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Gerald's Game</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/215.jpg"
+                         alt="Cover of White Sand - Volume 1"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">White Sand - Volume 1</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/217.jpg"
+                         alt="Cover of White Sand - Volume 2"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">White Sand - Volume 2</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/218.jpg"
+                         alt="Cover of White Sand - Volume 3"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">White Sand - Volume 3</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/216.jpg"
+                         alt="Cover of The Dragonbone Chair"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Dragonbone Chair</div>
+                    <div class="book-author">Tad Williams</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/219.jpg"
+                         alt="Cover of Empire of the Damned"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Empire of the Damned</div>
+                    <div class="book-author">Jay Kristoff</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/220.jpg"
+                         alt="Cover of The Subtle Art of Not Giving a Fuck"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Subtle Art of Not Giving a Fuck</div>
+                    <div class="book-author">Mark Manson</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="5">
+        <div class="month-header">
+            <h2 class="month-title">May</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">6</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,691,080</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">4,102</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/221.jpg"
+                         alt="Cover of Voyager"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Voyager</div>
+                    <div class="book-author">Diana Gabaldon</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/222.jpg"
+                         alt="Cover of Demon in White"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Demon in White</div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/223.jpg"
+                         alt="Cover of Stone of Farewell"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Stone of Farewell</div>
+                    <div class="book-author">Tad Williams</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/224.jpg"
+                         alt="Cover of Drums of Autumn"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Drums of Autumn</div>
+                    <div class="book-author">Diana Gabaldon</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/225.jpg"
+                         alt="Cover of You Like it Darker"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">You Like it Darker</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/226.jpg"
+                         alt="Cover of Kingdoms of Death"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Kingdoms of Death</div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="6">
+        <div class="month-header">
+            <h2 class="month-title">June</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">5</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">1,646,854</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">4,165</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/163.jpg"
+                         alt="Cover of To Green Angel Tower"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">To Green Angel Tower</div>
+                    <div class="book-author">Tad Williams</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/228.jpg"
+                         alt="Cover of The Fiery Cross"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Fiery Cross</div>
+                    <div class="book-author">Diana Gabaldon</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/229.jpg"
+                         alt="Cover of Ashes of Man"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Ashes of Man</div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/129.jpg"
+                         alt="Cover of The Blacktongue Theif"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Blacktongue Theif</div>
+                    <div class="book-author">Christopher Buehlman</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/231.jpg"
+                         alt="Cover of Disquiet Gods"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Disquiet Gods</div>
+                    <div class="book-author">Christopher Ruocchio</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="7">
+        <div class="month-header">
+            <h2 class="month-title">July</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">13</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">2,650,447</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">8,714</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/232.jpg"
+                         alt="Cover of The Waste Lands"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Waste Lands</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/233.jpg"
+                         alt="Cover of The Daughters' War"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Daughters' War</div>
+                    <div class="book-author">Christopher Buehlman</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/234.jpg"
+                         alt="Cover of A Breath of Snow and Ashes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">A Breath of Snow and Ashes</div>
+                    <div class="book-author">Diana Gabaldon</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/110.jpg"
+                         alt="Cover of House of Earth and Blood"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">House of Earth and Blood</div>
+                    <div class="book-author">Sarah J Maas</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/111.jpg"
+                         alt="Cover of House of Sky and Breath"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">House of Sky and Breath</div>
+                    <div class="book-author">Sarah J Maas</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/237.jpg"
+                         alt="Cover of House of Flame and Shadow"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">House of Flame and Shadow</div>
+                    <div class="book-author">Sarah J Maas</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/238.jpg"
+                         alt="Cover of The Rage of Dragons"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Rage of Dragons</div>
+                    <div class="book-author">Evan Winters</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/239.jpg"
+                         alt="Cover of The Fires of Vengeance"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Fires of Vengeance</div>
+                    <div class="book-author">Evan Winters</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/240.jpg"
+                         alt="Cover of Dragons of Autumn Twilight"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dragons of Autumn Twilight</div>
+                    <div class="book-author">Margaret Weis</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/241.jpg"
+                         alt="Cover of An Echo in the Bone"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">An Echo in the Bone</div>
+                    <div class="book-author">Diana Gabaldon</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/242.jpg"
+                         alt="Cover of Dragons of Winter Night"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dragons of Winter Night</div>
+                    <div class="book-author">Margaret Weis</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/243.jpg"
+                         alt="Cover of Dragons of Spring Dawning"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dragons of Spring Dawning</div>
+                    <div class="book-author">Margaret Weis</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/244.jpg"
+                         alt="Cover of The Sword of Kaigen"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Sword of Kaigen</div>
+                    <div class="book-author">ML Wang</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="8">
+        <div class="month-header">
+            <h2 class="month-title">August</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">23</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">3,692,627</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">11,469</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/245.jpg"
+                         alt="Cover of Written in My Own Heart's Blood"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Written in My Own Heart's Blood</div>
+                    <div class="book-author">Diana Gabaldon</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/246.jpg"
+                         alt="Cover of Go Tell the Bees That I Am Gone"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Go Tell the Bees That I Am Gone</div>
+                    <div class="book-author">Diana Gabaldon</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/5.jpg"
+                         alt="Cover of The Hobbit"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Hobbit</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/248.jpg"
+                         alt="Cover of Dolores Claiborne"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dolores Claiborne</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/28.jpg"
+                         alt="Cover of The Fellowship of the Ring"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Fellowship of the Ring</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/250.jpg"
+                         alt="Cover of Nightmares & Dreamscapes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Nightmares & Dreamscapes</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/40.jpg"
+                         alt="Cover of The Two Towers"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Two Towers</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/252.jpg"
+                         alt="Cover of Insomnia"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Insomnia</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/254.jpg"
+                         alt="Cover of Rose Madder"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Rose Madder</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/41.jpg"
+                         alt="Cover of The Return of the King"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Return of the King</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/255.jpg"
+                         alt="Cover of The Green Mile"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Green Mile</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/256.jpg"
+                         alt="Cover of The Silmarillion"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Silmarillion</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/257.jpg"
+                         alt="Cover of Desperation"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Desperation</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/259.jpg"
+                         alt="Cover of The Regulators"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Regulators</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/258.jpg"
+                         alt="Cover of Unfinished Tales of Numenor and Middle-Earth"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Unfinished Tales of Numenor and Middle-Earth</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/260.jpg"
+                         alt="Cover of Wizard and Glass"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Wizard and Glass</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/261.jpg"
+                         alt="Cover of The Complete Guide to Middle Earth"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Complete Guide to Middle Earth</div>
+                    <div class="book-author">Robert Foster</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/262.jpg"
+                         alt="Cover of Bag of Bones"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Bag of Bones</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/264.jpg"
+                         alt="Cover of The Girl Who Loved Tom Gordon"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Girl Who Loved Tom Gordon</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/263.jpg"
+                         alt="Cover of Beren and Luthien"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Beren and Luthien</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/266.jpg"
+                         alt="Cover of The Children of Hurin"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Children of Hurin</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/265.jpg"
+                         alt="Cover of Dreamcatcher"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dreamcatcher</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/267.jpg"
+                         alt="Cover of The Fall of Gondolin"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Fall of Gondolin</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="9">
+        <div class="month-header">
+            <h2 class="month-title">September</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">24</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">3,924,245</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">12,746</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/268.jpg"
+                         alt="Cover of The Fall of Numenor"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Fall of Numenor</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/269.jpg"
+                         alt="Cover of Hearts in Atlantis"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Hearts in Atlantis</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/270.jpg"
+                         alt="Cover of The Nature of Middle Earth"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Nature of Middle Earth</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/272.jpg"
+                         alt="Cover of Tales from the Perilous Realm"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Tales from the Perilous Realm</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/271.jpg"
+                         alt="Cover of Black House"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Black House</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/273.jpg"
+                         alt="Cover of The History of the Hobbit"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The History of the Hobbit</div>
+                    <div class="book-author">JRR Tolkien</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/274.jpg"
+                         alt="Cover of From a Buick 8"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">From a Buick 8</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/114.jpg"
+                         alt="Cover of Gild"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Gild</div>
+                    <div class="book-author">Raven Kennedy</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/276.jpg"
+                         alt="Cover of Everything's Eventual: 14 Dark Tales"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Everything's Eventual: 14 Dark Tales</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/116.jpg"
+                         alt="Cover of Glint"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Glint</div>
+                    <div class="book-author">Raven Kennedy</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/278.jpg"
+                         alt="Cover of Wolves of the Calla"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Wolves of the Calla</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/279.jpg"
+                         alt="Cover of Somewhere Beyond the Sea"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Somewhere Beyond the Sea</div>
+                    <div class="book-author">TJ Klune</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/280.jpg"
+                         alt="Cover of Song of Susannah"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Song of Susannah</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/119.jpg"
+                         alt="Cover of Gleam"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Gleam</div>
+                    <div class="book-author">Raven Kennedy</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/282.jpg"
+                         alt="Cover of The Dark Tower"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Dark Tower</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/284.jpg"
+                         alt="Cover of Cell"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Cell</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/145.jpg"
+                         alt="Cover of The Shadow of the Gods"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Shadow of the Gods</div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/285.jpg"
+                         alt="Cover of Lisey's Story"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Lisey's Story</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/286.jpg"
+                         alt="Cover of Blaze"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Blaze</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/288.jpg"
+                         alt="Cover of Duma Key"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Duma Key</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/146.jpg"
+                         alt="Cover of The Hunger of the Gods"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Hunger of the Gods</div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/289.jpg"
+                         alt="Cover of Just after Sunset"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Just after Sunset</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/290.jpg"
+                         alt="Cover of Goldfinch"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Goldfinch</div>
+                    <div class="book-author">Raven Kennedy</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/291.jpg"
+                         alt="Cover of Under the Dome"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Under the Dome</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="10">
+        <div class="month-header">
+            <h2 class="month-title">October</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">14</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">2,426,145</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">7,551</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/59.jpg"
+                         alt="Cover of Warbreaker"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Warbreaker</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/293.jpg"
+                         alt="Cover of Full Dark, No Stars"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Full Dark, No Stars</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/294.jpg"
+                         alt="Cover of 11/22/63"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">11/22/63</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/296.jpg"
+                         alt="Cover of Joyland"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Joyland</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/60.jpg"
+                         alt="Cover of The Way of Kings"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Way of Kings</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/297.jpg"
+                         alt="Cover of The Wind Through the Keyhole"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Wind Through the Keyhole</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/61.jpg"
+                         alt="Cover of Words of Radiance"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Words of Radiance</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/304.jpg"
+                         alt="Cover of The Bazaar of Bad Dreams"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Bazaar of Bad Dreams</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/314.jpg"
+                         alt="Cover of The Institute"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Institute</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/62.jpg"
+                         alt="Cover of Edgedancer"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Edgedancer</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/300.jpg"
+                         alt="Cover of Mr. Mercedes"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Mr. Mercedes</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/302.jpg"
+                         alt="Cover of Finders Keepers"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Finders Keepers</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/306.jpg"
+                         alt="Cover of End of Watch"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">End of Watch</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/311.jpg"
+                         alt="Cover of The Outsider"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Outsider</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="11">
+        <div class="month-header">
+            <h2 class="month-title">November</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">16</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">2,445,976</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">7,866</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/315.jpg"
+                         alt="Cover of If It Bleeds"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">If It Bleeds</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/308.jpg"
+                         alt="Cover of Gwendy's Button Box"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Gwendy's Button Box</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/313.jpg"
+                         alt="Cover of Elevation"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Elevation</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/317.jpg"
+                         alt="Cover of Later"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Later</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/319.jpg"
+                         alt="Cover of Gwendy's Magic Feather"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Gwendy's Magic Feather</div>
+                    <div class="book-author">Richard Chizmar</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/298.jpg"
+                         alt="Cover of Doctor Sleep"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Doctor Sleep</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/303.jpg"
+                         alt="Cover of The Fury of the Gods"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Fury of the Gods</div>
+                    <div class="book-author">John Gwynne</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/320.jpg"
+                         alt="Cover of Gwendy's Final Task"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Gwendy's Final Task</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/309.jpg"
+                         alt="Cover of Sleeping Beauties"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Sleeping Beauties</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/63.jpg"
+                         alt="Cover of Oathbringer"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Oathbringer</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/65.jpg"
+                         alt="Cover of Dawnshard"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Dawnshard</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/318.jpg"
+                         alt="Cover of Billy Summers"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Billy Summers</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/321.jpg"
+                         alt="Cover of Holly"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Holly</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/301.jpg"
+                         alt="Cover of Revival"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Revival</div>
+                    <div class="book-author">Stephen King</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/66.jpg"
+                         alt="Cover of Rhythm of War"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Rhythm of War</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/700.jpg"
+                         alt="Cover of The Heart of What Was Lost"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Heart of What Was Lost</div>
+                    <div class="book-author">Tad Williams</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+    
+    <section class="month-section" data-month="12">
+        <div class="month-header">
+            <h2 class="month-title">December</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">2</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">827,400</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">2,065</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/316.jpg"
+                         alt="Cover of Wind and Truth"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Wind and Truth</div>
+                    <div class="book-author">Brandon Sanderson</div>
+                </div>
+            </div>
+            
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/420.jpg"
+                         alt="Cover of The Witchwood Crown"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">The Witchwood Crown</div>
+                    <div class="book-author">Tad Williams</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    
+
+</body>
+</html>

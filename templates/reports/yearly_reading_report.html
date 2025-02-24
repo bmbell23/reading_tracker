@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading Journey in {{ year }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/styles/reading_report.css">
+</head>
+<body>
+    <h1>My Reading Journey in {{ year }}</h1>
+
+    <div class="year-summary">
+        <h2>Year at a Glance</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_books }}</div>
+                <div class="stat-label">Books Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ "{:,}".format(total_words) }}</div>
+                <div class="stat-label">Words Read</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ "{:,}".format(total_pages) }}</div>
+                <div class="stat-label">Pages Read</div>
+            </div>
+        </div>
+    </div>
+
+    {% for month in months %}
+    {% if month.books %}
+    <section class="month-section" data-month="{{ month.number }}">
+        <div class="month-header">
+            <h2 class="month-title">{{ month.name }}</h2>
+            <div class="month-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">{{ month.total_books }}</span>
+                    Books
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">{{ "{:,}".format(month.total_words) }}</span>
+                    Words
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">{{ "{:,}".format(month.total_pages) }}</span>
+                    Pages
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid">
+            {% for book in month.books %}
+            <div class="book-card">
+                <div class="book-cover-container">
+                    <img src="../../assets/book_covers/{{ book.id }}.jpg"
+                         alt="Cover of {{ book.title }}"
+                         class="book-cover"
+                         loading="lazy">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">{{ book.title }}</div>
+                    <div class="book-author">{{ book.author }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    {% endfor %}
+
+</body>
+</html>
