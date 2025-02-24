@@ -311,7 +311,7 @@ class EmailReport:
 
         # Simplified and more robust cover HTML
         cover_html = (
-            '<td class="cover-cell" style="width: 60px; padding: 8px;">'
+            '<td class="cover-cell" style="width: 60px; padding: 8px; background: transparent; border: none;">'
             f'<img src="{cover_url}" '
             f'alt="Cover of {reading.book.title}" '
             'style="width: 60px; height: auto; border-radius: 4px; '
@@ -569,12 +569,12 @@ class EmailReport:
             # Create HTML tables
             current_table = self._create_html_table(
                 current_readings,
-                "Current Reading Sessions",
+                "Currently Reading",
                 is_current=True
             )
             upcoming_table = self._create_html_table(
                 upcoming_readings,
-                "Upcoming Reading Sessions",
+                "Coming Soon",
                 is_current=False
             )
             forecast_table = self._create_forecast_table(current_readings + forecast_upcoming)
@@ -583,13 +583,14 @@ class EmailReport:
             html_content = f"""
             <html>
                 <head>
+                    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
                     <style>
                         body {{
-                            font-family: 'Segoe UI', Arial, sans-serif;
+                            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                             margin: 0;
                             padding: 40px;
-                            color: #2c3e50;
-                            background-color: #f5f7fa;
+                            color: #1e293b;
+                            background-color: #f8fafc;
                             line-height: 1.6;
                         }}
                         .container {{
@@ -600,106 +601,135 @@ class EmailReport:
                             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                             padding: 30px;
                         }}
-                        .header {{
+                        .title-section {{
                             text-align: center;
-                            padding-bottom: 30px;
-                            margin-bottom: 30px;
-                            border-bottom: 2px solid #edf2f7;
+                            margin: 60px auto 80px;
+                            max-width: 800px;
                         }}
                         h1 {{
-                            color: #1a202c;
-                            font-size: 28px;
-                            font-weight: 600;
+                            text-align: center;
+                            font-size: 3.5rem;
+                            font-weight: 800;
+                            letter-spacing: -0.025em;
+                            background: linear-gradient(135deg, #3b82f6, #10b981);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;  /* Added for broader compatibility */
+                            color: transparent;  /* Fallback for non-webkit browsers */
                             margin: 0;
                         }}
-                        .date {{
-                            color: #718096;
-                            font-size: 16px;
-                            margin-top: 8px;
+                        .intro-text {{
+                            color: #475569;
+                            font-size: 1.25rem;
+                            line-height: 1.6;
+                            margin: 1.5rem auto;
+                            font-weight: 400;
                         }}
-                        h2 {{
-                            color: #2d3748;
-                            font-size: 22px;
-                            font-weight: 600;
-                            margin: 30px 0 20px 0;
-                            padding-bottom: 10px;
-                            /* border-bottom: 2px solid #edf2f7; */
+                        .title-decoration {{
+                            margin: 2rem auto;
+                            width: 120px;  /* Increased width for a more prominent line */
+                            height: 2px;
+                            background: linear-gradient(to right, #3b82f6, #10b981);
                         }}
-                        .table-section {{
-                            margin-bottom: 40px;
-                        }}
-
-                        .table-wrapper {{
-                            border-radius: 8px;
-                            overflow: hidden;
-                            /* Removing this line:
-                            border: 1px solid #e2e8f0;
-                            */
-                        }}
-
+                        /* Original email report styles */
                         table {{
                             width: 100%;
-                            border-collapse: collapse;
-                            margin-bottom: 0;
-                            background-color: white;
+                            border-collapse: separate;
+                            border-spacing: 0;
+                            margin: 20px 0;
+                            background: white;
+                            border-radius: 8px;
+                            overflow: hidden;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                         }}
-
-                        .table-header {{
-                            font-size: 14px;
-                            font-weight: 600;  /* changed from 500 to 600 for bold */
-                            text-transform: none;
-                            letter-spacing: 0.3px;
-                            background-color: #f8fafc;
-                            border-bottom: 2px solid #e2e8f0;
-                            padding: 16px 12px;
-                            text-align: left;
-                            color: #64748b;
-                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                        /* Target the Format column (second column) */
+                        th:nth-child(2) {{
+                            border-top-left-radius: 8px;
                         }}
-
-                        .cover-header {{
-                            width: 96px;
-                            border: none !important;
-                            background: none !important;
-                            padding: 8px 16px 8px 0;
+                        th:last-child {{
+                            border-top-right-radius: 8px;
                         }}
-
                         th {{
-                            background-color: #f8fafc;
-                            border: none;
-                            border-bottom: 2px solid #e2e8f0;
-                        }}
-
-                        td {{
-                            padding: 16px 12px;
-                            border: none;
+                            background: #f1f5f9;
+                            padding: 12px;
+                            text-align: left;
+                            font-weight: 600;
+                            color: #334155;
                             border-bottom: 1px solid #e2e8f0;
                         }}
-
-                        /* Remove border only from cover cells */
-                        td.cover-cell {{
-                            border-bottom: none;
+                        td {{
+                            padding: 12px;
+                            border-bottom: 1px solid #e2e8f0;
+                            color: #334155;
                         }}
-
-                        tr:last-child td {{
-                            border-bottom: none;
+                        .cover-cell {{
+                            background: transparent !important;
+                            border: none !important;
+                            padding: 8px !important;
                         }}
-
-                        tr:hover {{
-                            background-color: #f8fafc;
-                            transition: background-color 0.2s ease;
+                        th.cover-header {{
+                            background: transparent !important;
+                            border: none !important;
+                        }}/* Add styles for cover column */
+                        .book-title {{
+                            font-weight: 600;
+                            color: #1e293b;
+                        }}
+                        .author {{
+                            color: #64748b;
+                            font-size: 0.9em;
+                        }}
+                        .progress-bar {{
+                            background: #e2e8f0;
+                            height: 8px;
+                            border-radius: 4px;
+                            overflow: hidden;
+                        }}
+                        .progress-fill {{
+                            height: 100%;
+                            background: linear-gradient(to right, #3b82f6, #10b981);
+                            transition: width 0.3s ease;
+                        }}
+                        .media-badge {{
+                            display: inline-block;
+                            padding: 2px 8px;
+                            border-radius: 12px;
+                            font-size: 0.8em;
+                            font-weight: 500;
+                            margin-left: 8px;
+                        }}
+                        .kindle {{
+                            background: #e0f2fe;
+                            color: #0369a1;
+                        }}
+                        .hardcover {{
+                            background: #fef3c7;
+                            color: #92400e;
+                        }}
+                        .audio {{
+                            background: #f3e8ff;
+                            color: #7e22ce;
+                        }}
+                        .section-header {{
+                            margin-top: 40px;
+                            margin-bottom: 20px;
+                            color: #1e293b;
+                            font-weight: 600;
+                            font-size: 1.5em;
                         }}
                     </style>
                 </head>
                 <body>
                     <div class="container">
-                        <div class="header">
-                            <h1>Your Daily Reading Update for {date.today().strftime('%B %d')}!</h1>
-                            <div class="intro-text">
-                                Here's your personalized reading dashboard for today. Below you'll find your current reading progress,
-                                upcoming books in your queue, and a forecast of your reading journey for the next 7 days.
+                        <div class="title-section">
+                            <h1>Your Daily Reading Update</h1>
+                            <p class="intro-text">
+                                Here's your personalized reading dashboard for {date.today().strftime('%B %d')}.
+                                Below you'll find your current reading progress, upcoming books in your queue,
+                                and a forecast of your reading journey for the next 7 days.
                                 Keep turning those pages!
-                            </div>
+                            </p>
+                            <div class="title-decoration"></div>
                         </div>
                         {current_table}
                         {upcoming_table}
