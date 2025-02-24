@@ -73,7 +73,8 @@
             padding: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: transform 0.2s;
-            width: 350px;  /* or whatever width you prefer */
+            height: 120px; /* Set fixed height */
+            overflow: hidden; /* Prevent content from expanding card */
         }
 
         .tooltip {
@@ -233,6 +234,55 @@
         }
         .book-card:hover .tooltip {
             visibility: visible;
+        }
+        .book-info {
+            flex-grow: 1;
+            min-width: 0;  /* Enable text truncation */
+            display: flex;
+            flex-direction: column;
+            max-height: 100%; /* Ensure it doesn't overflow parent */
+        }
+
+        .book-title {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+            font-size: 1.1em;
+        }
+
+        .book-author {
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .book-dates {
+            font-size: 0.8em;
+            color: #888;
+        }
+
+        .date-item {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Ensure the flex container for cover and info maintains height */
+        .book-card > div {
+            height: 100%;
+        }
+
+        .book-cover img {
+            width: 60px;
+            height: 90px; /* Fixed height for covers */
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
     </style>
 </head>
