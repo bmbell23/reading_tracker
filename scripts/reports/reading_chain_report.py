@@ -258,9 +258,9 @@ def generate_report(limit=10):
             chains=reading_chains,
             generated_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             media_colors={
-                'kindle': '#3B82F6',  # blue
-                'hardcover': '#A855F7',  # purple
-                'audio': '#FB923C'  # orange
+                'kindle': {'color': '#3B82F6', 'font_size': '48px', 'text_color': '#3B82F6'},  # blue
+                'hardcover': {'color': '#A855F7', 'font_size': '48px', 'text_color': '#A855F7'},  # purple
+                'audio': {'color': '#FB923C', 'font_size': '48px', 'text_color': '#FB923C'}  # orange
             }
         )
 
