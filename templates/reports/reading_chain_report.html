@@ -219,7 +219,8 @@
 <body>
     <div class="container">
         <div class="title-section">
-            <h1>Reading Chain Report</h1>
+            <h1>{{ title }}</h1>
+            <p class="description" style="text-align: center; color: #64748b; font-size: 1.1rem; margin-top: 1rem; max-width: 800px; margin-left: auto; margin-right: auto;">{{ description }}</p>
         </div>
         <div class="columns">
             {% for media_type in ['kindle', 'hardcover', 'audio'] %}

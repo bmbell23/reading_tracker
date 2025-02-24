@@ -213,8 +213,13 @@ def generate_report(limit=10):
                     'chain': processed_chain
                 }
 
+        # Get current year for the description
+        current_year = datetime.now().year
+
         # Render the template
         html_content = template.render(
+            title=f"Your {current_year} TBR and beyond by Format",
+            description="Your upcoming reading adventures. Each book by format, contributing to more worlds to get lost in.",
             chains=reading_chains,
             generated_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             media_colors={
