@@ -68,6 +68,12 @@
             margin: 8px 0;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: transform 0.2s, box-shadow 0.2s;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            width: 350px;  /* or whatever width you prefer */
         }
 
         .tooltip {
@@ -193,6 +199,7 @@
         }
         .book-info {
             flex-grow: 1;
+            min-width: 0;  /* This is important for text overflow to work */
         }
         .status-badge {
             font-size: 0.75rem;
@@ -250,53 +257,59 @@
                                     <div class="tooltip">
                                         Reading ID: {{ book.read_id }}
                                     </div>
-                                    <div class="book-info">
-                                        <div class="book-title">{{ book.title }}</div>
-                                        <div class="book-author">
-                                            <span>{{ book.author }}</span>
-                                            <span class="status-badge {% if book.is_current %}current{% elif book.is_future %}upcoming{% else %}completed{% endif %}">
-                                                {% if book.is_current %}
-                                                    Currently Reading
-                                                {% elif book.is_future %}
-                                                    Upcoming
-                                                {% else %}
-                                                    Completed
-                                                {% endif %}
-                                            </span>
+                                    <div style="display: flex; gap: 15px;">
+                                        <!-- Book cover -->
+                                        <div class="book-cover" style="flex-shrink: 0;">
+                                            <img src="{{ book.cover_url }}"
+                                                 alt="Cover of {{ book.title }}"
+                                                 style="width: 60px; height: auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                         </div>
-                                    </div>
-                                    <div class="book-dates">
-                                        {% if book.is_future %}
-                                            <!-- Future books dates -->
-                                            <div class="date-item">
-                                                <span class="date-label">Est. Start:</span>
-                                                <span class="date-value">{{ book.date_est_start.strftime('%Y-%m-%d') if book.date_est_start else 'TBD' }}</span>
+                                        <!-- Book info -->
+                                        <div class="book-info" style="flex-grow: 1;">
+                                            <div class="book-title">{{ book.title }}</div>
+                                            <div class="book-author">
+                                                <span>{{ book.author }}</span>
+                                                <span class="status-badge {% if book.is_current %}current{% elif book.is_future %}upcoming{% else %}completed{% endif %}">
+                                                    {% if book.is_current %}
+                                                        Currently Reading
+                                                    {% elif book.is_future %}
+                                                        Upcoming
+                                                    {% else %}
+                                                        Completed
+                                                    {% endif %}
+                                                </span>
                                             </div>
-                                            <div class="date-item">
-                                                <span class="date-label">Est. End:</span>
-                                                <span class="date-value">{{ book.date_est_end.strftime('%Y-%m-%d') if book.date_est_end else 'TBD' }}</span>
+                                            <div class="book-dates">
+                                                {% if book.is_future %}
+                                                    <div class="date-item">
+                                                        <span class="date-label">Est. Start:</span>
+                                                        <span class="date-value">{{ book.date_est_start.strftime('%Y-%m-%d') if book.date_est_start else 'TBD' }}</span>
+                                                    </div>
+                                                    <div class="date-item">
+                                                        <span class="date-label">Est. End:</span>
+                                                        <span class="date-value">{{ book.date_est_end.strftime('%Y-%m-%d') if book.date_est_end else 'TBD' }}</span>
+                                                    </div>
+                                                {% elif book.is_current %}
+                                                    <div class="date-item">
+                                                        <span class="date-label">Started:</span>
+                                                        <span class="date-value">{{ book.date_started.strftime('%Y-%m-%d') if book.date_started else 'Not started' }}</span>
+                                                    </div>
+                                                    <div class="date-item">
+                                                        <span class="date-label">Est. End:</span>
+                                                        <span class="date-value">{{ book.date_est_end.strftime('%Y-%m-%d') if book.date_est_end else 'TBD' }}</span>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="date-item">
+                                                        <span class="date-label">Started:</span>
+                                                        <span class="date-value">{{ book.date_started.strftime('%Y-%m-%d') if book.date_started else 'Unknown' }}</span>
+                                                    </div>
+                                                    <div class="date-item">
+                                                        <span class="date-label">Finished:</span>
+                                                        <span class="date-value">{{ book.date_finished_actual.strftime('%Y-%m-%-d') if book.date_finished_actual else 'Unknown' }}</span>
+                                                    </div>
+                                                {% endif %}
                                             </div>
-                                        {% elif book.is_current %}
-                                            <!-- Current books dates -->
-                                            <div class="date-item">
-                                                <span class="date-label">Started:</span>
-                                                <span class="date-value">{{ book.date_started.strftime('%Y-%m-%d') if book.date_started else 'Not started' }}</span>
-                                            </div>
-                                            <div class="date-item">
-                                                <span class="date-label">Est. End:</span>
-                                                <span class="date-value">{{ book.date_est_end.strftime('%Y-%m-%d') if book.date_est_end else 'TBD' }}</span>
-                                            </div>
-                                        {% else %}
-                                            <!-- Past books dates -->
-                                            <div class="date-item">
-                                                <span class="date-label">Started:</span>
-                                                <span class="date-value">{{ book.date_started.strftime('%Y-%m-%d') if book.date_started else 'Unknown' }}</span>
-                                            </div>
-                                            <div class="date-item">
-                                                <span class="date-label">Finished:</span>
-                                                <span class="date-value">{{ book.date_finished_actual.strftime('%Y-%m-%d') if book.date_finished_actual else 'Unknown' }}</span>
-                                            </div>
-                                        {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}

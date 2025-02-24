@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
-import sys
+import os
+from datetime import date, datetime
 from pathlib import Path
-from datetime import datetime, date
-from rich.console import Console
 from sqlalchemy import text
-from scripts.utils.paths import get_project_paths, find_project_root
-from src.models.base import engine
 from jinja2 import Environment, FileSystemLoader
+from rich.console import Console
+from scripts.utils.paths import find_project_root
+from src.models.base import engine
 
 console = Console()
 
 def get_current_readings(conn):
-    """Get currently active readings"""
+    """Get all all curnngs"""
     query = """
         SELECT
             r.id as read_id,
             r.media,
             r.date_started,
             r.date_finished_actual,
+            b.id as book_id,
+            b.id as book_id,
             b.title
         FROM read r
         JOIN books b ON r.book_id = b.id
@@ -59,7 +61,7 @@ def get_reading_chain(conn, reading_id, direction='both', limit=10):
 
             UNION ALL
 
-            -- Previous books (limit to 3)
+            -- Previous books (limit to 1)
             SELECT
                 r.id,
                 r.id_previous,
@@ -76,7 +78,7 @@ def get_reading_chain(conn, reading_id, direction='both', limit=10):
             FROM read r
             JOIN books b ON r.book_id = b.id
             JOIN backward bw ON bw.id_previous = r.id
-            WHERE bw.position > -3
+            WHERE bw.position > -1
         ),
         forward AS (
             -- Initial reading (already included in backward)
@@ -148,6 +150,34 @@ def format_author_name(first, second):
     """Format author's full name"""
     return f"{first or ''} {second or ''}".strip() or "Unknown Author"
 
+def get_book_data(reading, is_current=False, is_future=False):
+    """Get formatted book data including cover URL"""
+    book = reading.book
+    cover_url = _get_book_cover_url(book.title, book.author, book_id=book.id)
+
+    return {
+        'title': book.title,
+        'author': book.author,
+        'date_started': reading.date_started,
+        'date_est_start': reading.date_est_start,
+        'is_current': is_current,
+        'is_future': is_future,
+        'cover_url': cover_url
+    }
+
+def _get_book_cover_url(title, author, book_id=None):
+    """Get book cover URL"""
+    # First try local storage
+    if book_id:
+        for ext in ['.jpg', '.jpeg', '.png', '.webp']:
+            cover_path = f"../assets/book_covers/{book_id}{ext}"
+            absolute_path = os.path.join(find_project_root(), 'assets', 'book_covers', f"{book_id}{ext}")
+            if os.path.exists(absolute_path):
+                return cover_path
+
+    # If no cover found, return default
+    return "../assets/book_covers/default-cover.png"
+
 def generate_report(limit=10):
     """Generate the reading chain report for current books"""
     workspace = find_project_root()
@@ -204,7 +234,12 @@ def generate_report(limit=10):
                                           if book.date_finished_actual else None),
                     'date_est_start': est_start_date,
                     'date_est_end': (datetime.strptime(book.date_est_end, '%Y-%m-%d').date()
-                                   if book.date_est_end else None)
+                                   if book.date_est_end else None),
+                    'cover_url': _get_book_cover_url(
+                        book.title,
+                        format_author_name(book.author_name_first, book.author_name_second),
+                        book.book_id
+                    )
                 })
 
             if media in reading_chains:
