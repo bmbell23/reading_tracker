@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reading_list"
-version = "1.9.0"
+version = "1.9.1"
 description = "Reading List Tracker"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
@@ -24,21 +24,12 @@ dependencies = [
     "python-dotenv>=0.19.0",
     "requests>=2.28.0",
     "aiohttp>=3.8.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "black>=22.0.0",
-    "isort>=5.0.0",
-    "mypy>=0.900",
-    "pylint>=2.0.0",
-    "pytest>=6.0.0",
-    "pytest-cov>=2.0.0"
+    "fastapi>=0.68.0",
 ]
 
 [tool.setuptools]
-packages = ["src", "scripts"]
-package-dir = {"" = "."}
+package-dir = {"" = "src"}
+packages = ["reading_list", "reading_list.database", "reading_list.routes"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -46,7 +37,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 
 [tool.mypy]
-python_version = "1.9.0"
+python_version = "1.9.1"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

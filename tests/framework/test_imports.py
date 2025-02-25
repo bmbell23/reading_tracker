@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 import unittest
 from rich.console import Console
+from rich.panel import Panel
 
 console = Console()
 
@@ -29,7 +30,10 @@ class TestImports(unittest.TestCase):
         """Extract the base module name from an import line."""
         line = line.strip()
         if line.startswith('from '):
-            return line.split()[1].split('.')[0]
+            parts = line.split()
+            if parts[1].startswith('reading_list.'):
+                return 'reading_list'  # Return the package name for internal imports
+            return parts[1].split('.')[0]
         elif line.startswith('import '):
             return line.split()[1].split('.')[0]
         return ''
@@ -62,26 +66,54 @@ class TestImports(unittest.TestCase):
     def test_all_project_imports(self):
         """Test that all imports in the project are valid."""
         files = self.find_python_files()
-        all_failed_imports: dict[str, set[Path]] = {}
+        all_failed_imports: dict[str, dict[Path, list[int]]] = {}
 
         for file in files:
             failed = self.verify_imports(file)
             if failed:
-                rel_path = file.relative_to(self.project_root)
                 for module, lines in failed.items():
                     if module not in all_failed_imports:
-                        all_failed_imports[module] = set()
-                    all_failed_imports[module].add(file)
-                    console.print(f"[red]Failed imports in {rel_path}:[/red]")
-                    console.print(f"  - {module} (lines: {', '.join(map(str, lines))})")
+                        all_failed_imports[module] = {}
+                    all_failed_imports[module][file] = lines
 
-        # If there were any failed imports, fail the test
+        # If there were any failed imports, fail the test with detailed information
         if all_failed_imports:
-            failure_msg = "\nSummary of missing dependencies:\n"
-            for module, files in all_failed_imports.items():
-                file_count = len(files)
-                failure_msg += f"  - {module} (used in {file_count} file{'s' if file_count > 1 else ''})\n"
-            self.fail(failure_msg)
+            # Build the detailed error message
+            failure_msg = "\n[bold red]Import Verification Failed[/bold red]\n"
+
+            for module, files_dict in all_failed_imports.items():
+                failure_msg += f"\n[yellow]Module:[/yellow] {module}\n"
+                for file_path, lines in files_dict.items():
+                    rel_path = file_path.relative_to(self.project_root)
+                    failure_msg += f"  [cyan]File:[/cyan] {rel_path}\n"
+                    failure_msg += f"  [cyan]Lines:[/cyan] {', '.join(map(str, lines))}\n"
+
+                # Add potential fix suggestions
+                failure_msg += "\n[green]Potential fixes for[/green] [bold green]" + module + "[/bold green]:\n"
+                if module.startswith('src.') or module.startswith('scripts.'):
+                    failure_msg += "  • Create the missing module in your project structure\n"
+                    failure_msg += "  • Check if the import path is correct\n"
+                else:
+                    failure_msg += f"  • Run: [bold]pip install {module}[/bold]\n"
+                    failure_msg += f"  • Add [bold]{module}[/bold] to [italic]pyproject.toml[/italic] dependencies\n"
+
+                failure_msg += "  • Verify the import statement spelling\n"
+                failure_msg += "\n" + "─" * 50 + "\n"
+
+            # Print the detailed formatted message
+            console.print(Panel(
+                failure_msg,
+                title="Import Verification Results",
+                border_style="red"
+            ))
+
+            # Create a concise summary for the test failure message
+            summary = "\nMissing Dependencies Summary:\n"
+            for module in all_failed_imports.keys():
+                file_count = len(all_failed_imports[module])
+                summary += f"• {module} (referenced in {file_count} file{'s' if file_count > 1 else ''})\n"
+
+            self.fail(summary)
 
 if __name__ == "__main__":
     unittest.main()

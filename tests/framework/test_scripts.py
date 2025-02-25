@@ -66,12 +66,31 @@ class TestScriptExecution(unittest.TestCase):
         env = os.environ.copy()
         env["PYTHONPATH"] = str(self.project_root)
 
-        return subprocess.run(
+        result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
             env=env
         )
+
+        if result.returncode != 0:
+            console.print(f"\n[bold red]Script Execution Failed:[/bold red] {script_path.name}")
+            console.print("\n[yellow]Command:[/yellow]")
+            console.print(f"  {' '.join(cmd)}")
+
+            if result.stdout:
+                console.print("\n[yellow]Standard Output:[/yellow]")
+                console.print(Panel(result.stdout.strip(), border_style="yellow"))
+
+            if result.stderr:
+                console.print("\n[red]Error Output:[/red]")
+                console.print(Panel(result.stderr.strip(), border_style="red"))
+
+            console.print("\n[yellow]Environment:[/yellow]")
+            console.print(f"  PYTHONPATH: {env['PYTHONPATH']}")
+            console.print(f"  Working Directory: {os.getcwd()}")
+
+        return result
 
     def find_script_files(self) -> List[Path]:
         """Find all Python script files, excluding __init__.py and utils."""
@@ -85,8 +104,25 @@ class TestScriptExecution(unittest.TestCase):
         """Test that verify_imports.py runs without errors."""
         script_path = self.scripts_dir / "verify_imports.py"
         result = self.run_script(script_path)
-        self.assertEqual(result.returncode, 0,
-            f"verify_imports.py failed with:\n{result.stderr}")
+
+        if result.returncode != 0:
+            # Extract the actual import verification results from the output
+            output_lines = result.stdout.split('\n') + result.stderr.split('\n')
+            summary = '\n'.join(line for line in output_lines
+                              if 'Summary of missing dependencies:' in line
+                              or '  - ' in line)
+
+            failure_msg = (
+                f"\n[bold red]Import Verification Failed[/bold red]\n\n"
+                f"The following dependencies need to be addressed:\n{summary}\n\n"
+                "[yellow]To fix this:[/yellow]\n"
+                "1. Check if these are project modules that need to be created\n"
+                "2. Or install missing external dependencies using pip\n"
+                "3. Or update import statements if there are typos\n"
+            )
+
+            console.print(Panel(failure_msg, title="Script Test Failed", border_style="red"))
+            self.fail(f"verify_imports.py identified missing dependencies:\n{summary}")
 
     def test_cleanup_scripts(self):
         """Test that cleanup scripts run without errors."""

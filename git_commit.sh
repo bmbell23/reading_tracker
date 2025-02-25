@@ -11,23 +11,23 @@ fi
 # Run cleanup all scripts
 python scripts/cleanup/run_cleanup.py
 
-# # Run framework tests first
-# echo -e "\nRunning framework tests..."
-# if python tests/framework/test_scripts.py; then
-#     echo "Framework tests passed"
-# else
-#     echo "Framework tests failed"
-#     exit 1
-# fi
+# Run framework tests first
+echo -e "\nRunning framework tests..."
+if python tests/framework/test_scripts.py; then
+    echo "Framework tests passed"
+else
+    echo "Framework tests failed"
+    exit 1
+fi
 
-# # Run all other tests
-# echo -e "\nRunning main test suite..."
-# if python tests/run_tests.py; then
-#     echo "All tests passed"
-# else
-#     echo "Some tests failed"
-#     exit 1
-# fi
+# Run all other tests
+echo -e "\nRunning main test suite..."
+if python tests/run_tests.py; then
+    echo "All tests passed"
+else
+    echo "Some tests failed"
+    exit 1
+fi
 
 # Run version update script and capture its exit status
 python scripts/updates/update_version.py --update "$1"

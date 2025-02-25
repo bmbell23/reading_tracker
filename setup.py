@@ -38,9 +38,9 @@ def create_venv():
 if __name__ == "__main__":
     setup(
         name="reading_list",
-        version="1.9.0",
-        packages=find_packages(include=['src', 'src.*', 'tests', 'tests.*', 'scripts', 'scripts.*']),
-        package_dir={'': '.'},
+        version="1.9.1",
+        packages=find_packages(where='src'),  # This will find all packages under src/
+        package_dir={'': 'src'},  # Tell setuptools all packages are under src
         package_data={
             'templates': ['excel/*', 'email/*'],
             'config': ['.env.example', 'logging.yaml'],
