@@ -29,11 +29,11 @@ from pathlib import Path
 from scripts.cleanup.cleanup_test_data import cleanup_test_data
 from scripts.cleanup.cleanup_database import check_date_consistency, cleanup_empty_entries
 from scripts.cleanup.cleanup_codebase import (
-    remove_empty_init_files,
+
     remove_migration_artifacts,
     consolidate_query_scripts,
     remove_pycache_directories,
-    remove_script_init_files
+
 )
 
 def main():
@@ -53,8 +53,6 @@ def main():
 
     # Finally clean up codebase
     print("\nStep 3: Cleaning up codebase...")
-    remove_script_init_files(project_root)
-    remove_empty_init_files(project_root)
     remove_migration_artifacts(project_root)
     consolidate_query_scripts(project_root)
     remove_pycache_directories(project_root)

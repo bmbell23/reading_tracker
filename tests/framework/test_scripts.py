@@ -101,20 +101,22 @@ class TestScriptExecution(unittest.TestCase):
         return scripts
 
     def test_cleanup_scripts(self):
-        """Test that cleanup scripts run without errors."""
+        """Test that cleanup scripts run without errors in check mode."""
         cleanup_dir = self.scripts_dir / "cleanup"
-        scripts = [
-            "cleanup_test_data.py",
-            "cleanup_database.py",
-            "cleanup_codebase.py"
+        script_configs = [
+            ("cleanup_test_data.py", ["--check"]),
+            ("cleanup_database.py", ["--check"]),
+            ("cleanup_codebase.py", ["--check"])
         ]
 
-        for script in scripts:
+        for script, args in script_configs:
             script_path = cleanup_dir / script
             if script_path.exists():
-                result = self.run_script(script_path)
-                self.assertEqual(result.returncode, 0,
-                    f"{script} failed with:\n{result.stderr}")
+                result = self.run_script(script_path, args)
+                self.assertEqual(
+                    result.returncode, 0,
+                    f"{script} failed with:\n{result.stderr}"
+                )
 
     def test_update_scripts(self):
         """Test that update scripts run without errors."""

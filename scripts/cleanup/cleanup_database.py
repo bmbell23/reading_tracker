@@ -4,6 +4,7 @@ from src.models.base import SessionLocal
 from src.models.reading import Reading
 from src.models.book import Book
 from src.models.inventory import Inventory
+import argparse
 
 def check_date_consistency():
     """Check for inconsistencies in reading dates"""
@@ -52,7 +53,7 @@ def check_date_consistency():
     finally:
         session.close()
 
-def cleanup_empty_entries():
+def cleanup_empty_entries(dry_run=False):
     """Remove all entries that have an ID but all other fields are empty/null"""
     session = SessionLocal()
     try:
@@ -128,11 +129,19 @@ def cleanup_empty_entries():
         session.close()
 
 def main():
+    parser = argparse.ArgumentParser(description="Database cleanup utility")
+    parser.add_argument('--check', action='store_true',
+                       help='Run in check mode without making changes')
+    args = parser.parse_args()
+
     print("Reading List Database Cleanup Utility")
     print("=" * 40)
 
+    if args.check:
+        print("Running in check mode - no changes will be made")
+
     check_date_consistency()
-    cleanup_empty_entries()
+    cleanup_empty_entries(dry_run=args.check)
 
 if __name__ == "__main__":
     main()

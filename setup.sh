@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PYTHONDONTWRITEBYTECODE=1
+
 # Reading List Tracker Setup Script
 # This script sets up the development environment for the Reading List project.
 
@@ -50,9 +52,9 @@ touch "$WORKSPACE/data/csv/.gitkeep"
 touch "$WORKSPACE/data/backups/.gitkeep"
 touch "$WORKSPACE/logs/.gitkeep"
 
-# Run tests
+# Run tests with -B flag to prevent bytecode
 echo "Running test suite..."
-python -m pytest tests/
+python -B -m pytest tests/
 
 echo "Setup complete!"
 echo "To activate the virtual environment:"

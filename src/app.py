@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from reading_list.routes.api import router as api_router  # Updated import path
+from src.routes.api import router as api_router  # Fixed import path
 
 app = FastAPI(title="Reading List API")
 

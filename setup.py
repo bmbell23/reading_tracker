@@ -38,27 +38,25 @@ def create_venv():
 if __name__ == "__main__":
     setup(
         name="reading_list",
-        version="1.9.1",
-        packages=find_packages(where='src'),  # This will find all packages under src/
-        package_dir={'': 'src'},  # Tell setuptools all packages are under src
+        version="1.9.2",
+        packages=find_packages(include=['src*', 'scripts*', 'tests*']),
         package_data={
             'templates': ['excel/*', 'email/*'],
-            'config': ['.env.example', 'logging.yaml'],
+            'config': ['*.yaml'],
             'docs': ['*.md', 'images/*'],
-            'data': ['db/.gitkeep', 'csv/.gitkeep', 'backups/.gitkeep'],
         },
         install_requires=[
             "flask>=2.0.0",
             "flask-wtf>=1.0.0",
-            "sqlalchemy",
-            "alembic",
-            "pandas",
-            "xlsxwriter",
-            "openpyxl",
+            "sqlalchemy>=1.4.0",
+            "alembic>=1.7.0",
+            "pandas>=1.3.0",
+            "xlsxwriter>=3.0.0",
+            "openpyxl>=3.0.0",
             "tabulate>=0.9.0",
-            "termcolor",
-            "rich",
-            "python-dotenv"
+            "termcolor>=2.0.0",
+            "rich>=10.0.0",
+            "python-dotenv>=0.19.0",
         ],
         python_requires='>=3.8',
     )

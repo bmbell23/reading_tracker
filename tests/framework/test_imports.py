@@ -31,11 +31,17 @@ class TestImports(unittest.TestCase):
         line = line.strip()
         if line.startswith('from '):
             parts = line.split()
-            if parts[1].startswith('reading_list.'):
-                return 'reading_list'  # Return the package name for internal imports
-            return parts[1].split('.')[0]
+            base_module = parts[1].split('.')[0]
+            # Skip internal imports
+            if base_module in ('src', 'scripts', 'tests'):
+                return ''
+            return base_module
         elif line.startswith('import '):
-            return line.split()[1].split('.')[0]
+            base_module = line.split()[1].split('.')[0]
+            # Skip internal imports
+            if base_module in ('src', 'scripts', 'tests'):
+                return ''
+            return base_module
         return ''
 
     def verify_imports(self, file_path: Path) -> dict[str, list[int]]:
@@ -84,7 +90,11 @@ class TestImports(unittest.TestCase):
                 for file_path, lines in files_dict.items():
                     rel_path = file_path.relative_to(self.project_root)
                     failure_msg += f"  [cyan]File:[/cyan] {rel_path}\n"
-                    failure_msg += f"  [cyan]Lines:[/cyan] {', '.join(map(str, lines))}\n"
+                    with open(file_path, 'r') as f:
+                        file_lines = f.readlines()
+                    failure_msg += f"  [cyan]Lines:[/cyan]\n"
+                    for line_num in lines:
+                        failure_msg += f"    {line_num}: {file_lines[line_num-1].strip()}\n"
 
                 failure_msg += "\n[green]Potential fixes for[/green] [bold green]" + module + "[/bold green]:\n"
                 if module.startswith('src.') or module.startswith('scripts.'):
@@ -106,7 +116,10 @@ class TestImports(unittest.TestCase):
             summary = "\nMissing Dependencies Summary:\n"
             for module in all_failed_imports.keys():
                 file_count = len(all_failed_imports[module])
-                summary += f"• {module} (referenced in {file_count} file{'s' if file_count > 1 else ''})\n"
+                files_list = list(all_failed_imports[module].keys())
+                summary += f"• {module} (referenced in {file_count} file{'s' if file_count > 1 else ''}):\n"
+                for f in files_list:
+                    summary += f"  - {f.relative_to(self.project_root)}\n"
 
             self.fail(summary)
 

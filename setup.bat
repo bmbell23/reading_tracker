@@ -1,4 +1,5 @@
 @echo off
+set PYTHONDONTWRITEBYTECODE=1
 setlocal
 
 rem Set workspace
