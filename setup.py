@@ -38,7 +38,7 @@ def create_venv():
 if __name__ == "__main__":
     setup(
         name="reading_list",
-        version="1.8.1",
+        version="1.9.0",
         packages=find_packages(include=['src', 'src.*', 'tests', 'tests.*', 'scripts', 'scripts.*']),
         package_dir={'': '.'},
         package_data={
@@ -48,6 +48,8 @@ if __name__ == "__main__":
             'data': ['db/.gitkeep', 'csv/.gitkeep', 'backups/.gitkeep'],
         },
         install_requires=[
+            "flask>=2.0.0",
+            "flask-wtf>=1.0.0",
             "sqlalchemy",
             "alembic",
             "pandas",

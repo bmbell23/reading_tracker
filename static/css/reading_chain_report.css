@@ -1,0 +1,52 @@
+/* Drag and Drop States */
+.book-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.book-card {
+    cursor: grab;
+}
+
+/* Loading State */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Drop Zone Indicators */
+.reading-chain.drop-target {
+    background: #f8fafc;
+    border: 2px dashed #3b82f6;
+    border-radius: 8px;
+    padding: 19px;  /* 20px - 1px to account for border */
+}
+
+/* Transition states */
+.book-card {
+    transition: transform 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.2s ease;
+}
+
+/* Accessibility */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}

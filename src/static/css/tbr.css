@@ -1,0 +1,264 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --text-color: #2c3e50;
+    --background-color: #ecf0f1;
+    --card-background: #ffffff;
+    --border-color: #ddd;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 2rem;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-md);
+}
+
+/* Toolbar Styles */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toolbar input[type="text"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.toolbar select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background: var(--accent-color);
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background: #2980b9;
+}
+
+/* Stats Dashboard */
+.stats-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+    background: var(--card-background);
+    padding: var(--spacing-md);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-card h3 {
+    margin: 0 0 var(--spacing-sm);
+    color: var(--secondary-color);
+    font-size: 16px;
+}
+
+.stat-card p {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Filters Section */
+.filters {
+    margin-bottom: var(--spacing-lg);
+}
+
+.media-filters {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--card-background);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: var(--background-color);
+}
+
+/* Reading Chains */
+.reading-chains {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.chain {
+    background: var(--card-background);
+    border-radius: 8px;
+    padding: var(--spacing-md);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chain-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chain-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.chain-stats {
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+.book-list {
+    min-height: 100px;
+    padding: var(--spacing-sm);
+    border: 2px dashed var(--border-color);
+    border-radius: 4px;
+}
+
+.book-card {
+    background: var(--background-color);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border-radius: 4px;
+    cursor: move;
+    transition: all 0.3s ease;
+}
+
+.book-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+}
+
+.book-card h4 {
+    margin: 0 0 var(--spacing-sm);
+    color: var(--primary-color);
+}
+
+.book-card p {
+    margin: 0 0 var(--spacing-sm);
+    color: var(--secondary-color);
+}
+
+.series-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--accent-color);
+    color: white;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.book-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.book-actions button {
+    padding: 4px 8px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+}
+
+/* Dragging States */
+.book-card.dragging {
+    opacity: 0.5;
+}
+
+.book-list.drag-over {
+    background: rgba(52, 152, 219, 0.1);
+}
+
+/* Empty States */
+.book-list:empty::after {
+    content: 'Drop books here';
+    display: block;
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--secondary-color);
+    font-style: italic;
+}
+
+/* Dark Theme */
+body.dark-theme {
+    --primary-color: #ecf0f1;
+    --secondary-color: #bdc3c7;
+    --accent-color: #3498db;
+    --text-color: #ecf0f1;
+    --background-color: #2c3e50;
+    --card-background: #34495e;
+    --border-color: #456789;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .stats-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .chain-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .chain-stats {
+        margin-top: var(--spacing-sm);
+        justify-content: center;
+    }
+}

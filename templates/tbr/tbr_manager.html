@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TBR Manager - Track your reading progress across different media types">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>TBR Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tbr_manager.css') }}">
+</head>
+<body>
+    <!-- Main container -->
+    <div class="tbr-container">
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <input type="text" id="book-search" placeholder="Search books..." aria-label="Search books">
+            <select class="sort-select" aria-label="Sort books">
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="date">Date Added</option>
+            </select>
+            <button class="export-btn">Export</button>
+        </div>
+
+        <!-- Loading overlay -->
+        <div class="loading-overlay" hidden>
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Reading chains container -->
+        <div class="reading-chains">
+            <!-- Kindle chain -->
+            <div class="reading-chain" data-chain-type="kindle">
+                <h2>Kindle Books</h2>
+                <div class="book-list"></div>
+            </div>
+
+            <!-- Hardcover chain -->
+            <div class="reading-chain" data-chain-type="hardcover">
+                <h2>Hardcover Books</h2>
+                <div class="book-list"></div>
+            </div>
+
+            <!-- Audio chain -->
+            <div class="reading-chain" data-chain-type="audio">
+                <h2>Audiobooks</h2>
+                <div class="book-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter buttons -->
+    <div class="filter-container">
+        <button class="filter-btn" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="current">Current</button>
+        <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/tbr_manager.js') }}" defer></script>
+
+    <!-- Error boundary -->
+    <script>
+        window.addEventListener('error', function(e) {
+            console.error('Runtime error:', e);
+            document.body.classList.add('js-error');
+        });
+    </script>
+</body>
+</html>

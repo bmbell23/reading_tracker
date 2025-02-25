@@ -132,6 +132,59 @@ crontab -e
 0 9 * * * /full/path/to/reading_list/scripts/email/run_daily_report.sh
 ```
 
+## Frontend Features
+
+### TBR Manager Interface
+
+The TBR (To Be Read) Manager provides an interactive interface for managing your reading list:
+
+1. **Drag and Drop**
+   - Drag books between reading chains
+   - Visual feedback during drag operations
+   - Automatic saving of new order
+
+2. **Search and Filter**
+   - Real-time search by title or author
+   - Filter buttons for different book types
+   - Sort options for various criteria
+
+3. **Export**
+   - Export your reading list to Excel
+   - Click the export button in the interface
+   - File will download automatically
+
+### Using the Interface
+
+1. **Reordering Books**
+   ```
+   1. Click and hold any book card
+   2. Drag to desired position
+   3. Release to drop
+   4. Changes save automatically
+   ```
+
+2. **Searching**
+   ```
+   1. Type in the search box
+   2. Results update in real-time
+   3. Search matches titles and authors
+   ```
+
+3. **Exporting Data**
+   ```
+   1. Click the "Export" button
+   2. Choose save location
+   3. Open in Excel or similar
+   ```
+
+### Troubleshooting Frontend Issues
+
+If the interface isn't working:
+1. Check browser console for errors
+2. Verify JavaScript is enabled
+3. Clear browser cache
+4. Ensure all required DOM elements exist
+
 ## Common Tasks
 
 ### Adding New Books

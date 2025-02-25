@@ -482,3 +482,71 @@ python scripts/monitor.py --check-health
 - Web interface
 - Mobile app integration
 - Cloud backup integration
+
+## Frontend JavaScript
+
+### TBR (To Be Read) Manager
+
+Located in `templates/reports/tbr_manager.js`, this module handles the interactive reading list management interface.
+
+#### Key Features
+- Drag-and-drop book reordering
+- Real-time search and filtering
+- Excel export functionality
+- Loading state management
+- Error handling with automatic state reversion
+
+#### Implementation Details
+
+1. **Drag and Drop**
+   - Uses HTML5 Drag and Drop API
+   - Maintains chain state for reversion on errors
+   - Provides visual feedback during drag operations
+   - Handles cross-chain movements
+
+2. **State Management**
+   ```javascript
+   let isDragging = false;
+   let originalChainState = null;
+   ```
+
+3. **API Endpoints**
+   - `/api/reorder_chain` - POST request for updating book order
+   - `/api/reading_chains` - GET request for refreshing chain display
+   - `/api/export_reading_list` - GET request for Excel export
+
+4. **Performance Optimizations**
+   - Debounced search (250ms delay)
+   - Optimistic UI updates
+   - Efficient DOM manipulation
+   - Custom drag image handling
+
+5. **Error Handling**
+   - Automatic state reversion on API failures
+   - Visual feedback for errors
+   - Graceful degradation
+
+#### Usage Example
+
+```javascript
+// Initialize drag-and-drop
+bookCards.forEach(card => {
+    card.setAttribute('draggable', true);
+});
+
+// Search implementation
+searchInput.addEventListener('input', debounce((e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    filterBooks(searchTerm);
+}, 250));
+```
+
+#### Dependencies
+- Tippy.js (optional) - For tooltips
+- CSRF token from the server
+- Required DOM elements:
+  - `.book-card`
+  - `.reading-chain`
+  - `#search-input`
+  - `#export-button`
+  - `.loading-overlay`

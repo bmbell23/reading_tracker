@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TBR Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tbr.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Toolbar Section -->
+        <div class="toolbar">
+            <button id="themeToggle" class="btn">Toggle Theme</button>
+            <button id="refreshData" class="btn">Refresh</button>
+            <input type="text" id="searchBar" placeholder="Search books...">
+            <select id="sortSelect">
+                <option value="title">Sort by Title</option>
+                <option value="author">Sort by Author</option>
+                <option value="date">Sort by Date Added</option>
+            </select>
+            <button id="exportBtn" class="btn">Export</button>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <h3>Reading Streak</h3>
+                <p>{{ reading_streak }} days</p>
+            </div>
+            <div class="stat-card">
+                <h3>Monthly Progress</h3>
+                <p>{{ monthly_progress }}%</p>
+            </div>
+            <div class="stat-card">
+                <h3>Reading Pace</h3>
+                <p>{{ reading_pace }} pages/day</p>
+                <span class="trend-indicator">{{ pace_trend_icon }}</span>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters">
+            <div class="media-filters">
+                <button class="filter-btn" data-type="kindle">
+                    Kindle ({{ kindle_count }})
+                </button>
+                <button class="filter-btn" data-type="hardcover">
+                    Hardcover ({{ hardcover_count }})
+                </button>
+                <button class="filter-btn" data-type="audio">
+                    Audio ({{ audio_count }})
+                </button>
+            </div>
+        </div>
+
+        <!-- Reading Chains -->
+        <div class="reading-chains">
+            {% for chain in chains %}
+            <div class="chain" data-chain-id="{{ chain.id }}">
+                <div class="chain-header">
+                    <h3>{{ chain.name }}</h3>
+                    <div class="chain-stats">
+                        <span>Books: {{ chain.total_books }}</span>
+                        <span>Pages: {{ chain.total_pages }}</span>
+                        <span>Completion: {{ chain.completion_rate }}%</span>
+                    </div>
+                </div>
+                <div class="book-list" id="chain-{{ chain.id }}">
+                    {% for book in chain.books %}
+                    <div class="book-card" draggable="true" data-book-id="{{ book.id }}">
+                        <h4>{{ book.title }}</h4>
+                        <p>{{ book.author }}</p>
+                        {% if book.series %}
+                        <span class="series-badge">{{ book.series }} #{{ book.series_number }}</span>
+                        {% endif %}
+                        <div class="book-actions">
+                            <button class="edit-btn">Edit</button>
+                            <button class="details-btn">Details</button>
+                            <button class="progress-btn">Progress</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tbr.js') }}"></script>
+</body>
+</html>
