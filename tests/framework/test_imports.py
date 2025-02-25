@@ -76,9 +76,7 @@ class TestImports(unittest.TestCase):
                         all_failed_imports[module] = {}
                     all_failed_imports[module][file] = lines
 
-        # If there were any failed imports, fail the test with detailed information
         if all_failed_imports:
-            # Build the detailed error message
             failure_msg = "\n[bold red]Import Verification Failed[/bold red]\n"
 
             for module, files_dict in all_failed_imports.items():
@@ -88,7 +86,6 @@ class TestImports(unittest.TestCase):
                     failure_msg += f"  [cyan]File:[/cyan] {rel_path}\n"
                     failure_msg += f"  [cyan]Lines:[/cyan] {', '.join(map(str, lines))}\n"
 
-                # Add potential fix suggestions
                 failure_msg += "\n[green]Potential fixes for[/green] [bold green]" + module + "[/bold green]:\n"
                 if module.startswith('src.') or module.startswith('scripts.'):
                     failure_msg += "  • Create the missing module in your project structure\n"
@@ -100,20 +97,39 @@ class TestImports(unittest.TestCase):
                 failure_msg += "  • Verify the import statement spelling\n"
                 failure_msg += "\n" + "─" * 50 + "\n"
 
-            # Print the detailed formatted message
             console.print(Panel(
                 failure_msg,
                 title="Import Verification Results",
                 border_style="red"
             ))
 
-            # Create a concise summary for the test failure message
             summary = "\nMissing Dependencies Summary:\n"
             for module in all_failed_imports.keys():
                 file_count = len(all_failed_imports[module])
                 summary += f"• {module} (referenced in {file_count} file{'s' if file_count > 1 else ''})\n"
 
             self.fail(summary)
+
+    def test_script_imports(self):
+        """Test that all script imports are valid."""
+        scripts_dir = self.project_root / "scripts"
+        script_files = [p for p in scripts_dir.rglob("*.py")
+                       if p.name != "__init__.py"]
+
+        all_failed_imports: dict[str, dict[Path, list[int]]] = {}
+
+        for script in script_files:
+            failed = self.verify_imports(script)
+            if failed:
+                for module, lines in failed.items():
+                    if module not in all_failed_imports:
+                        all_failed_imports[module] = {}
+                    all_failed_imports[module][script] = lines
+
+        if all_failed_imports:
+            failure_msg = "\n[bold red]Script Import Verification Failed[/bold red]\n"
+            # ... (same formatting as above) ...
+            self.fail("Script imports verification failed. See above for details.")
 
 if __name__ == "__main__":
     unittest.main()

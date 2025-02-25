@@ -85,22 +85,25 @@ def remove_empty_init_files(project_root: Path):
 
 def remove_migration_artifacts(project_root: Path):
     """Remove old migration scripts and artifacts"""
+    # Files in scripts/migrations directory
     migration_files = [
-        'migrate_author_names.py',
-        'how_to_git_commit.md',
-        'add_days_estimate_column.py',  # Added: old migration script
-        'update_days_estimate.py'       # Added: redundant script
+        ('scripts/migrations', 'migrate_author_names.py'),
+        ('scripts/migrations', 'how_to_git_commit.md'),
+        ('scripts/migrations', 'add_days_estimate_column.py'),
+        ('scripts/migrations', 'update_days_estimate.py'),
     ]
 
     found_files = []
-    for file in migration_files:
-        file_path = project_root / 'scripts' / file
+
+    # Check migration files
+    for directory, file in migration_files:
+        file_path = project_root / directory / file
         if file_path.exists():
             print(f"Found migration file: {file}")
             found_files.append(file_path)
 
     if found_files:
-        confirm = input("\nRemove these migration files? (yes/no): ")
+        confirm = input("\nRemove these files? (yes/no): ")
         if confirm.lower() == 'yes':
             for file in found_files:
                 os.remove(file)

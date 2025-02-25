@@ -100,30 +100,6 @@ class TestScriptExecution(unittest.TestCase):
                 scripts.append(path)
         return scripts
 
-    def test_script_imports(self):
-        """Test that verify_imports.py runs without errors."""
-        script_path = self.scripts_dir / "verify_imports.py"
-        result = self.run_script(script_path)
-
-        if result.returncode != 0:
-            # Extract the actual import verification results from the output
-            output_lines = result.stdout.split('\n') + result.stderr.split('\n')
-            summary = '\n'.join(line for line in output_lines
-                              if 'Summary of missing dependencies:' in line
-                              or '  - ' in line)
-
-            failure_msg = (
-                f"\n[bold red]Import Verification Failed[/bold red]\n\n"
-                f"The following dependencies need to be addressed:\n{summary}\n\n"
-                "[yellow]To fix this:[/yellow]\n"
-                "1. Check if these are project modules that need to be created\n"
-                "2. Or install missing external dependencies using pip\n"
-                "3. Or update import statements if there are typos\n"
-            )
-
-            console.print(Panel(failure_msg, title="Script Test Failed", border_style="red"))
-            self.fail(f"verify_imports.py identified missing dependencies:\n{summary}")
-
     def test_cleanup_scripts(self):
         """Test that cleanup scripts run without errors."""
         cleanup_dir = self.scripts_dir / "cleanup"
