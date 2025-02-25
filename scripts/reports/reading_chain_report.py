@@ -265,10 +265,10 @@ def generate_report(limit=10):
         )
 
         # Write the report
-        output_dir = workspace / 'reports'
+        output_dir = workspace / 'tbr'
         output_dir.mkdir(exist_ok=True)
 
-        output_file = output_dir / 'reading_chain_report.html'
+        output_file = output_dir / 'tbr.html'
         output_file.write_text(html_content)
 
         console.print(f"[green]Report generated: {output_file}[/green]")
