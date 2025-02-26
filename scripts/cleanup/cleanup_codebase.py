@@ -126,23 +126,16 @@ def remove_pycache_directories(project_root: Path, dry_run: bool = False):
     pycache_dirs = list(project_root.rglob('__pycache__'))
 
     if pycache_dirs:
-        print("\nFound __pycache__ directories in scripts:")
+        pycache_count = len(pycache_dirs)
+        print(f"\nFound {pycache_count} __pycache__ directories")
         for cache_dir in pycache_dirs:
-            print(f"- {cache_dir.relative_to(project_root)}")  # Show path relative to project root
-
-        if dry_run:
-            print("\nDry run - no __pycache__ directories will be removed")
-        else:
-            confirm = input("\nRemove these __pycache__ directories? (Y/n): ").lower()
-            if confirm in ['', 'y', 'yes']:
-                for cache_dir in pycache_dirs:
-                    try:
-                        for file in cache_dir.iterdir():
-                            file.unlink()
-                        cache_dir.rmdir()
-                        print(f"Removed: {cache_dir.relative_to(project_root)}")
-                    except Exception as e:
-                        print(f"Error removing {cache_dir}: {e}")
+            try:
+                for file in cache_dir.iterdir():
+                    file.unlink()
+                cache_dir.rmdir()
+            except Exception as e:
+                print(f"Error removing {cache_dir}: {e}")
+        print(f"All {pycache_count} __pycache__ directories removed successfully!")
 
 def main():
     parser = argparse.ArgumentParser(description="Cleanup codebase utility")
