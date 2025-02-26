@@ -36,7 +36,6 @@ class TestScriptExecution(unittest.TestCase):
     def setUp(self):
         """Set up test environment before each test."""
         os.environ["TESTING"] = "true"
-        console.print(f"\n[bold cyan]Running:[/bold cyan] {self._testMethodName}")
 
     def tearDown(self):
         """Clean up after each test."""
@@ -44,16 +43,15 @@ class TestScriptExecution(unittest.TestCase):
             del os.environ["TESTING"]
 
     def run(self, result=None):
-        """Override run to capture test results with rich formatting."""
+        """Override run to capture test results."""
         test_result = super().run(result)
         test_name = self._testMethodName
 
+        # Only print failures and errors
         if test_name in result.failures:
             console.print(f"[red]✗ {test_name} FAILED[/red]")
         elif test_name in result.errors:
             console.print(f"[red]✗ {test_name} ERROR[/red]")
-        else:
-            console.print(f"[green]✓ {test_name} PASSED[/green]")
 
         return test_result
 

@@ -46,14 +46,6 @@ class TestReadingOperations(TestDatabaseBase):
                             .first())
 
             self.assertIsNotNone(saved_reading, "Reading not found after save")
-
-            # Debug output
-            print(f"\nDebug - Saved reading values:")
-            print(f"Media: {saved_reading.media}")
-            print(f"Rating enjoyment: {saved_reading.rating_enjoyment}")
-            print(f"Rating writing: {saved_reading.rating_writing}")
-            print(f"Rating characters: {saved_reading.rating_characters}")
-
             self.assertEqual(saved_reading.media, "Kindle")
             self.assertEqual(saved_reading.rating_enjoyment, 8.5)
             self.assertEqual(saved_reading.book.title, "TEST_READING_OPERATIONS_TEMP")
