@@ -44,7 +44,7 @@ def display_reading_group(readings, title, style="cyan"):
 
     console.print(table)
 
-def get_chain(session, reading_id, max_length=50):
+def get_chain(session, reading_id, max_length=500):  # Increased from 50 to 500
     """Get the complete reading chain containing the specified reading"""
     # First find the reading
     reading = session.get(Reading, reading_id)
@@ -176,81 +176,98 @@ def reorder_chain(reading_id, target_id):
     session = SessionLocal()
     try:
         # Get both chains
-        source_chain = get_chain(session, reading_id)
-        target_chain = get_chain(session, target_id)
+        chain_1 = get_chain(session, reading_id)
+        chain_2 = get_chain(session, target_id)
 
-        if not source_chain or not target_chain:
+        # Debug prints
+        console.print(f"\n[yellow]Debug: Chain 1 length: {len(chain_1) if chain_1 else 0}[/yellow]")
+        console.print(f"[yellow]Debug: Chain 2 length: {len(chain_2) if chain_2 else 0}[/yellow]")
+
+        if not chain_1 or not chain_2:
             console.print("[red]Could not find one or both chains[/red]")
             return
 
         # Find positions
-        reading_pos = next(i for i, r in enumerate(source_chain) if r.id == reading_id)
-        target_pos = next(i for i, r in enumerate(target_chain) if r.id == target_id)
+        pos_A = next(i for i, r in enumerate(chain_1) if r.id == reading_id)
+        pos_B = next(i for i, r in enumerate(chain_2) if r.id == target_id)
 
-        # Get boundary books for source chain
-        source_before = source_chain[reading_pos - 1] if reading_pos > 0 else None
-        source_after = source_chain[reading_pos + 1] if reading_pos + 1 < len(source_chain) else None
+        console.print(f"[yellow]Debug: Position A: {pos_A}, Position B: {pos_B}[/yellow]")
 
-        # Get boundary books for target chain
-        target_after = target_chain[target_pos + 1] if target_pos + 1 < len(target_chain) else None
+        # Get the books we need to track
+        book_A = chain_1[pos_A]
+        book_B = chain_2[pos_B]
+
+        console.print(f"[yellow]Debug: Book A ID: {book_A.id}, Title: {book_A.book.title}[/yellow]")
+        console.print(f"[yellow]Debug: Book B ID: {book_B.id}, Title: {book_B.book.title}[/yellow]")
+
+        # Get 2 books before and after book A from chain 1
+        start_A = max(0, pos_A - 2)
+        chain_A_2_before = chain_1[start_A:pos_A]
+        chain_A_2_after = chain_1[pos_A + 1:pos_A + 3] if pos_A + 1 < len(chain_1) else []
+
+        console.print(f"[yellow]Debug: Books before A: {len(chain_A_2_before)}[/yellow]")
+        console.print(f"[yellow]Debug: Books after A: {len(chain_A_2_after)}[/yellow]")
+
+        # Get 2 books before and after book B from chain 2
+        start_B = max(0, pos_B - 2)
+        chain_B_2_before = chain_2[start_B:pos_B]
+        chain_B_2_after = chain_2[pos_B + 1:pos_B + 3] if pos_B + 1 < len(chain_2) else []
+
+        console.print(f"[yellow]Debug: Books before B: {len(chain_B_2_before)}[/yellow]")
+        console.print(f"[yellow]Debug: Books after B: {len(chain_B_2_after)}[/yellow]")
 
         # Show original state of both chains
         console.print("\n[bold]Current chain orders:[/bold]")
 
         # Show source chain segment
-        if source_before and source_after:
-            source_segment, _, _ = get_chain_segment_between(session, source_before.id, source_after.id, source_chain)
-            if source_segment:
-                console.print("\n[bold cyan]Source Chain (before move):[/bold cyan]")
-                display_reading_group(source_segment, "Source Chain Segment")
+        console.print("\n[bold cyan]Source Chain (before move):[/bold cyan]")
+        source_segment = chain_A_2_before + [book_A] + chain_A_2_after
+        console.print(f"[yellow]Debug: Source segment length: {len(source_segment)}[/yellow]")
+        display_reading_group(source_segment, "Source Chain Segment")
 
         # Show target chain segment
-        if target_chain[target_pos] and target_after:
-            target_segment, _, _ = get_chain_segment_between(session, target_chain[target_pos].id, target_after.id, target_chain)
-            if target_segment:
-                console.print("\n[bold cyan]Target Chain (before move):[/bold cyan]")
-                display_reading_group(target_segment, "Target Chain Segment")
+        console.print("\n[bold cyan]Target Chain (before move):[/bold cyan]")
+        target_segment = chain_B_2_before + [book_B] + chain_B_2_after
+        console.print(f"[yellow]Debug: Target segment length: {len(target_segment)}[/yellow]")
+        display_reading_group(target_segment, "Target Chain Segment")
 
         # Remove reading from source chain
-        reading_to_move = source_chain.pop(reading_pos)
+        chain_1.pop(pos_A)
 
         # Update source chain references
-        for i, reading in enumerate(source_chain):
+        for i, reading in enumerate(chain_1):
             if i == 0:
                 reading.id_previous = None
             else:
-                reading.id_previous = source_chain[i-1].id
+                reading.id_previous = chain_1[i-1].id
 
         # Insert into target chain
-        target_chain.insert(target_pos + 1, reading_to_move)
+        chain_2.insert(pos_B + 1, book_A)
 
         # Update target chain references
-        for i, reading in enumerate(target_chain):
+        for i, reading in enumerate(chain_2):
             if i == 0:
                 reading.id_previous = None
             else:
-                reading.id_previous = target_chain[i-1].id
+                reading.id_previous = chain_2[i-1].id
 
         # Update dates in both chains
-        update_chain_dates(session, source_chain, max(0, reading_pos - 1))
-        update_chain_dates(session, target_chain, target_pos)
+        update_chain_dates(session, chain_1, max(0, pos_A - 1))
+        update_chain_dates(session, chain_2, pos_B)
 
         # Show proposed new state of both chains
         console.print("\n[bold]Proposed new chain orders:[/bold]")
 
         # Show updated source chain segment
-        if source_before and source_after:
-            source_segment, _, _ = get_chain_segment_between(session, source_before.id, source_after.id, source_chain)
-            if source_segment:
-                console.print("\n[bold green]Source Chain (after move):[/bold green]")
-                display_reading_group(source_segment, "Updated Source Chain Segment")
+        if len(chain_1) > 0:
+            console.print("\n[bold green]Source Chain (after move):[/bold green]")
+            source_after_segment = chain_A_2_before + chain_A_2_after
+            display_reading_group(source_after_segment, "Updated Source Chain Segment")
 
         # Show updated target chain segment
-        if target_chain[target_pos] and target_after:
-            target_segment, _, _ = get_chain_segment_between(session, target_chain[target_pos].id, target_after.id, target_chain)
-            if target_segment:
-                console.print("\n[bold green]Target Chain (after move):[/bold green]")
-                display_reading_group(target_segment, "Updated Target Chain Segment")
+        console.print("\n[bold green]Target Chain (after move):[/bold green]")
+        target_after_segment = chain_B_2_before + [book_B, book_A] + chain_B_2_after
+        display_reading_group(target_after_segment, "Updated Target Chain Segment")
 
         # Confirm changes
         if Confirm.ask("\nDo you want to save these changes?"):
