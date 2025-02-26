@@ -89,6 +89,21 @@
             font-weight: 500;
             font-family: ui-monospace, monospace;
             margin-top: 2px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .id-badge .read-id {
+            color: #3b82f6;
+        }
+
+        .id-badge .book-id {
+            color: #64748b;
+        }
+
+        .id-badge .separator {
+            color: #94a3b8;
         }
 
         .book-cover {
@@ -97,6 +112,15 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .book-cover img {
+            width: 60px;
+            height: 90px;  /* 1.5:1 aspect ratio */
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* Media-specific card backgrounds */
@@ -288,6 +312,11 @@
         .media-title {
             font-size: 1.5rem;  /* Increase from default size */
         }
+
+        /* Ensure container accommodates the new fixed dimensions */
+        .book-card > div {
+            min-height: 90px;
+        }
     </style>
 </head>
 <body>
@@ -313,8 +342,12 @@
                                         <div class="book-cover" style="flex-shrink: 0;">
                                             <img src="{{ book.cover_url }}"
                                                  alt="Cover of {{ book.title }}"
-                                                 style="width: 60px; height: auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                            <span class="id-badge">{{ book.read_id }}</span>
+                                                 style="width: 60px; height: 90px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <span class="id-badge">
+                                                <span class="read-id">{{ book.read_id }}</span>
+                                                <span class="separator">·</span>
+                                                <span class="book-id">{{ book.book_id }}</span>
+                                            </span>
                                         </div>
                                         <!-- Book info -->
                                         <div class="book-info" style="flex-grow: 1;">
