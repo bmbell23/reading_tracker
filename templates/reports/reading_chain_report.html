@@ -76,6 +76,21 @@
             height: 120px; /* Set fixed height */
             overflow: hidden; /* Prevent content from expanding card */
             cursor: pointer;
+            position: relative;  /* For absolute positioning of the ID badge */
+        }
+
+        .id-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: #f1f5f9;  /* Light gray background */
+            color: #64748b;  /* Slate gray text */
+            border: 1px solid #e2e8f0;  /* Light gray border */
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            font-family: ui-monospace, monospace;
         }
 
         /* Media-specific card backgrounds */
@@ -287,6 +302,7 @@
                                 <div class="book-card {{ book.media.lower() }}"
                                      data-reading-id="{{ book.read_id }}"
                                      data-position="{{ loop.index }}">
+                                    <span class="id-badge">#{{ book.read_id }}</span>
                                     <div style="display: flex; gap: 15px;">
                                         <!-- Book cover -->
                                         <div class="book-cover" style="flex-shrink: 0;">
