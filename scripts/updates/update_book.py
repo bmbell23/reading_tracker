@@ -1,207 +1,169 @@
 import sys
 from datetime import datetime
-from pathlib import Path
+from rich.console import Console
+from rich.prompt import Prompt, Confirm
+from rich.panel import Panel
+from rich.table import Table
+from rich.style import Style
 from scripts.utils.paths import find_project_root
-
-# Add project root to Python path
-project_root = find_project_root()
-sys.path.insert(0, str(project_root))
+from sqlalchemy import func, or_
 
 from src.models.base import SessionLocal
 from src.models.book import Book
 from src.models.reading import Reading
 from src.models.inventory import Inventory
-from sqlalchemy import func
 
-def get_next_id(session, model):
-    """Get the next available ID for a given model"""
-    max_id = session.query(func.max(model.id)).scalar()
-    return 1 if max_id is None else max_id + 1
+class DatabaseUpdater:
+    def __init__(self):
+        self.console = Console()
+        self.session = SessionLocal()
+        self.error_style = Style(color="red", bold=True)
+        self.success_style = Style(color="green", bold=True)
+        self.header_style = Style(color="blue", bold=True)
 
-def parse_date(date_str):
-    """Parse date string in YYYY-MM-DD format"""
-    if not date_str:
-        return None
-    try:
-        return datetime.strptime(date_str, '%Y-%m-%d').date()
-    except ValueError:
-        print("Invalid date format. Please use YYYY-MM-DD")
-        return None
+        self.models = {
+            "books": Book,
+            "read": Reading,
+            "inv": Inventory
+        }
 
-def parse_boolean(value):
-    """Parse string to boolean"""
-    return value.lower() in ('yes', 'true', 't', 'y', '1')
+        self.current_book = None
 
-def get_book_input(session, is_new=True):
-    """Get book information from user"""
-    data = {}
-    existing_book = None
+    def __enter__(self):
+        return self
 
-    if not is_new:
-        title = input("Enter book title to update: ")
-        existing_book = session.query(Book).filter(Book.title == title).first()
-        if not existing_book:
-            print(f"Book '{title}' not found")
-            return None
-        data['id'] = existing_book.id
-    else:
-        data['id'] = get_next_id(session, Book)
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.session.close()
 
-    fields = [
-        ('title', str, "Title"),
-        ('author', str, "Author"),
-        ('word_count', int, "Word count"),
-        ('page_count', int, "Page count"),
-        ('date_published', parse_date, "Date published (YYYY-MM-DD)"),
-        ('author_gender', str, "Author gender"),
-        ('series', str, "Series"),
-        ('series_number', int, "Series number"),
-        ('genre', str, "Genre")
-    ]
+    def get_next_id(self, model):
+        max_id = self.session.query(func.max(model.id)).scalar()
+        return 1 if max_id is None else max_id + 1
 
-    for field, type_conv, prompt in fields:
-        if not is_new:
-            current_value = getattr(existing_book, field)
-            if input(f"Update {prompt}? (current: {current_value}) (y/n): ").lower() != 'y':
-                continue
-
-        while True:
-            if is_new:
-                value = input(f"{prompt}: ")
-            else:
-                value = input(f"{prompt} (current: {current_value}): ")
-
-            if not value:
-                data[field] = None
-                break
+    def search_entries(self, model, search_term, search_by_id=False):
+        if search_by_id:
             try:
-                data[field] = type_conv(value)
-                break
+                id_num = int(search_term)
+                return self.session.query(model).filter(model.id == id_num).all()
             except ValueError:
-                print(f"Invalid input for {field}. Please try again.")
+                return []
 
-    return data
+        return self.session.query(model).filter(
+            or_(
+                model.title.ilike(f"%{search_term}%") if hasattr(model, 'title') else False,
+                model.book.has(Book.title.ilike(f"%{search_term}%")) if hasattr(model, 'book') else False
+            )
+        ).all()
 
-def get_reading_input(session, book_id, existing_reading=None):
-    """Get reading information from user"""
-    data = {
-        'id': existing_reading.id if existing_reading else get_next_id(session, Reading),
-        'book_id': book_id
-    }
+    def prompt_for_data(self, model, existing_entry=None, book_id=None):
+        """Generic method to handle data input for any model"""
+        data = {'id': existing_entry.id if existing_entry else self.get_next_id(model)}
+        if book_id:
+            data['book_id'] = book_id
 
-    fields = [
-        ('id_previous', int, "Previous reading ID"),
-        ('media', str, "Media type (Physical/Kindle/Audio)"),
-        ('date_started', parse_date, "Date started (YYYY-MM-DD)"),
-        ('date_finished_actual', parse_date, "Date finished (YYYY-MM-DD)")
-    ]
+        field_configs = self.get_field_configs(model)
 
-    for field, type_conv, prompt in fields:
-        while True:
-            current_value = getattr(existing_reading, field) if existing_reading else None
-            value = input(f"{prompt} (current: {current_value}): ")
-            if not value:
-                data[field] = None
-                break
-            try:
-                data[field] = type_conv(value)
-                break
-            except ValueError:
-                print(f"Invalid input for {field}. Please try again.")
+        console.print(Panel(f"{model.__name__} Information", style=self.header_style))
 
-    return data
+        for field, type_conv, prompt in field_configs:
+            while True:
+                try:
+                    current_value = getattr(existing_entry, field) if existing_entry else None
 
-def get_inventory_input(session, book_id, existing_inventory=None):
-    """Get inventory information from user"""
-    data = {
-        'id': existing_inventory.id if existing_inventory else get_next_id(session, Inventory),
-        'book_id': book_id
-    }
+                    if isinstance(type_conv, bool):
+                        response = Prompt.ask(
+                            f"{prompt} [cyan](current: {current_value})[/cyan]",
+                            choices=['y', 'n'],
+                            default='n'
+                        )
+                        data[field] = response.lower() == 'y'
+                        break
+                    else:
+                        value = Prompt.ask(f"{prompt} [cyan](current: {current_value})[/cyan]")
+                        if not value:
+                            data[field] = None
+                            break
+                        data[field] = type_conv(value)
+                        break
+                except ValueError:
+                    self.console.print(f"Invalid input for {field}. Please try again.", style=self.error_style)
 
-    fields = [
-        ('owned_audio', parse_boolean, "Owned in audio?"),
-        ('owned_kindle', parse_boolean, "Owned in Kindle?"),
-        ('owned_physical', parse_boolean, "Owned in physical?"),
-        ('date_purchased', parse_date, "Date purchased (YYYY-MM-DD)"),
-        ('location', str, "Location")
-    ]
+        return data
 
-    for field, type_conv, prompt in fields:
-        while True:
-            current_value = getattr(existing_inventory, field) if existing_inventory else None
-            if field in ['owned_audio', 'owned_kindle', 'owned_physical']:
-                value = input(f"{prompt} (current: {current_value}) (y/n): ")
-            else:
-                value = input(f"{prompt} (current: {current_value}): ")
+    def get_field_configs(self, model):
+        """Return field configurations based on model type"""
+        if model == Book:
+            return [
+                ('title', str, "Title"),
+                ('author', str, "Author"),
+                ('word_count', int, "Word count"),
+                ('page_count', int, "Page count"),
+                ('date_published', self.parse_date, "Date published (YYYY-MM-DD)"),
+                ('author_gender', str, "Author gender"),
+                ('series', str, "Series"),
+                ('series_number', int, "Series number"),
+                ('genre', str, "Genre")
+            ]
+        elif model == Reading:
+            return [
+                ('id_previous', int, "Previous reading ID"),
+                ('media', str, "Media type [cyan](Physical/Kindle/Audio)[/cyan]"),
+                ('date_started', self.parse_date, "Date started [cyan](YYYY-MM-DD)[/cyan]"),
+                ('date_finished_actual', self.parse_date, "Date finished [cyan](YYYY-MM-DD)[/cyan]")
+            ]
+        else:  # Inventory
+            return [
+                ('owned_audio', bool, "Owned in audio?"),
+                ('owned_kindle', bool, "Owned in Kindle?"),
+                ('owned_physical', bool, "Owned in physical?"),
+                ('date_purchased', self.parse_date, "Date purchased [cyan](YYYY-MM-DD)[/cyan]"),
+                ('location', str, "Location")
+            ]
 
-            if not value and field not in ['owned_audio', 'owned_kindle', 'owned_physical']:
-                data[field] = None
-                break
-            try:
-                data[field] = type_conv(value)
-                break
-            except ValueError:
-                print(f"Invalid input for {field}. Please try again.")
+    def update_entry(self, entry, data):
+        """Update entry with new data and commit to database"""
+        for key, value in data.items():
+            if value is not None:
+                setattr(entry, key, value)
 
-    return data
+        self.session.commit()
+        self.console.print("\n[bold green]Database updated successfully![/bold green]")
+        self.display_entry_card(entry)
+
+    def create_new_entry(self, model, data):
+        """Create new entry and commit to database"""
+        new_entry = model(**data)
+        self.session.add(new_entry)
+        self.session.commit()
+        self.console.print("\n[bold green]New entry created successfully![/bold green]")
+        self.display_entry_card(new_entry)
+        return new_entry
+
+    @staticmethod
+    def parse_date(date_str):
+        """Parse date string into datetime object"""
+        return datetime.strptime(date_str, "%Y-%m-%d").date()
+
+    def run(self):
+        """Main execution loop"""
+        self.console.print(Panel("Database Update Utility", style=self.header_style))
+
+        try:
+            while True:
+                table_choice = Prompt.ask(
+                    "Which table would you like to modify?",
+                    choices=list(self.models.keys())
+                )
+
+                if not self.handle_table_update(table_choice):
+                    break
+
+        except Exception as e:
+            self.console.print(f"Error: {str(e)}", style=self.error_style)
+            self.session.rollback()
 
 def main():
-    session = SessionLocal()
-    try:
-        # Determine if updating existing or creating new
-        action = input("Are you (1) updating an existing book or (2) adding a new book? (1/2): ")
-        is_new = action == "2"
-
-        # Get book information
-        book_data = get_book_input(session, is_new)
-        if not book_data:
-            return
-
-        if is_new:
-            book = Book(**book_data)
-            session.add(book)
-            existing_reading = None
-            existing_inventory = None
-        else:
-            # Replace Query.get() with Session.get()
-            book = session.get(Book, book_data['id'])
-            for key, value in book_data.items():
-                if value is not None:
-                    setattr(book, key, value)
-            # Get existing reading and inventory if any
-            existing_reading = session.query(Reading).filter(Reading.book_id == book.id).first()
-            existing_inventory = session.query(Inventory).filter(Inventory.book_id == book.id).first()
-
-        # Ask about reading entry
-        if input("Add/Update reading entry? (y/n): ").lower() == 'y':
-            reading_data = get_reading_input(session, book_data['id'], existing_reading)
-            if existing_reading:
-                for key, value in reading_data.items():
-                    if value is not None:
-                        setattr(existing_reading, key, value)
-            else:
-                reading = Reading(**reading_data)
-                session.add(reading)
-
-        # Ask about inventory entry
-        if input("Add/Update inventory entry? (y/n): ").lower() == 'y':
-            inventory_data = get_inventory_input(session, book_data['id'], existing_inventory)
-            if existing_inventory:
-                for key, value in inventory_data.items():
-                    if value is not None:
-                        setattr(existing_inventory, key, value)
-            else:
-                inventory = Inventory(**inventory_data)
-                session.add(inventory)
-
-        session.commit()
-        print("Database updated successfully!")
-
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        session.rollback()
-    finally:
-        session.close()
+    with DatabaseUpdater() as updater:
+        updater.run()
 
 if __name__ == "__main__":
     main()

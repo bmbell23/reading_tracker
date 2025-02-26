@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, VARCHAR
 from sqlalchemy.orm import relationship
 from ..utils.constants import READING_SPEEDS, DEFAULT_WPD
 from .base import Base
@@ -8,30 +8,29 @@ class Reading(Base):
     __tablename__ = 'read'
 
     id = Column(Integer, primary_key=True)
-    book_id = Column(Integer, ForeignKey('books.id'), nullable=False)
     id_previous = Column(Integer, ForeignKey('read.id'))
-    media = Column(String)
+    book_id = Column(Integer, ForeignKey('books.id'), nullable=False)
+    media = Column(VARCHAR)
     date_started = Column(Date)
     date_finished_actual = Column(Date)
-    date_est_start = Column(Date)
-    date_est_end = Column(Date)
-
-    # Rating columns
     rating_horror = Column(Float)
     rating_spice = Column(Float)
     rating_world_building = Column(Float)
     rating_writing = Column(Float)
     rating_characters = Column(Float)
     rating_readability = Column(Float)
-    rating_enjoyment = Column(Integer)
+    rating_enjoyment = Column(Float)
     rank = Column(Integer)
 
-    # Days calculations
+    # Calculated columns
     _days_estimate = Column('days_estimate', Integer)
     _days_elapsed_to_read = Column('days_elapsed_to_read', Integer)
     _days_to_read_delta_from_estimate = Column('days_to_read_delta_from_estimate', Integer)
 
-    # Relationships
+    # These are not caulculated here, but are calculated in the update_read_db.py script
+    date_est_start = Column(Date)
+    date_est_end = Column(Date)
+
     book = relationship("Book", backref="readings")
     previous_reading = relationship("Reading", remote_side=[id], backref="subsequent_readings")
 

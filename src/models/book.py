@@ -1,22 +1,25 @@
 from datetime import date
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, Boolean, VARCHAR
+from sqlalchemy.orm import relationship
 from .base import Base
 
 class Book(Base):
     __tablename__ = 'books'
 
     id = Column(Integer, primary_key=True)
-    title = Column(String, nullable=False)
-    author_name_first = Column(String)
-    author_name_second = Column(String)
+    title = Column(VARCHAR, nullable=False)
+    author_name_first = Column(VARCHAR)
+    author_name_second = Column(VARCHAR)
+    author_gender = Column(VARCHAR)
     word_count = Column(Integer)
     page_count = Column(Integer)
     date_published = Column(Date)
-    author_gender = Column(String)
-    series = Column(String)
+    series = Column(VARCHAR)
     series_number = Column(Integer)
-    genre = Column(String)
-    has_cover = Column(Boolean, default=False)
+    genre = Column(VARCHAR)
+    has_cover = Column(Boolean)
+    cover = Column(Boolean, nullable=False, default=False)
+    isbn_id = Column(Integer)
 
     @property
     def words_per_page(self):
