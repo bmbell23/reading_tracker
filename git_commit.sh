@@ -49,11 +49,15 @@ git add .
 # 3. Commit the changes
 git commit -m "$2"
 
-# 4. Push changes to remote repository
-git push
+# 4. Create a version tag
+git tag -a "v$1" -m "Version $1"
 
-# 5. Check status again to show everything is clean
+# 5. Push changes and tags to remote repository
+git push
+git push --tags
+
+# 6. Check status again to show everything is clean
 git status
 
-echo "Done! Version $1 has been committed and pushed"
+echo "Done! Version $1 has been committed, tagged, and pushed"
 

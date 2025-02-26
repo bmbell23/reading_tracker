@@ -38,7 +38,7 @@ def create_venv():
 if __name__ == "__main__":
     setup(
         name="reading_list",
-        version="2.0.0",
+        version="2.0.01",
         packages=find_packages(include=['src*', 'scripts*', 'tests*']),
         package_data={
             'templates': ['excel/*', 'email/*'],
