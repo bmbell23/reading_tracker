@@ -162,7 +162,9 @@ def get_book_data(reading, is_current=False, is_future=False):
         'date_est_start': reading.date_est_start,
         'is_current': is_current,
         'is_future': is_future,
-        'cover_url': cover_url
+        'cover_url': cover_url,
+        'read_id': reading.read_id,
+        'book_id': book.id
     }
 
 def _get_book_cover_url(title, author, book_id=None):
@@ -177,8 +179,8 @@ def _get_book_cover_url(title, author, book_id=None):
             if absolute_path.exists():
                 return cover_path
 
-    # If no cover found, return default
-    return "../../assets/book_covers/default-cover.png"
+    # If no cover found, use book cover 0
+    return "../../assets/book_covers/0.jpg"
 
 def generate_report(limit=10):
     """Generate the reading chain report for current books"""
@@ -221,8 +223,8 @@ def generate_report(limit=10):
                            est_start_date > today)
 
                 processed_chain.append({
-                    'read_id': book.read_id,  # Make sure this is included
-                    'book_id': book.book_id,
+                    'read_id': book.read_id,
+                    'book_id': book.book_id,  # Make sure book_id is included
                     'title': book.title,
                     'author': format_author_name(book.author_name_first, book.author_name_second),
                     'previous_id': book.id_previous,
