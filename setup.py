@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     setup(
         name="reading_list",
-        version="2.0.2",  # Keeping original version number
+        version="2.2.3",  # Keeping original version number
         packages=packages,
         package_dir={
             "": ".",  # For old structure
