@@ -52,8 +52,10 @@ build/
 dist/
 __pycache__/
 
-# Reports
-reports/
+# Reports and generated files
+reports/*
+reports/**/*
+!reports/.gitkeep
 
 # Data
 data/backups/

@@ -5,7 +5,7 @@ from pathlib import Path
 from sqlalchemy import text
 from jinja2 import Environment, FileSystemLoader
 from rich.console import Console
-from scripts.utils.paths import find_project_root
+from scripts.utils.paths import get_project_paths, find_project_root
 from src.models.base import engine
 
 console = Console()
@@ -167,21 +167,24 @@ def get_book_data(reading, is_current=False, is_future=False):
 
 def _get_book_cover_url(title, author, book_id=None):
     """Get book cover URL"""
+    project_paths = get_project_paths()
+
     # First try local storage
     if book_id:
         for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-            cover_path = f"../assets/book_covers/{book_id}{ext}"
-            absolute_path = os.path.join(find_project_root(), 'assets', 'book_covers', f"{book_id}{ext}")
-            if os.path.exists(absolute_path):
+            cover_path = f"../../assets/book_covers/{book_id}{ext}"
+            absolute_path = project_paths['workspace'] / 'assets' / 'book_covers' / f"{book_id}{ext}"
+            if absolute_path.exists():
                 return cover_path
 
     # If no cover found, return default
-    return "../assets/book_covers/default-cover.png"
+    return "../../assets/book_covers/default-cover.png"
 
 def generate_report(limit=10):
     """Generate the reading chain report for current books"""
-    workspace = find_project_root()
-    template_dir = workspace / 'templates' / 'reports'
+    project_paths = get_project_paths()
+
+    template_dir = project_paths['workspace'] / 'templates' / 'reports'
     env = Environment(loader=FileSystemLoader(template_dir))
     template = env.get_template('reading_chain_report.html')
 
@@ -265,8 +268,8 @@ def generate_report(limit=10):
         )
 
         # Write the report
-        output_dir = workspace / 'tbr'
-        output_dir.mkdir(exist_ok=True)
+        output_dir = project_paths['workspace'] / 'reports' / 'tbr'
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         output_file = output_dir / 'tbr.html'
         output_file.write_text(html_content)
