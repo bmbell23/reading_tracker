@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reading_list"
-version = "2.0.01"
+version = "2.0.2"
 description = "Reading List Tracker"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
@@ -28,8 +28,8 @@ dependencies = [
 ]
 
 [tool.setuptools]
-package-dir = {"" = "src"}
-packages = ["src", "scripts", "tests"]
+packages = ["reading_list", "src", "scripts", "tests"]
+package-dir = {"" = "."}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -37,7 +37,7 @@ python_files = ["test_*.py"]
 pythonpath = ["."]
 
 [tool.mypy]
-python_version = "2.0.01"
+python_version = "2.0.2"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -52,3 +52,6 @@ multi_line_output = 3
 
 [tool.python.compile-bytecode]
 enabled = false
+
+[project.scripts]
+reading-update = "reading_list.cli.update_entries:main"

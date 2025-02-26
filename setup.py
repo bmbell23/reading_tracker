@@ -36,10 +36,21 @@ def create_venv():
         print("    source venv/bin/activate")
 
 if __name__ == "__main__":
+    # Find packages in both old and new structure
+    packages = find_packages(include=['src*', 'scripts*', 'tests*'])
+    packages.extend(find_packages(where="src"))
+
+    # Remove duplicates while preserving order
+    packages = list(dict.fromkeys(packages))
+
     setup(
         name="reading_list",
-        version="2.0.01",
-        packages=find_packages(include=['src*', 'scripts*', 'tests*']),
+        version="2.0.2",  # Keeping original version number
+        packages=packages,
+        package_dir={
+            "": ".",  # For old structure
+            "reading_list": "src/reading_list",  # For new structure
+        },
         package_data={
             'templates': ['excel/*', 'email/*'],
             'config': ['*.yaml'],
