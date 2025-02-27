@@ -2,7 +2,7 @@ import subprocess
 import sys
 import venv
 from pathlib import Path
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, find_namespace_packages
 
 def create_venv():
     # Create venv directory in project root
@@ -36,20 +36,27 @@ def create_venv():
         print("    source venv/bin/activate")
 
 if __name__ == "__main__":
-    # Find packages in both old and new structure
-    packages = find_packages(include=['src*', 'scripts*', 'tests*'])
-    packages.extend(find_packages(where="src"))
-
+    # Find packages in both structures
+    packages = []
+    
+    # Find packages in root directory (old structure)
+    root_packages = find_packages(include=['scripts*', 'tests*', 'src*'])
+    packages.extend(root_packages)
+    
+    # Find packages in src directory (new structure)
+    src_packages = find_namespace_packages(where="src", include=["reading_list*"])
+    packages.extend(src_packages)
+    
     # Remove duplicates while preserving order
     packages = list(dict.fromkeys(packages))
 
     setup(
         name="reading_list",
-        version="2.2.3",  # Keeping original version number
+        version="2.2.5",
         packages=packages,
         package_dir={
-            "": ".",  # For old structure
-            "reading_list": "src/reading_list",  # For new structure
+            "": ".",                          # For root-level packages
+            "reading_list": "src/reading_list" # For new structure
         },
         package_data={
             'templates': ['excel/*', 'email/*'],
@@ -70,5 +77,12 @@ if __name__ == "__main__":
             "python-dotenv>=0.19.0",
         ],
         python_requires='>=3.8',
+        entry_points={
+            'console_scripts': [
+                'reading-db-transfer=reading_list.cli.db_transfer_cli:main',
+                'reading-update=reading_list.cli.update_entries:main',
+                'reading-excel-template=reading_list.cli.excel_template_cli:main',
+            ],
+        },
     )
     create_venv()
