@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     setup(
         name="reading_list",
-        version="2.2.5",
+        version="2.2.6",
         packages=packages,
         package_dir={
             "": ".",                          # For root-level packages
@@ -75,6 +75,8 @@ if __name__ == "__main__":
             "termcolor>=2.0.0",
             "rich>=10.0.0",
             "python-dotenv>=0.19.0",
+            "plotly>=5.3.0",
+            "dash>=2.0.0",
         ],
         python_requires='>=3.8',
         entry_points={

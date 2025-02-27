@@ -1,9 +1,7 @@
 from fastapi import FastAPI
-from src.routes.api import router as api_router  # Fixed import path
+from reading_list.api.routes import router as api_router
 
 app = FastAPI(title="Reading List API")
-
-# Register routes
 app.include_router(api_router)
 
 if __name__ == "__main__":
