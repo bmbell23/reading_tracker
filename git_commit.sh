@@ -2,9 +2,9 @@
 
 # Check if both arguments are provided
 if [ $# -ne 2 ]; then
-    echo "Error: Missing required arguments"
-    echo "Usage: ./git_commit.sh <version> <commit_message>"
-    echo "Example: ./git_commit.sh \"1.1.0\" \"Updated version to 1.1.0\""
+    log "Error: Missing required arguments"
+    log "Usage: ./git_commit.sh <version> <commit_message>"
+    log "Example: ./git_commit.sh \"1.1.0\" \"Updated version to 1.1.0\""
     exit 1
 fi
 
@@ -38,7 +38,7 @@ if [ $UPDATE_STATUS -ne 0 ]; then
     echo "Error: Version update failed"
     exit 1
 fi
-echo "Version updated to $1"
+log "Version updated to $1"
 
 # 1. See what files have been changed
 git status

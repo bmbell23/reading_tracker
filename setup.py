@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     setup(
         name="reading_list",
-        version="2.2.6",
+        version="2.2.7",
         packages=packages,
         package_dir={
             "": ".",                          # For root-level packages

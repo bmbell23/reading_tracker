@@ -2,7 +2,7 @@ import sys
 import re
 from pathlib import Path
 import argparse
-from scripts.utils.paths import find_project_root
+from reading_list.utils.paths import find_project_root
 
 def get_version_from_file(file_path: Path) -> str:
     """Extract version number from a file."""
