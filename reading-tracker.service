@@ -1,0 +1,18 @@
+[Unit]
+Description=Reading Tracker FastAPI Application
+After=network.target
+
+[Service]
+User=brandon
+WorkingDirectory=/home/brandon/projects/reading_tracker
+Environment="PATH=/home/brandon/projects/reading_tracker/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONPATH=/home/brandon/projects/reading_tracker"
+ExecStart=/home/brandon/projects/reading_tracker/venv/bin/python3 scripts/server/run_reports_server.py
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=on-failure
+RestartSec=5
+KillMode=mixed
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target

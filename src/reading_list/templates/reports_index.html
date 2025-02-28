@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .report-list {
+            list-style: none;
+            padding: 0;
+        }
+        .report-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .report-type {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    
+    {% if reports %}
+    <ul class="report-list">
+        {% for report in reports %}
+        <li class="report-item">
+            <a href="{{ report.url }}">{{ report.name }}</a>
+            <span class="report-type">({{ report.type }})</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No reports available.</p>
+    {% endif %}
+</body>
+</html>

@@ -45,6 +45,11 @@ htmlcov/
 *.bak
 *.swp
 
+# Reports and generated files
+reports/*
+reports/**/*
+!reports/.gitkeep
+
 # Added by organize_root.py
 # Build
 reading_list.egg-info/
@@ -52,12 +57,8 @@ build/
 dist/
 __pycache__/
 
-# Reports and generated files
-reports/*
-reports/**/*
-!reports/.gitkeep
-
 # Data
+data/db/*.db
 data/backups/
 data/csv/*
 !data/csv/.gitkeep
@@ -72,3 +73,23 @@ logs/*
 # Assets
 assets/
 assets/book_covers/
+
+# Added by organize_root.py
+# Build
+reading_list.egg-info/
+build/
+dist/
+__pycache__/
+
+# Data
+data/db/*.db
+data/backups/
+data/csv/*
+!data/csv/.gitkeep
+
+# Config
+config/.env
+
+# Logs
+logs/*
+!logs/.gitkeep

@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 from pathlib import Path
-from sqlalchemy import text
+import sys
+
+# Add project root to Python path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
 from src.models.base import engine
+from sqlalchemy import text
 from rich.console import Console
 from jinja2 import Template
 import os
@@ -110,37 +116,36 @@ def generate_cover_gallery():
         console.print("[blue]Generating cover gallery...[/blue]")
 
         # Get books with covers from database
+        books = []
         with engine.connect() as conn:
             result = conn.execute(text("""
                 SELECT
                     b.id,
                     b.title,
                     CASE
-                        WHEN b.author_name_second IS NOT NULL
+                        WHEN b.author_name_first IS NOT NULL AND b.author_name_second IS NOT NULL 
                         THEN b.author_name_first || ' ' || b.author_name_second
-                        ELSE b.author_name_first
+                        ELSE COALESCE(b.author_name_first, b.author_name_second, 'Unknown Author')
                     END as author
                 FROM books b
-                WHERE b.cover = TRUE  -- Changed from has_cover to cover
-                ORDER BY b.id
+                WHERE b.has_cover = TRUE
+                ORDER BY b.title
             """))
-
-            books = []
-            for book_id, title, author in result:
-                # Find the corresponding cover file
+            
+            for row in result:
+                # Find the actual cover file
                 cover_file = None
                 for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-                    potential_file = f"{book_id}{ext}"  # Removed 'book_' prefix
-                    if (covers_path / potential_file).exists():
-                        cover_file = potential_file
+                    if (covers_path / f"{row.id}{ext}").exists():
+                        cover_file = f"{row.id}{ext}"
                         break
-
+                
                 if cover_file:
                     books.append({
-                        'id': book_id,
-                        'title': title or "Unknown Title",
-                        'author': author or "Unknown Author",
-                        'cover_path': f"../assets/book_covers/{cover_file}"
+                        'id': row.id,
+                        'title': row.title,
+                        'author': row.author,
+                        'cover_path': f"/assets/book_covers/{cover_file}"
                     })
 
         # Generate HTML

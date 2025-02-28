@@ -15,21 +15,15 @@ def load_workspace() -> Path:
     # Fallback to finding it dynamically
     return find_project_root()
 
-def find_project_root(start_path: Path = None) -> Path:
-    """Find the project root directory by looking for .project-root marker file."""
-    if start_path is None:
-        start_path = Path.cwd()
+def find_project_root() -> Path:
+    """Find and return the project root directory"""
+    return Path(__file__).parent.parent.parent
 
-    current = start_path.absolute()
-
-    while current != current.parent:
-        if (current / '.project-root').exists():
-            return current
-        current = current.parent
-
-    raise FileNotFoundError(
-        "Project root not found. Ensure .project-root file exists in project root directory."
-    )
+def setup_python_path():
+    """Add project root to Python path"""
+    import sys
+    project_root = find_project_root()
+    sys.path.insert(0, str(project_root))
 
 def get_project_paths():
     """Return a dictionary of common project paths."""

@@ -1,41 +1,38 @@
 #!/usr/bin/env python3
 import os
+import sys
 from datetime import date, datetime
 from pathlib import Path
+
+# Add project root to Python path
+current_file = Path(__file__).resolve()
+project_root = current_file.parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from scripts.utils.paths import get_project_paths, find_project_root
 from sqlalchemy import text
 from jinja2 import Environment, FileSystemLoader
 from rich.console import Console
-from scripts.utils.paths import get_project_paths, find_project_root
 from src.models.base import engine
 
 console = Console()
 
 def get_current_readings(conn):
-    """Get all all curnngs"""
+    """Get all current readings"""
     query = """
         SELECT
             r.id as read_id,
-            r.media,
+            r.status,
             r.date_started,
             r.date_finished_actual,
-            b.id as book_id,
             b.id as book_id,
             b.title
         FROM read r
         JOIN books b ON r.book_id = b.id
-        WHERE r.date_started IS NOT NULL
-        AND r.date_finished_actual IS NULL
-        ORDER BY r.media;
+        WHERE r.status = 'reading'
+        ORDER BY r.date_started DESC
     """
-    results = conn.execute(text(query)).fetchall()
-
-    # Debug output
-    console.print("\n[bold]Current Readings Found:[/bold]")
-    for r in results:
-        console.print(f"ID: {r.read_id}, Title: {r.title}, Media: {r.media}")
-        console.print(f"Started: {r.date_started}, Finished: {r.date_finished_actual}")
-
-    return results
+    return conn.execute(text(query)).fetchall()
 
 def get_reading_chain(conn, reading_id, direction='both', limit=10):
     """Get the reading chain around a specific reading"""
@@ -168,19 +165,20 @@ def get_book_data(reading, is_current=False, is_future=False):
     }
 
 def _get_book_cover_url(title, author, book_id=None):
-    """Get book cover URL"""
+    """Get the URL for a book's cover image"""
     project_paths = get_project_paths()
-
+    
     # First try local storage
     if book_id:
         for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-            cover_path = f"../../assets/book_covers/{book_id}{ext}"
+            # Use relative path for URL, but absolute path for file check
+            relative_path = f"../assets/book_covers/{book_id}{ext}"
             absolute_path = project_paths['workspace'] / 'assets' / 'book_covers' / f"{book_id}{ext}"
             if absolute_path.exists():
-                return cover_path
+                return relative_path
 
     # If no cover found, use book cover 0
-    return "../../assets/book_covers/0.jpg"
+    return "../assets/book_covers/0.jpg"
 
 def generate_report(limit=10):
     """Generate the reading chain report for current books"""

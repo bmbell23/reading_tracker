@@ -37,6 +37,34 @@ def format_author_name(first, second):
     """Format author's full name"""
     return f"{first or ''} {second or ''}".strip() or "Unknown Author"
 
+def get_book_data(reading):
+    """Get formatted book data including cover URL"""
+    book = reading.book
+    cover_url = None
+    
+    # Try to find cover file
+    if book.id:
+        for ext in ['.jpg', '.jpeg', '.png', '.webp']:
+            cover_path = f"/assets/book_covers/{book.id}{ext}"
+            absolute_path = project_paths['workspace'] / 'assets' / 'book_covers' / f"{book.id}{ext}"
+            if absolute_path.exists():
+                cover_url = cover_path
+                break
+    
+    if not cover_url:
+        cover_url = "/assets/book_covers/0.jpg"
+
+    return {
+        'title': book.title,
+        'author': format_author_name(book.author_name_first, book.author_name_second),
+        'cover_url': cover_url,
+        'pages': int(book.page_count or 0),
+        'words': int(book.word_count or 0),
+        'media': reading.media,
+        'started': reading.date_started if reading.date_started else None,
+        'finished': reading.date_finished_actual if reading.date_finished_actual else None
+    }
+
 def process_readings_data(readings):
     """Process raw readings data into a format suitable for the template"""
     months_data = {}
@@ -52,16 +80,7 @@ def process_readings_data(readings):
 
     for reading in readings:
         month = int(reading.month)
-        book_data = {
-            'id': reading.id,  # Make sure we're including the ID
-            'title': reading.title,
-            'author': format_author_name(reading.author_name_first, reading.author_name_second),
-            'pages': int(reading.page_count or 0),
-            'words': int(reading.word_count or 0),
-            'media': reading.media,
-            'started': reading.date_started if reading.date_started else None,
-            'finished': reading.date_finished_actual if reading.date_finished_actual else None
-        }
+        book_data = get_book_data(reading)
 
         months_data[month]['books'].append(book_data)
         months_data[month]['total_books'] += 1
