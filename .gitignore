@@ -93,3 +93,22 @@ config/.env
 # Logs
 logs/*
 !logs/.gitkeep
+# Added by organize_root.py
+# Build
+reading_list.egg-info/
+build/
+dist/
+__pycache__/
+
+# Data
+data/db/*.db
+data/backups/
+data/csv/*
+!data/csv/.gitkeep
+
+# Config
+config/.env
+
+# Logs
+logs/*
+!logs/.gitkeep

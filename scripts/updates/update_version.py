@@ -11,7 +11,6 @@ def get_version_from_file(file_path: Path) -> str:
 
         # Different patterns for different file types
         patterns = {
-            'setup.py': r'version\s*=\s*["\'](\d+\.\d+\.\d+)["\']',
             'pyproject.toml': r'version\s*=\s*["\'](\d+\.\d+\.\d+)["\']',
             'README.md': r'# Reading List Tracker v([\d.]+)'  # Updated pattern
         }
@@ -28,7 +27,6 @@ def check_versions() -> dict:
     project_root = find_project_root()
 
     files_to_check = {
-        'setup.py': project_root / 'setup.py',
         'pyproject.toml': project_root / 'pyproject.toml',
         'README.md': project_root / 'README.md'
     }
@@ -79,7 +77,6 @@ def version(new_version: str):
     project_root = find_project_root()
 
     files_to_update = {
-        'setup.py': update_setup_py,
         'pyproject.toml': update_pyproject_toml,
         'README.md': update_readme_md
     }
@@ -101,20 +98,6 @@ def version(new_version: str):
     print("-" * 50)
     print("Version update complete!")
 
-def update_setup_py(file_path: Path, new_version: str):
-    """Update version in setup.py"""
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
-
-    # Update version in setup() call
-    updated = re.sub(
-        r'(version\s*=\s*["\'])[\d.]+(["\'])',
-        f'\\g<1>{new_version}\\g<2>',
-        content
-    )
-
-    with open(file_path, 'w', encoding='utf-8') as file:
-        file.write(updated)
 
 def update_pyproject_toml(file_path: Path, new_version: str):
     """Update version in pyproject.toml"""
