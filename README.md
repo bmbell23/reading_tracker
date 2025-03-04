@@ -1,4 +1,4 @@
-# Reading List Tracker v2.2.9
+# Reading List Tracker v2.3.0
 
 A Python-based application to track reading habits, book inventory, and reading statistics.
 
@@ -48,21 +48,16 @@ Quick setup:
    cd reading_list
    ```
 
-2. Create and activate virtual environment:
+2. Run the setup script:
    ```bash
-   # Linux/MacOS
-   python -m venv venv
-   source venv/bin/activate
-
-   # Windows
-   python -m venv venv
-   venv\Scripts\activate
+   python setup.py
    ```
 
-3. Install dependencies:
-   ```bash
-   pip install -e .
-   ```
+This will:
+- Create and configure the virtual environment
+- Install all dependencies
+- Set up necessary directories
+- Run initial tests
 
 ## Environment Setup
 
@@ -100,24 +95,30 @@ Common database operations:
 - Clean up invalid books: `--cleanup-books`
 - Clean up empty entries: `--cleanup-empty`
 
+## Reports
+
+Generate various reading reports:
+
+```bash
+# Generate yearly reading report
+python scripts/metrics/yearly_reading_report.py 2024
+
+# Generate projected readings report
+python scripts/metrics/projected_readings.py 2024
+```
+
 ## Email Reports
 
-Set up daily reading progress reports:
+Generate daily reading progress reports:
 
-1. Configure environment variables (see Environment Setup)
-2. Set up logging:
-   ```bash
-   ./scripts/email/setup_report_logging.sh
-   ```
-3. Test the report:
-   ```bash
-   ./scripts/email/run_daily_report.sh
-   ```
-4. Set up cron job for daily reports:
-   ```bash
-   crontab -e
-   # Add: 0 9 * * * /path/to/reading_list/scripts/email/run_daily_report.sh
-   ```
+```bash
+# Test the email report
+reading-list email-report
+
+# Set up cron job for daily reports
+crontab -e
+# Add: 0 9 * * * /path/to/reading_tracker/src/reading_list/cli/commands/daily_report.sh
+```
 
 ## Project Maintenance
 
@@ -131,7 +132,7 @@ python scripts/version.py --update <version>
 python scripts/cleanup/run_cleanup.py
 
 # Commit changes
-./git_commit.sh <version> "<commit message>"
+version-commit <version> "<commit message>"
 ```
 
 ## Documentation

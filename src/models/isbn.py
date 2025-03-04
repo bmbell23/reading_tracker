@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Numeric, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -6,29 +6,20 @@ class ISBN(Base):
     __tablename__ = 'isbn'
 
     id = Column(Integer, primary_key=True)
-    book_id = Column(Integer, ForeignKey('books.id'), nullable=False)
+    title = Column(String, nullable=False)
+    author_name_first = Column(String)
+    author_name_second = Column(String)
+    author_gender = Column(String)
+    page_count = Column(Integer)
+    date_published = Column(Date)
+    cover = Column(Boolean)  # Changed from has_cover
     isbn_10 = Column(String(10))
     isbn_13 = Column(String(13))
-    format = Column(String(50))
-    edition = Column(String(100))
-    language = Column(String(50))
-    publisher = Column(String(100))
-    publication_date = Column(Date)
-    print_run = Column(Integer)
-    binding = Column(String(50))
-    height = Column(Numeric(4,2))
-    width = Column(Numeric(4,2))
-    thickness = Column(Numeric(4,2))
-    weight = Column(Integer)
-    pages = Column(Integer)
-    cover_image_url = Column(String(255))
-    description = Column(Text)
-
-    # Relationship with Book
-    book = relationship("Book", back_populates="isbns")
+    asin = Column(String(10))  # Amazon's identifier
+    source = Column(String)    # Where we got this ISBN from (google_books, openlibrary, etc.)
 
     def __repr__(self):
-        return f"<ISBN(id={self.id}, isbn_13={self.isbn_13})>"
+        return f"<ISBN(id={self.id}, title='{self.title}', isbn_10='{self.isbn_10}', isbn_13='{self.isbn_13}')>"
 
 
 

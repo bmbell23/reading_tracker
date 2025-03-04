@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "reading_list"
-version = "2.2.9"
+version = "2.3.0"
 description = "Reading List Tracker"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
@@ -35,10 +35,15 @@ dev = [
     "pytest-cov>=4.0.0",
     "pytest-asyncio>=0.21.0",
     "pytest-mock>=3.10.0",
+    "black>=22.0.0",
+    "isort>=5.0.0",
+    "mypy>=0.900",
+    "pylint>=2.0.0"
 ]
 
 [project.scripts]
-reading-update = "reading_list.cli.update_entries:main"
+reading-list = "reading_list.cli.main:main"
+reading-list-covers = "reading_list.cli.covers:main"
 reading-api = "reading_list.api.app:app"
 
 [tool.setuptools]
@@ -51,7 +56,7 @@ python_files = ["test_*.py"]
 pythonpath = ["."]
 
 [tool.mypy]
-python_version = "2.2.9"
+python_version = "2.3.0"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

@@ -17,9 +17,11 @@ class Book(Base):
     series = Column(VARCHAR)
     series_number = Column(Integer)
     genre = Column(VARCHAR)
-    has_cover = Column(Boolean)
     cover = Column(Boolean, nullable=False, default=False)
     isbn_id = Column(Integer)
+    isbn_10 = Column(String(10), unique=True, nullable=True)
+    isbn_13 = Column(String(13), unique=True, nullable=True)
+    asin = Column(String(10), unique=True, nullable=True)  # Amazon's identifier
 
     @property
     def words_per_page(self):

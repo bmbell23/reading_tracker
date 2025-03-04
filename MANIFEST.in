@@ -1,0 +1,7 @@
+include src/reading_list/templates/email/*
+include src/reading_list/templates/excel/*
+include src/reading_list/templates/reports/chain/*
+include src/reading_list/templates/reports/projected/*
+include src/reading_list/templates/reports/yearly/*
+include src/reading_list/templates/tbr/*
+include src/reading_list/templates/styles/*

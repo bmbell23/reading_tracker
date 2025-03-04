@@ -169,7 +169,7 @@ python scripts/database/backup_db.py
 python scripts/version.py --update X.Y.Z
 
 # Commit changes
-./git_commit.sh "X.Y.Z" "Version bump to X.Y.Z"
+version-commit "X.Y.Z" "Version bump to X.Y.Z"
 ```
 
 ## Contributing

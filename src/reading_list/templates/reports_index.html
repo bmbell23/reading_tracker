@@ -1,44 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --color-bg: #f8fafc;
+            --color-text: #1e293b;
+            --color-primary: #3b82f6;
+            --color-secondary: #64748b;
+            --color-accent: #0ea5e9;
+            --color-success: #10b981;
+            --color-card: #ffffff;
+            --color-border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem;
         }
-        .report-list {
-            list-style: none;
-            padding: 0;
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
         }
-        .report-item {
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
         }
+
+        .reports-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        .report-card {
+            background: var(--color-card);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--color-border);
+        }
+
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        .report-link {
+            text-decoration: none;
+            color: var(--color-text);
+        }
+
+        .report-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
         .report-type {
-            color: #666;
-            font-size: 0.9em;
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--color-bg);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            color: var(--color-secondary);
+            font-weight: 500;
+        }
+
+        .report-date {
+            font-size: 0.875rem;
+            color: var(--color-secondary);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>{{ title }}</h1>
-    
-    {% if reports %}
-    <ul class="report-list">
-        {% for report in reports %}
-        <li class="report-item">
-            <a href="{{ report.url }}">{{ report.name }}</a>
-            <span class="report-type">({{ report.type }})</span>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>No reports available.</p>
-    {% endif %}
+    <div class="container">
+        <div class="header">
+            <h1>{{ title }}</h1>
+        </div>
+        
+        {% if reports %}
+        <div class="reports-grid">
+            {% for report in reports %}
+            <a href="{{ report.url }}" class="report-link">
+                <div class="report-card">
+                    <div class="report-name">{{ report.name }}</div>
+                    <span class="report-type">{{ report.type }}</span>
+                    <div class="report-date">
+                        {% if report.date_modified %}
+                            Updated {{ report.date_modified|datetime }}
+                        {% else %}
+                            Date unknown
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="report-card">
+            <p>No reports available.</p>
+        </div>
+        {% endif %}
+    </div>
 </body>
 </html>

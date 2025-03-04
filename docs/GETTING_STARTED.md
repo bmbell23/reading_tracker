@@ -120,7 +120,7 @@ python scripts/database/db_cli.py --inventory all
 
 1. Test email reports:
 ```bash
-./scripts/email/run_daily_report.sh
+reading-list email-report
 ```
 
 2. Set up daily reports (Linux/MacOS):
@@ -129,7 +129,7 @@ python scripts/database/db_cli.py --inventory all
 crontab -e
 
 # Add this line to run report at 9 AM daily
-0 9 * * * /full/path/to/reading_list/scripts/email/run_daily_report.sh
+0 9 * * * /full/path/to/reading_tracker/scripts/automation/daily_report.sh
 ```
 
 ## Frontend Features

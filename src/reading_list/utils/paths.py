@@ -33,26 +33,37 @@ def load_workspace() -> Path:
     return find_project_root()
 
 def get_project_paths() -> Dict[str, Path]:
-    """Return a dictionary of common project paths."""
-    workspace = load_workspace()
+    """Get standardized paths for the project."""
+    # Get the project root (3 levels up from this file)
+    root = Path(__file__).resolve().parents[3]
     
-    paths = {
-        'workspace': workspace,
-        'config': workspace / 'config',
-        'templates': workspace / 'templates',
-        'docs': workspace / 'docs',
-        'database': workspace / 'data' / 'db' / 'reading_list.db',
-        'excel_templates': workspace / 'templates' / 'excel',
-        'email_templates': workspace / 'templates' / 'email',
-        'migrations': workspace / 'src' / 'migrations',
-        'logs': workspace / 'logs',
-        'data': workspace / 'data',
-        'backups': workspace / 'data' / 'backups',
-        'csv': workspace / 'data' / 'csv',
-        'examples': workspace / 'data' / 'examples',
+    return {
+        'root': root,
+        'src': root / 'src',
+        'templates': root / 'src' / 'reading_list' / 'templates',
+        'reports': root / 'reports',
+        'assets': root / 'assets',
+        'workspace': root,
+        'database': root / 'data' / 'db' / 'reading_list.db',
+        'backups': root / 'data' / 'backups'
     }
 
-    return paths
+def ensure_paths_exist():
+    """Ensure all required project paths exist."""
+    paths = get_project_paths()
+    
+    # Create directories if they don't exist
+    for path in paths.values():
+        # Skip database file itself, just create its parent directory
+        if str(path).endswith('.db'):
+            path.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            path.mkdir(parents=True, exist_ok=True)
+        
+    # Create specific report subdirectories
+    report_types = ['yearly', 'monthly', 'projected', 'chain']
+    for report_type in report_types:
+        (paths['reports'] / report_type).mkdir(parents=True, exist_ok=True)
 
 def ensure_directory(path: Path) -> None:
     """Ensure directory exists, create if it doesn't."""
@@ -68,3 +79,9 @@ def ensure_project_directories() -> Dict[str, Path]:
             ensure_directory(path)
     
     return paths
+
+def setup_python_path() -> None:
+    """Add project root to Python path."""
+    import sys
+    project_root = find_project_root()
+    sys.path.insert(0, str(project_root))

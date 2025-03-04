@@ -77,6 +77,7 @@ class ReadingQueries:
                 .where(Reading.date_started.is_(None))
                 .where(Reading.date_finished_actual.is_(None))
                 .order_by(Reading.date_est_start)
+                .limit(5)  # Added limit here too for consistency
             )
 
             return self.session.execute(query).scalars().all()

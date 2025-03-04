@@ -1,7 +1,7 @@
-from src.models.base import Base, engine
-from src.models.book import Book
-from src.models.reading import Reading
-from src.models.inventory import Inventory
+from reading_list.models.base import Base, engine
+from reading_list.models.book import Book
+from reading_list.models.reading import Reading
+from reading_list.models.inventory import Inventory
 
 def create_database():
     print("Creating database tables...")

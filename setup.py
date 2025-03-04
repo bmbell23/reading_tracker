@@ -2,7 +2,7 @@ import subprocess
 import sys
 import venv
 from pathlib import Path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 # Project version
 VERSION = "2.2.7"
@@ -30,13 +30,19 @@ def create_venv():
 
 if __name__ == "__main__":
     setup(
-        name="reading_list",
-        version=VERSION,
+        name="reading-tracker",
+        version="0.1.0",
         description="Reading List Tracker",
         author="Your Name",
         author_email="your.email@example.com",
-        packages=["reading_list"],
+        packages=find_packages(where="src"),
         package_dir={"": "src"},
         python_requires=">=3.8",
+        entry_points={
+            "console_scripts": [
+                "reading-list=reading_list.cli.main:main",
+                "reading-list-covers=reading_list.cli.covers:main",
+            ],
+        },
     )
     create_venv()

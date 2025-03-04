@@ -1,67 +1,81 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from datetime import datetime
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-from .utils.paths import get_project_paths
 
+app = FastAPI()
 
-app = FastAPI(title="Reading Tracker Reports")
+# Initialize paths
+templates_dir = Path(__file__).parent / "templates"
+reports_dir = Path(__file__).parent.parent.parent / "reports"
+assets_path = Path(__file__).parent.parent.parent / "assets"
 
 # Initialize templates
-templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
+templates = Jinja2Templates(directory=str(templates_dir))
 
-# Get project paths
-project_paths = get_project_paths()
-reports_dir = project_paths['workspace'] / 'reports'
-assets_dir = project_paths['workspace'] / 'assets'
+# Mount the reports directory as static files
+app.mount("/reports", StaticFiles(directory=str(reports_dir)), name="reports")
+app.mount("/assets", StaticFiles(directory=str(assets_path)), name="assets")
 
-# Ensure directories exist
-reports_dir.mkdir(parents=True, exist_ok=True)
-assets_dir.mkdir(parents=True, exist_ok=True)
+def datetime_filter(timestamp):
+    """Convert timestamp to human readable date"""
+    try:
+        date = datetime.fromtimestamp(float(timestamp))
+        return date.strftime("%B %d, %Y")
+    except (ValueError, TypeError):
+        return "Unknown date"
 
-# Mount static directories
-app.mount("/reports", StaticFiles(directory=str(reports_dir), html=True), name="reports")
-app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
-
-# Import and include routers
-try:
-    from .api.routes import router as api_router
-    app.include_router(api_router)
-except ImportError:
-    pass
+# Register the filter with Jinja2
+templates.env.filters["datetime"] = datetime_filter
 
 @app.get("/", response_class=HTMLResponse)
 async def reports_index(request: Request):
     """Display an index of all available reports."""
     reports = []
-    
+
     # Define report types to look for
     report_types = ['yearly', 'monthly', 'tbr']
-    
-    # Collect all HTML reports
-    for report_type in report_types:
-        type_dir = reports_dir / report_type
-        if type_dir.exists():
-            for report in type_dir.glob('*.html'):
-                reports.append({
-                    'name': report.stem.replace('_', ' ').title(),
-                    'type': report_type,
-                    'url': f"/reports/{report_type}/{report.name}",
-                    'date_modified': report.stat().st_mtime
-                })
-    
-    # Sort reports by modification date, newest first
-    reports.sort(key=lambda x: x['date_modified'], reverse=True)
-    
-    return templates.TemplateResponse(
-        "reports_index.html",
-        {
-            "request": request,
-            "reports": reports,
-            "title": "Reading Tracker Reports"
-        }
-    )
+
+    try:
+        # Create reports directory if it doesn't exist
+        reports_dir.mkdir(parents=True, exist_ok=True)
+
+        # Collect all HTML reports
+        for report_type in report_types:
+            type_dir = reports_dir / report_type
+            if type_dir.exists():
+                for report in type_dir.glob('*.html'):
+                    reports.append({
+                        'name': report.stem.replace('_', ' ').title(),
+                        'type': report_type,
+                        'url': f"/reports/{report_type}/{report.name}",
+                        'date_modified': report.stat().st_mtime
+                    })
+
+        # Sort reports by modification date, newest first
+        reports.sort(key=lambda x: x['date_modified'], reverse=True)
+
+        return templates.TemplateResponse(
+            "reports_index.html",
+            {
+                "request": request,
+                "reports": reports,
+                "title": "Reading Tracker Reports"
+            }
+        )
+    except Exception as e:
+        print(f"Error in reports_index: {str(e)}")
+        raise
+
+@app.get("/reports/{report_type}/{report_name}")
+async def serve_report(report_type: str, report_name: str):
+    """Serve a specific report file."""
+    report_path = reports_dir / report_type / report_name
+    if not report_path.exists():
+        raise HTTPException(status_code=404, detail="Report not found")
+    return FileResponse(str(report_path))
 
 @app.exception_handler(500)
 async def internal_error_handler(request, exc):
