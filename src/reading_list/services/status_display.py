@@ -235,7 +235,7 @@ class StatusDisplay:
         table.add_column("Title", justify="left")
         table.add_column("Author", justify="left")
 
-        dates = [self.today + timedelta(days=i) for i in range(8)]
+        dates = [self.today + timedelta(days=i) for i in range(7)]  # Changed from 8 to 7
         for d in dates:
             day_name = d.strftime('%a')
             date_str = d.strftime('%m/%d')

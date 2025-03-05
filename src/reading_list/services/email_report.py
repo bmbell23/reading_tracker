@@ -6,7 +6,7 @@ from email.mime.image import MIMEImage
 import os
 import smtplib
 import requests
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 from dotenv import load_dotenv
 
 from .status_display import StatusDisplay
@@ -31,74 +31,51 @@ class EmailReport:
 
     def _generate_reading_row(self, reading: Reading, is_current: bool = True) -> str:
         """Generate HTML table row for a reading."""
-        today = date.today()
-        
-        # Use shared formatting from StatusDisplay
-        formatted = self.status_display.format_reading_html(reading, is_current)
-        text_color = self.status_display.get_media_color(reading.media)
+        def format_date(d: Optional[date]) -> str:
+            """Format date as 'MMM DD' with ordinal suffix."""
+            if not d:
+                return 'Not scheduled'
+            day = d.day
+            suffix = 'th' if 11 <= day <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+            return d.strftime(f'%b {day}{suffix}')
 
-        # Get book cover URL
-        cover_url = self._get_book_cover_url(
-            reading.book.title, 
-            f"{reading.book.author_name_first} {reading.book.author_name_second}".strip(),
-            reading.book.id
-        )
+        # Get cover image
+        cover_url = self._get_book_cover_url(reading.book.title, reading.book.author_name_first, reading.book.id)
+        cover_cell = f'<td style="padding: 12px;"><img src="{cover_url}" style="width: 60px; border-radius: 4px;" alt="Book cover"/></td>' if cover_url else '<td></td>'
         
-        # Default cover if none found
-        cover_html = """
-            <div style="
-                width: 50px;
-                height: 75px;
-                background-color: #e2e8f0;
-                border-radius: 4px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            ">
-                <span style="color: #94a3b8;">No<br>Cover</span>
-            </div>
-        """
-        
-        if cover_url:
-            cover_html = f"""
-                <img src="{cover_url}"
-                     style="width: 50px;
-                            height: 75px;
-                            object-fit: cover;
-                            border-radius: 4px;
-                            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);"
-                     alt="Cover of {reading.book.title}"
-                />
-            """
+        # Format dates and progress
+        formatted = {
+            'author': f"{reading.book.author_name_first} {reading.book.author_name_second}",
+            'start_date': (format_date(reading.date_started) if reading.date_started else 
+                          format_date(reading.date_est_start) if reading.date_est_start else 
+                          'Not scheduled'),
+            'end_date': format_date(reading.date_est_end)
+        }
 
-        # Calculate progress if current reading
-        progress = ""
+        # Get formatted media badge
+        media_badge = self.status_display._format_media_badge(reading.media)
+
+        # Calculate progress for current readings
+        progress = ''
         if is_current:
-            progress_pct = calculate_reading_progress(reading, today)
-            if progress_pct.endswith('%'):
-                progress_pct_value = float(progress_pct.rstrip('%'))
+            today = date.today()
+            progress = calculate_reading_progress(reading, today)
+            if progress and progress.endswith('%'):
+                pct = float(progress.rstrip('%'))
                 total_pages = reading.book.page_count
-                pages_read = int(round((progress_pct_value / 100) * total_pages)) if total_pages else 0
-                
-                progress = f"""
-                    <div style="width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 6px;">
-                        <div style="width: {progress_pct_value}%; background-color: {text_color}; height: 6px; border-radius: 9999px;"></div>
-                    </div>
-                    <div style="color: {text_color}; font-weight: 600; font-size: 14px; margin-top: 4px;">
-                        p. {pages_read} ({int(progress_pct_value)}%)
-                    </div>
-                """
+                pages_read = int(round((pct / 100) * total_pages)) if total_pages else 0
+                progress = f"p. {pages_read}<br>{pct}%" if total_pages else progress
 
         return f"""
-            <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 12px; width: 50px;">{cover_html}</td>
-                <td style="padding: 12px;">{formatted['media_badge']}</td>
+            <tr>
+                {cover_cell}
+                <td style="padding: 12px;">{media_badge}</td>
                 <td style="padding: 12px;">
-                    <div style="font-weight: 600;">{formatted['title']}</div>
+                    <div style="font-weight: 600;">{reading.book.title}</div>
                     <div style="color: #64748b; font-size: 14px;">{formatted['author']}</div>
                 </td>
-                <td style="padding: 12px;">{formatted['start_date']}</td>
                 {f'<td style="padding: 12px;">{progress}</td>' if is_current else ''}
+                <td style="padding: 12px;">{formatted['start_date']}</td>
                 <td style="padding: 12px;">{formatted['end_date']}</td>
             </tr>
         """
@@ -108,10 +85,10 @@ class EmailReport:
         if not readings:
             return f"<h2>{title}</h2><p>No readings found.</p>"
 
-        headers = ['Cover', 'Format', 'Book', 'Start Date']
+        headers = ['Cover', 'Format', 'Book']
         if is_current:
             headers.append('Progress')
-        headers.append('Est. Completion')
+        headers.extend(['Start Date', 'End Date'])
 
         header_row = "".join([f'<th style="text-align: left; padding: 12px; background-color: #f8fafc;">{h}</th>' for h in headers])
 
@@ -143,12 +120,15 @@ class EmailReport:
         upcoming_table = self._generate_html_table(upcoming_readings, "Coming Soon", False)
         forecast_table = self._generate_forecast_table(all_readings)
 
+        today_date = date.today().strftime('%B %-d')  # Format like "March 5"
+
         return f"""
         <html>
             <head>
                 <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
                     body {{
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                         margin: 0;
                         padding: 24px;
                         background-color: #f1f5f9;
@@ -159,7 +139,49 @@ class EmailReport:
             </head>
             <body>
                 <div style="max-width: 800px; margin: 0 auto;">
-                    <h1 style="color: #1e293b; margin-bottom: 24px;">Reading Update - {date.today().strftime('%B %d, %Y')}</h1>
+                    <div style="text-align: center; margin-bottom: 40px;">
+                        <h1 style="
+                            font-family: 'Outfit', sans-serif;
+                            font-size: 42px;
+                            font-weight: 800;
+                            margin: 0;
+                            background: linear-gradient(135deg, #94A3B8 0%, #818CF8 33%, #38BDF8 66%, #2DD4BF 100%);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            -moz-background-clip: text;
+                            -moz-text-fill-color: transparent;
+                            background-clip: text;
+                            text-fill-color: transparent;
+                            color: transparent;
+                            display: inline-block;
+                            letter-spacing: -0.02em;
+                            padding: 4px 0;
+                        ">Your Daily Reading Update</h1>
+                        
+                        <div style="
+                            width: 80px;
+                            height: 4px;
+                            background: linear-gradient(135deg, #94A3B8 0%, #818CF8 33%, #38BDF8 66%, #2DD4BF 100%);
+                            margin: 28px auto;
+                            border-radius: 4px;
+                        "></div>
+                        
+                        <p style="
+                            font-family: 'Outfit', sans-serif;
+                            font-size: 17px;
+                            color: #64748b;
+                            margin: 0;
+                            line-height: 1.7;
+                            max-width: 600px;
+                            margin: 0 auto;
+                            font-weight: 500;
+                        ">
+                            Here's your personalized reading dashboard for {today_date}!<br>
+                            Below you'll find your current reading progress, upcoming books in your queue,
+                            and a forecast of your reading journey for the next 7 days. Keep turning those pages! 📚
+                        </p>
+                    </div>
+
                     {current_table}
                     {upcoming_table}
                     {forecast_table}
@@ -171,23 +193,23 @@ class EmailReport:
     def _format_forecast_cell(self, progress: str) -> str:
         """Format forecast cell content for email HTML."""
         if progress in ["TBR", "Done"]:
-            return f'<span style="color: #64748b;">{progress}</span>'  # Gray color
+            return f'<span style="color: #94A3B8;">{progress}</span>'  # Soft slate gray
         
         # Extract the percentage value from the Rich-formatted string
         if "%" in progress:
             try:
                 value = int(progress.split("%")[0])
-                # Color gradient for percentages
+                # Smooth gradient from soft pink to soft teal
                 if value < 20:
-                    color = "#EF4444"  # red
+                    color = "#F472B6"  # Soft pink
                 elif value < 40:
-                    color = "#F59E0B"  # yellow/orange
+                    color = "#818CF8"  # Soft purple
                 elif value < 60:
-                    color = "#FCD34D"  # light yellow
+                    color = "#38BDF8"  # Light blue
                 elif value < 80:
-                    color = "#10B981"  # green
+                    color = "#22D3EE"  # Cyan
                 else:
-                    color = "#059669"  # bright green
+                    color = "#2DD4BF"  # Soft teal
                 return f'<span style="color: {color}; font-weight: 600;">{value}%</span>'
             except ValueError:
                 return progress
@@ -199,26 +221,25 @@ class EmailReport:
         if not readings:
             return "<p>No current or upcoming readings found for the next 7 days.</p>"
 
-        dates = [date.today() + timedelta(days=i) for i in range(8)]
+        dates = [date.today() + timedelta(days=i) for i in range(7)]  # Changed from 8 to 7
 
         table = """
         <div style="margin-bottom: 32px;">
             <h2 style="color: #1e293b; margin-bottom: 16px;">Weekly Reading Progress Forecast</h2>
-            <table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
-                <thead>
-                    <tr>
-                        <th style="text-align: left; padding: 12px; background-color: #f8fafc;">Format</th>
-                        <th style="text-align: left; padding: 12px; background-color: #f8fafc;">Title</th>
-                        <th style="text-align: left; padding: 12px; background-color: #f8fafc;">Author</th>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table style="width: 100%; min-width: 800px; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 12px; background-color: #f8fafc; min-width: 70px; width: 70px;">Format</th>
+                            <th style="text-align: left; padding: 12px; background-color: #f8fafc; min-width: 300px;">Title</th>
         """
 
         # Add date columns
         for d in dates:
             day_name = d.strftime('%a')
-            date_str = d.strftime('%m/%d')
             table += f"""
-                <th style="text-align: center; padding: 12px; background-color: #f8fafc;">
-                    {day_name}<br>{date_str}
+                <th style="text-align: center; padding: 12px; background-color: #f8fafc; min-width: 55px; width: 55px;">
+                    {day_name}
                 </th>"""
 
         table += "</tr></thead><tbody>"
@@ -235,7 +256,6 @@ class EmailReport:
                         <div style="font-weight: 600;">{reading.book.title}</div>
                         <div style="color: #64748b; font-size: 14px;">{reading.book.author_name_first} {reading.book.author_name_second}</div>
                     </td>
-                    <td style="padding: 12px;">{self.status_display._format_author(reading.book)}</td>
             """
 
             # Add progress forecasts for each date
@@ -247,7 +267,7 @@ class EmailReport:
             row += "</tr>"
             table += row
 
-        table += "</tbody></table></div>"
+        table += "</tbody></table></div></div>"
         return table
 
     def _get_app_password(self):
