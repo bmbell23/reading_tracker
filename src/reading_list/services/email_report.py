@@ -37,6 +37,40 @@ class EmailReport:
         formatted = self.status_display.format_reading_html(reading, is_current)
         text_color = self.status_display.get_media_color(reading.media)
 
+        # Get book cover URL
+        cover_url = self._get_book_cover_url(
+            reading.book.title, 
+            f"{reading.book.author_name_first} {reading.book.author_name_second}".strip(),
+            reading.book.id
+        )
+        
+        # Default cover if none found
+        cover_html = """
+            <div style="
+                width: 50px;
+                height: 75px;
+                background-color: #e2e8f0;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            ">
+                <span style="color: #94a3b8;">No<br>Cover</span>
+            </div>
+        """
+        
+        if cover_url:
+            cover_html = f"""
+                <img src="{cover_url}"
+                     style="width: 50px;
+                            height: 75px;
+                            object-fit: cover;
+                            border-radius: 4px;
+                            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);"
+                     alt="Cover of {reading.book.title}"
+                />
+            """
+
         # Calculate progress if current reading
         progress = ""
         if is_current:
@@ -57,6 +91,7 @@ class EmailReport:
 
         return f"""
             <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 12px; width: 50px;">{cover_html}</td>
                 <td style="padding: 12px;">{formatted['media_badge']}</td>
                 <td style="padding: 12px;">
                     <div style="font-weight: 600;">{formatted['title']}</div>
@@ -73,7 +108,7 @@ class EmailReport:
         if not readings:
             return f"<h2>{title}</h2><p>No readings found.</p>"
 
-        headers = ['Format', 'Book', 'Start Date']
+        headers = ['Cover', 'Format', 'Book', 'Start Date']
         if is_current:
             headers.append('Progress')
         headers.append('Est. Completion')
@@ -233,7 +268,7 @@ class EmailReport:
 
         # Check local storage first
         if book_id:
-            cover_path = get_project_paths()['assets'] / 'book_covers' / f'cover_{book_id}.jpg'
+            cover_path = get_project_paths()['assets'] / 'book_covers' / f'{book_id}.jpg'
             if cover_path.exists():
                 with open(cover_path, 'rb') as f:
                     img_data = f.read()
