@@ -26,7 +26,7 @@ class ReadingStatus:
         """Get list of upcoming readings starting within next 30 days."""
         today = date.today()
         thirty_days = today + timedelta(days=30)
-        
+
         return (
             self.session.query(Reading)
             .join(Book)
@@ -41,6 +41,29 @@ class ReadingStatus:
             .order_by(Reading.date_est_start)  # Order by estimated start date
             .all()  # Remove any limit
         )
+
+    def get_forecast_readings(self, days: int = 7) -> List[Reading]:
+        """Get readings for forecast, sorted by start date.
+
+        Args:
+            days: Number of days to look ahead for upcoming readings
+
+        Returns:
+            List of readings sorted by actual start date, then estimated start date
+        """
+        current_readings = self.get_current_readings()
+        upcoming_readings = [r for r in self.get_upcoming_readings()
+                            if r.date_est_start and r.date_est_start <= date.today() + timedelta(days=days)]
+
+        all_readings = current_readings + upcoming_readings
+        # Sort by actual start date first, then estimated start date, then title
+        all_readings.sort(key=lambda x: (
+            x.date_started or date.max,  # Actual start date (None sorts last)
+            x.date_est_start or date.max,  # Estimated start date (None sorts last)
+            x.book.title.lower()  # Title as tiebreaker
+        ))
+
+        return all_readings
 
     def __del__(self):
         """Ensure session is closed."""

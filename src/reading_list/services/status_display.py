@@ -9,7 +9,7 @@ console = Console()
 
 class StatusDisplay:
     """Service for managing and displaying reading status information."""
-    
+
     def __init__(self):
         self.model = ModelReadingStatus()
         self.today = date.today()
@@ -61,9 +61,9 @@ class StatusDisplay:
             'audio': ('#FFF7ED', '#FB923C'),     # Light orange bg, orange text
             'audiobook': ('#FFF7ED', '#FB923C'), # Light orange bg, orange text
         }
-        
+
         bg_color, text_color = media_colors.get(media.lower(), ('#F3F4F6', '#4B5563'))  # Default: light gray bg, gray text
-        
+
         return f"""<span style="
             background-color: {bg_color};
             color: {text_color};
@@ -87,7 +87,7 @@ class StatusDisplay:
 
             days_elapsed = (self.today - reading.date_started).days if reading.date_started else 0
             progress = calculate_reading_progress(reading, self.today)
-            
+
             # Calculate remaining days using date_est_end
             days_remaining = None
             if reading.date_est_end:
@@ -164,15 +164,7 @@ class StatusDisplay:
 
     def show_progress_forecast(self):
         """Display daily progress forecast for the next 7 days."""
-        current_readings = self.model.get_current_readings()
-        upcoming_readings = self.model.get_upcoming_readings()
-
-        week_future = self.today + timedelta(days=7)
-        upcoming_readings = [r for r in upcoming_readings
-                           if r.date_est_start and r.date_est_start <= week_future]
-
-        all_readings = current_readings + upcoming_readings
-        all_readings.sort(key=lambda x: (x.media.lower(), x.book.title))
+        all_readings = self.model.get_forecast_readings()
 
         if not all_readings:
             console.print("\n[yellow]No current or upcoming readings found for the next 7 days.[/yellow]\n")

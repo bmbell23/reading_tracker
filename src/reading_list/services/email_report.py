@@ -18,7 +18,7 @@ from ..utils.progress_calculator import calculate_reading_progress
 
 class EmailReport:
     """Service for sending email reading reports."""
-    
+
     def __init__(self):
         load_dotenv()
         self.status_display = StatusDisplay()
@@ -32,10 +32,10 @@ class EmailReport:
     def _generate_reading_row(self, reading: Reading, is_current: bool = True) -> str:
         """Generate HTML table row for a reading."""
         today = date.today()
-        
+
         # Use StatusDisplay's media badge formatting
         media_badge = self.status_display._format_media_badge(reading.media)
-        
+
         # Get text color for progress bar from the badge
         text_color = '#3B82F6'  # Default to blue
         if reading.media.lower() == 'hardcover':
@@ -82,9 +82,9 @@ class EmailReport:
         headers.append('Est. Completion')
 
         header_row = "".join([f'<th style="text-align: left; padding: 12px; background-color: #f8fafc;">{h}</th>' for h in headers])
-        
+
         rows = [self._generate_reading_row(reading, is_current) for reading in readings]
-        
+
         return f"""
             <div style="margin-bottom: 32px;">
                 <h2 style="color: #1e293b; margin-bottom: 16px;">{title}</h2>
@@ -103,15 +103,13 @@ class EmailReport:
         """Generate complete HTML email content."""
         current_table = self._generate_html_table(current_readings, "Currently Reading", True)
         upcoming_table = self._generate_html_table(upcoming_readings, "Coming Soon", False)
-        
-        # Create forecast table using the same logic as StatusDisplay
+
+        # Use the model's get_forecast_readings() instead of custom sorting
         model = ReadingStatus()
-        all_readings = model.get_current_readings() + [r for r in model.get_upcoming_readings() 
-                                                     if r.date_est_start and r.date_est_start <= date.today() + timedelta(days=7)]
-        all_readings.sort(key=lambda x: (x.media.lower(), x.book.title))
-        
+        all_readings = model.get_forecast_readings()  # This already has the correct sorting
+
         forecast_table = self._generate_forecast_table(all_readings)
-        
+
         return f"""
         <html>
             <head>
@@ -143,7 +141,7 @@ class EmailReport:
             return "<p>No current or upcoming readings found for the next 7 days.</p>"
 
         dates = [date.today() + timedelta(days=i) for i in range(8)]
-        
+
         table = """
         <div style="margin-bottom: 32px;">
             <h2 style="color: #1e293b; margin-bottom: 16px;">Weekly Reading Progress Forecast</h2>
@@ -154,7 +152,7 @@ class EmailReport:
                         <th style="text-align: left; padding: 12px; background-color: #f8fafc;">Title</th>
                         <th style="text-align: left; padding: 12px; background-color: #f8fafc;">Author</th>
         """
-        
+
         # Add date columns
         for d in dates:
             day_name = d.strftime('%a')
@@ -163,14 +161,14 @@ class EmailReport:
                 <th style="text-align: center; padding: 12px; background-color: #f8fafc;">
                     {day_name}<br>{date_str}
                 </th>"""
-        
+
         table += "</tr></thead><tbody>"
-        
+
+        # Use readings directly without any additional sorting
         for reading in readings:
-            # Use the media badge from StatusDisplay
             media_badge = self.status_display._format_media_badge(reading.media)
             color = '#1e293b'  # Default text color
-            
+
             row = f"""
                 <tr>
                     <td style="padding: 12px;">{media_badge}</td>
@@ -180,15 +178,15 @@ class EmailReport:
                     </td>
                     <td style="padding: 12px;">{self.status_display._format_author(reading.book)}</td>
             """
-            
+
             # Add progress forecasts for each date
             for forecast_date in dates:
                 progress = self.status_display._format_forecast_progress(reading, forecast_date)
                 row += f'<td style="text-align: center; padding: 12px; color: {color}; font-weight: 600;">{progress}</td>'
-            
+
             row += "</tr>"
             table += row
-        
+
         table += "</tbody></table></div>"
         return table
 
@@ -217,7 +215,7 @@ class EmailReport:
                 cid = f"cover_{book_id}@reading.list"
                 self.image_cids[cache_key] = (cid, img_data, 'image/jpeg')
                 return f"cid:{cid}"
-        
+
         return None
 
     def send_reading_status(self):
