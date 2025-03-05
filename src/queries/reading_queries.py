@@ -3,10 +3,12 @@ from sqlalchemy import select, func
 from ..models.base import SessionLocal
 from ..models.book import Book
 from ..models.reading import Reading
+from ..repositories.reading_repository import ReadingRepository
 
 class ReadingQueries:
     def __init__(self):
         self.session = SessionLocal()
+        self.repository = ReadingRepository()
 
     def __del__(self):
         """Ensure the session is closed when the object is destroyed"""
@@ -18,16 +20,7 @@ class ReadingQueries:
         Returns: List of Reading objects with their associated Books
         """
         try:
-            query = (
-                select(Reading)
-                .join(Book)
-                .where(Reading.date_started <= date.today())
-                .where(Reading.date_finished_actual.is_(None))
-                .order_by(Reading.date_started.desc())
-            )
-
-            return self.session.execute(query).scalars().all()
-
+            return self.repository.get_current_readings()
         except Exception as e:
             print(f"Error executing query: {e}")
             return []

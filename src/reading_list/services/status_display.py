@@ -76,12 +76,10 @@ class StatusDisplay:
 
     def show_current_readings(self):
         """Display currently active reading sessions."""
-        results = self.model.get_current_readings()
+        results = self.model.get_current_readings()  # Using ReadingStatus consistently
         table = self._create_table("Current Reading Sessions", include_progress=True)
 
-        sorted_results = sorted(results, key=lambda x: (x.media.lower(), x.book.title))
-
-        for reading in sorted_results:
+        for reading in results:
             if reading.date_started > self.today:
                 continue
 
@@ -114,12 +112,10 @@ class StatusDisplay:
 
     def show_upcoming_readings(self):
         """Display upcoming reading sessions for the next 30 days."""
-        results = self.model.get_upcoming_readings()
+        results = self.model.get_upcoming_readings()  # Now using standard sorting
         table = self._create_table("Upcoming Reading Sessions (Next 30 Days)", include_progress=False)
 
-        sorted_results = sorted(results, key=lambda x: x.date_est_start or date.max)
-
-        for reading in sorted_results:
+        for reading in results:
             if not reading.date_est_start:
                 continue
 
@@ -135,7 +131,7 @@ class StatusDisplay:
             table.add_row(*row_data, style=self._get_row_color(reading.media))
 
         console.print("\n")
-        if sorted_results:
+        if results:
             console.print(table)
         else:
             console.print("[yellow]No upcoming reading sessions found for the next 30 days.[/yellow]")

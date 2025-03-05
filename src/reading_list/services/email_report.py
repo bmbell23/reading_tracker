@@ -101,13 +101,14 @@ class EmailReport:
 
     def _generate_html_content(self, current_readings: List[Reading], upcoming_readings: List[Reading]) -> str:
         """Generate complete HTML email content."""
+        # Use the model's standardized sorted lists
+        model = ReadingStatus()
+        current_readings = model.get_current_readings()
+        upcoming_readings = model.get_upcoming_readings()
+        all_readings = model.get_forecast_readings()
+
         current_table = self._generate_html_table(current_readings, "Currently Reading", True)
         upcoming_table = self._generate_html_table(upcoming_readings, "Coming Soon", False)
-
-        # Use the model's get_forecast_readings() instead of custom sorting
-        model = ReadingStatus()
-        all_readings = model.get_forecast_readings()  # This already has the correct sorting
-
         forecast_table = self._generate_forecast_table(all_readings)
 
         return f"""
@@ -223,10 +224,10 @@ class EmailReport:
         try:
             password = self._get_app_password()
 
-            # Create email HTML content using StatusDisplay
-            status = self.status_display
-            current_readings = status.model.get_current_readings()
-            upcoming_readings = status.model.get_upcoming_readings()
+            # Use ReadingStatus for consistent data access
+            status_model = ReadingStatus()
+            current_readings = status_model.get_current_readings()
+            upcoming_readings = status_model.get_upcoming_readings()
 
             # Generate HTML content
             html_content = self._generate_html_content(current_readings, upcoming_readings)
