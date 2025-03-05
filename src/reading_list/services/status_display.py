@@ -110,7 +110,7 @@ class StatusDisplay:
 
     def show_current_readings(self):
         """Display currently active reading sessions."""
-        results = self.model.get_current_readings()  # Using ReadingStatus consistently
+        results = self.model.get_current_readings()
         table = self._create_table("Current Reading Sessions", include_progress=True)
 
         for reading in results:
@@ -118,7 +118,16 @@ class StatusDisplay:
                 continue
 
             days_elapsed = (self.today - reading.date_started).days if reading.date_started else 0
-            progress = calculate_reading_progress(reading, self.today)
+            progress_pct = calculate_reading_progress(reading, self.today)
+            
+            # Calculate pages read based on percentage
+            if progress_pct.endswith('%'):
+                pct = float(progress_pct.rstrip('%'))
+                total_pages = reading.book.page_count
+                pages_read = int(round((pct / 100) * total_pages)) if total_pages else 0
+                progress = f"p. {pages_read} ({progress_pct})" if total_pages else progress_pct
+            else:
+                progress = progress_pct
 
             # Calculate remaining days using date_est_end
             days_remaining = None
@@ -171,16 +180,16 @@ class StatusDisplay:
             console.print("[yellow]No upcoming reading sessions found for the next 30 days.[/yellow]")
         console.print("\n")
 
-    def _format_forecast_progress(self, reading, forecast_date):
+    def _format_forecast_progress(self, reading, forecast_date, raw_value=False):
         """Format progress specifically for forecast display."""
         # For books not yet started
         start_date = reading.date_started or reading.date_est_start
         if not start_date or forecast_date < start_date:
-            return "TBR"
+            return "TBR" if raw_value else "[dim]TBR[/dim]"
 
         # For completed books
         if reading.date_est_end and forecast_date > reading.date_est_end:
-            return "Done"
+            return "Done" if raw_value else "[dim]Done[/dim]"
 
         # For books on their start date or after
         if forecast_date >= start_date:
@@ -188,9 +197,25 @@ class StatusDisplay:
             days_elapsed = (forecast_date - start_date).days + 1
             if total_days > 0:
                 progress = (days_elapsed / total_days) * 100
-                return f"{int(round(progress))}%"
+                progress_value = int(round(progress))
+                
+                if raw_value:
+                    return f"{progress_value}%"
+                
+                # More granular color gradient
+                if progress < 20:
+                    color = "red1"
+                elif progress < 40:
+                    color = "yellow3"
+                elif progress < 60:
+                    color = "yellow1"
+                elif progress < 80:
+                    color = "green3"
+                else:
+                    color = "green1"
+                return f"[{color}]{progress_value}%[/{color}]"
 
-        return "0%"
+        return "0%" if raw_value else "[red1]0%[/red1]"
 
     def show_progress_forecast(self):
         """Display daily progress forecast for the next 7 days."""

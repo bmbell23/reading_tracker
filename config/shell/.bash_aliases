@@ -39,5 +39,5 @@ alias email='reading-list email-report'
 
 alias update_db='reading-list update-readings --all'
 
-alias ver='python -m reading_list.cli.update_version --check'
+alias ver='reading-list version --check'
 

@@ -40,15 +40,18 @@ class EmailReport:
         # Calculate progress if current reading
         progress = ""
         if is_current:
-            progress = calculate_reading_progress(reading, today)
-            if progress.endswith('%'):
-                progress_pct = float(progress.rstrip('%'))
+            progress_pct = calculate_reading_progress(reading, today)
+            if progress_pct.endswith('%'):
+                progress_pct_value = float(progress_pct.rstrip('%'))
+                total_pages = reading.book.page_count
+                pages_read = int(round((progress_pct_value / 100) * total_pages)) if total_pages else 0
+                
                 progress = f"""
                     <div style="width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 6px;">
-                        <div style="width: {progress_pct}%; background-color: {text_color}; height: 6px; border-radius: 9999px;"></div>
+                        <div style="width: {progress_pct_value}%; background-color: {text_color}; height: 6px; border-radius: 9999px;"></div>
                     </div>
                     <div style="color: {text_color}; font-weight: 600; font-size: 14px; margin-top: 4px;">
-                        {int(progress_pct)}%
+                        p. {pages_read} ({int(progress_pct_value)}%)
                     </div>
                 """
 
@@ -130,6 +133,32 @@ class EmailReport:
         </html>
         """
 
+    def _format_forecast_cell(self, progress: str) -> str:
+        """Format forecast cell content for email HTML."""
+        if progress in ["TBR", "Done"]:
+            return f'<span style="color: #64748b;">{progress}</span>'  # Gray color
+        
+        # Extract the percentage value from the Rich-formatted string
+        if "%" in progress:
+            try:
+                value = int(progress.split("%")[0])
+                # Color gradient for percentages
+                if value < 20:
+                    color = "#EF4444"  # red
+                elif value < 40:
+                    color = "#F59E0B"  # yellow/orange
+                elif value < 60:
+                    color = "#FCD34D"  # light yellow
+                elif value < 80:
+                    color = "#10B981"  # green
+                else:
+                    color = "#059669"  # bright green
+                return f'<span style="color: {color}; font-weight: 600;">{value}%</span>'
+            except ValueError:
+                return progress
+        
+        return progress
+
     def _generate_forecast_table(self, readings: List[Reading]) -> str:
         """Generate HTML table for weekly progress forecast."""
         if not readings:
@@ -176,8 +205,9 @@ class EmailReport:
 
             # Add progress forecasts for each date
             for forecast_date in dates:
-                progress = self.status_display._format_forecast_progress(reading, forecast_date)
-                row += f'<td style="text-align: center; padding: 12px; color: {color}; font-weight: 600;">{progress}</td>'
+                progress = self.status_display._format_forecast_progress(reading, forecast_date, raw_value=True)
+                formatted_progress = self._format_forecast_cell(progress)
+                row += f'<td style="text-align: center; padding: 12px;">{formatted_progress}</td>'
 
             row += "</tr>"
             table += row
