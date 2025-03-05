@@ -225,7 +225,7 @@ class EmailReport:
 
         table = """
         <div style="margin-bottom: 32px;">
-            <h2 style="color: #1e293b; margin-bottom: 16px;">Weekly Reading Progress Forecast</h2>
+            <h2 style="color: #1e293b; margin-bottom: 16px;">Weekly Reading Forecast</h2>
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table style="width: 100%; min-width: 800px; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
                     <thead>

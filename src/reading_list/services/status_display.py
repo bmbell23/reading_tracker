@@ -226,7 +226,7 @@ class StatusDisplay:
             return
 
         table = Table(
-            title=f"Weekly Reading Progress Forecast (as of {self.today})",
+            title=f"Weekly Reading Forecast (as of {self.today})",
             show_header=True,
             header_style="bold magenta"
         )
