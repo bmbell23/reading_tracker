@@ -1,10 +1,13 @@
 """Service for displaying reading status information."""
-from datetime import date, timedelta
+from datetime import datetime, timedelta, date
 from typing import Optional, Dict
+
 from rich.console import Console
 from rich.table import Table
-from ..models.reading_status import ReadingStatus
+from rich.box import SIMPLE
+
 from ..models.reading import Reading
+from ..models.reading_status import ReadingStatus
 from ..utils.progress_calculator import calculate_reading_progress
 
 console = Console()
@@ -111,7 +114,23 @@ class StatusDisplay:
     def show_current_readings(self):
         """Display currently active reading sessions."""
         results = self.model.get_current_readings()
-        table = self._create_table("Current Reading Sessions", include_progress=True)
+        table = Table(
+            title="[bold #1e293b]Current Reading Sessions[/]",
+            show_header=True,
+            header_style="bold #1e293b",
+            box=SIMPLE,
+            show_lines=False,
+            style="#64748b"
+        )
+
+        table.add_column("Format", header_style="bold #1e293b")
+        table.add_column("Title", header_style="bold #1e293b")
+        table.add_column("Author", header_style="bold #1e293b")
+        table.add_column("Start Date", header_style="bold #1e293b")
+        table.add_column("Progress", header_style="bold #1e293b")
+        table.add_column("Days Elapsed", header_style="bold #1e293b")
+        table.add_column("Days to Finish", header_style="bold #1e293b")
+        table.add_column("Est. End Date", header_style="bold #1e293b")
 
         for reading in results:
             if reading.date_started > self.today:
@@ -226,24 +245,28 @@ class StatusDisplay:
             return
 
         table = Table(
-            title=f"Weekly Reading Forecast (as of {self.today})",
+            title=f"[bold #1e293b]Reading Forecast ({self.today.strftime('%b %d')})[/]",
             show_header=True,
-            header_style="bold magenta"
+            header_style="bold #1e293b",
+            box=SIMPLE,
+            show_lines=False,
+            style="#64748b"
         )
 
-        table.add_column("Format", justify="center")
-        table.add_column("Title", justify="left")
-        table.add_column("Author", justify="left")
+        table.add_column("📖", header_style="bold #1e293b")
+        table.add_column("Title", header_style="bold #1e293b")
+        table.add_column("Author", header_style="bold #1e293b")
 
-        dates = [self.today + timedelta(days=i) for i in range(7)]  # Changed from 8 to 7
-        for d in dates:
-            day_name = d.strftime('%a')
-            date_str = d.strftime('%m/%d')
-            table.add_column(f"{day_name}\n{date_str}", justify="center")
+        dates = [self.today + timedelta(days=i) for i in range(7)]
+        for date in dates:
+            table.add_column(
+                date.strftime('%d\n%a'),
+                header_style="bold #1e293b"
+            )
 
         for reading in all_readings:
             row_data = [
-                reading.media,
+                reading.media[:1].upper(),
                 reading.book.title,
                 self._format_author(reading.book)
             ]
@@ -254,6 +277,4 @@ class StatusDisplay:
 
             table.add_row(*row_data, style=self._get_row_color(reading.media))
 
-        console.print("\n")
-        console.print(table)
-        console.print("\n")
+        console.print(table)  # Removed extra newlines

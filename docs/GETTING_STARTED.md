@@ -132,6 +132,21 @@ crontab -e
 0 9 * * * /full/path/to/reading_tracker/scripts/automation/daily_report.sh
 ```
 
+### Email Customization
+
+1. Create an email assets directory:
+   ```bash
+   mkdir -p reading_tracker/assets/email
+   ```
+
+2. Add a profile image (recommended size 200x200px):
+   ```bash
+   # Copy your image to the email assets directory
+   cp your_profile_image.png reading_tracker/assets/email/profile.png
+   ```
+
+3. The email will appear from "Reading Tracker <your.email@gmail.com>"
+
 ## Frontend Features
 
 ### TBR Manager Interface

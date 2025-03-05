@@ -314,8 +314,42 @@ class EmailReport:
             # Create email message
             msg = MIMEMultipart('related')
             msg['Subject'] = f"Your Daily Reading Update for {date.today().strftime('%B %d')}!"
-            msg['From'] = self.sender_email
+            # Use a friendly display name with the email address
+            msg['From'] = f'"Reading Tracker" <{self.sender_email}>'
             msg['To'] = self.receiver_email
+
+            # Add profile image to signature
+            signature_html = """
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <table cellpadding="0" cellspacing="0" style="vertical-align: -webkit-baseline-middle;">
+                    <tbody>
+                        <tr>
+                            <td style="vertical-align: middle; padding-right: 15px;">
+                                <img src="cid:profile_image" 
+                                     style="width: 100px; height: 100px; border-radius: 50%;"
+                                     alt="Reading Tracker">
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <div style="font-family: 'Outfit', sans-serif;">
+                                    <div style="font-size: 18px; font-weight: 600; color: #1e293b;">
+                                        Reading Tracker
+                                    </div>
+                                    <div style="font-size: 14px; color: #64748b; margin-top: 4px;">
+                                        Your Personal Reading Assistant
+                                    </div>
+                                    <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+                                        Powered by Great Reads!
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            """
+
+            # Add signature to the main HTML content
+            html_content = html_content.replace('</body>', f'{signature_html}</body>')
 
             msg_alternative = MIMEMultipart('alternative')
             msg.attach(msg_alternative)
@@ -323,6 +357,15 @@ class EmailReport:
             # Add plain text and HTML versions
             msg_alternative.attach(MIMEText("Please view this email in an HTML-capable email client.", 'plain'))
             msg_alternative.attach(MIMEText(html_content, 'html'))
+
+            # Add profile image
+            profile_image_path = get_project_paths()['assets'] / 'email' / 'profile.png'
+            if profile_image_path.exists():
+                with open(profile_image_path, 'rb') as img_file:
+                    img = MIMEImage(img_file.read())
+                    img.add_header('Content-ID', '<profile_image>')
+                    img.add_header('Content-Disposition', 'inline')
+                    msg.attach(img)
 
             # Attach all images
             for cid, (content_id, img_data, mime_type) in self.image_cids.items():
