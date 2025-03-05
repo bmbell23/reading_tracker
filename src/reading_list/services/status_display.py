@@ -1,8 +1,10 @@
 """Service for displaying reading status information."""
 from datetime import date, timedelta
+from typing import Optional, Dict
 from rich.console import Console
 from rich.table import Table
-from ..models.reading_status import ReadingStatus as ModelReadingStatus
+from ..models.reading_status import ReadingStatus
+from ..models.reading import Reading
 from ..utils.progress_calculator import calculate_reading_progress
 
 console = Console()
@@ -11,8 +13,40 @@ class StatusDisplay:
     """Service for managing and displaying reading status information."""
 
     def __init__(self):
-        self.model = ModelReadingStatus()
+        self.model = ReadingStatus()
         self.today = date.today()
+
+    def format_date(self, d: Optional[date], format: str = '%b %d, %Y') -> str:
+        """Format a date with fallback text."""
+        return d.strftime(format) if d else 'Not scheduled'
+
+    def format_reading_dates(self, reading: Reading, is_current: bool = True) -> Dict[str, str]:
+        """Format all relevant dates for a reading."""
+        return {
+            'start_date': (self.format_date(reading.date_started) if is_current 
+                         else self.format_date(reading.date_est_start)),
+            'end_date': self.format_date(reading.date_est_end, 'TBD'),
+        }
+
+    def format_reading_html(self, reading: Reading, is_current: bool = True) -> Dict[str, str]:
+        """Format reading details for HTML display."""
+        dates = self.format_reading_dates(reading, is_current)
+        return {
+            'media_badge': self._format_media_badge(reading.media),
+            'title': reading.book.title,
+            'author': self._format_author(reading.book),
+            'start_date': dates['start_date'],
+            'end_date': dates['end_date'],
+        }
+
+    def get_media_color(self, media: str) -> str:
+        """Get the color code for a media type."""
+        media = media.lower()
+        if media == 'hardcover':
+            return '#A855F7'  # Purple
+        elif media in ['audio', 'audiobook']:
+            return '#FB923C'  # Orange
+        return '#3B82F6'  # Default blue
 
     def _format_author(self, book):
         """Format author name from book object."""

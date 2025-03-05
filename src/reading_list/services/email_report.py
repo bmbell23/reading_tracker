@@ -32,16 +32,10 @@ class EmailReport:
     def _generate_reading_row(self, reading: Reading, is_current: bool = True) -> str:
         """Generate HTML table row for a reading."""
         today = date.today()
-
-        # Use StatusDisplay's media badge formatting
-        media_badge = self.status_display._format_media_badge(reading.media)
-
-        # Get text color for progress bar from the badge
-        text_color = '#3B82F6'  # Default to blue
-        if reading.media.lower() == 'hardcover':
-            text_color = '#A855F7'
-        elif reading.media.lower() in ['audio', 'audiobook']:
-            text_color = '#FB923C'
+        
+        # Use shared formatting from StatusDisplay
+        formatted = self.status_display.format_reading_html(reading, is_current)
+        text_color = self.status_display.get_media_color(reading.media)
 
         # Calculate progress if current reading
         progress = ""
@@ -60,14 +54,14 @@ class EmailReport:
 
         return f"""
             <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 12px;">{media_badge}</td>
+                <td style="padding: 12px;">{formatted['media_badge']}</td>
                 <td style="padding: 12px;">
-                    <div style="font-weight: 600;">{reading.book.title}</div>
-                    <div style="color: #64748b; font-size: 14px;">{reading.book.author_name_first} {reading.book.author_name_second}</div>
+                    <div style="font-weight: 600;">{formatted['title']}</div>
+                    <div style="color: #64748b; font-size: 14px;">{formatted['author']}</div>
                 </td>
-                <td style="padding: 12px;">{reading.date_started.strftime('%b %d, %Y') if reading.date_started else 'Not started'}</td>
+                <td style="padding: 12px;">{formatted['start_date']}</td>
                 {f'<td style="padding: 12px;">{progress}</td>' if is_current else ''}
-                <td style="padding: 12px;">{reading.date_est_end.strftime('%b %d, %Y') if reading.date_est_end else 'TBD'}</td>
+                <td style="padding: 12px;">{formatted['end_date']}</td>
             </tr>
         """
 
@@ -76,7 +70,7 @@ class EmailReport:
         if not readings:
             return f"<h2>{title}</h2><p>No readings found.</p>"
 
-        headers = ['Format', 'Book', 'Started']
+        headers = ['Format', 'Book', 'Start Date']
         if is_current:
             headers.append('Progress')
         headers.append('Est. Completion')
