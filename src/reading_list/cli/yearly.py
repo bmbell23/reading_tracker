@@ -6,6 +6,7 @@ import grp
 from pathlib import Path
 from rich.console import Console
 from ..reports.yearly import generate_report
+from ..utils.permissions import fix_report_permissions
 
 console = Console()
 

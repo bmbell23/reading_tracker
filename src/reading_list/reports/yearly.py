@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Optional, Dict, List
 from jinja2 import Environment, FileSystemLoader
 from rich.console import Console
-from ..utils.paths import get_project_paths
+from ..utils.paths import get_project_paths, ensure_directory
+from ..utils.permissions import fix_report_permissions  # Updated import
 from ..analytics.core import ReportAnalytics
 
 console = Console()
@@ -147,26 +148,28 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
             # Save the report
             project_paths = get_project_paths()
             reports_dir = project_paths['workspace'] / 'reports' / 'yearly'
-            reports_dir.mkdir(parents=True, exist_ok=True)
             
-            # Set directory permissions
-            reports_dir.chmod(0o755)
+            # Ensure directory exists with correct permissions
+            ensure_directory(reports_dir)
+            reports_dir.chmod(0o755)  # Make directory traversable
             
             output_file = reports_dir / f'reading_report_{year}.html'
+            
+            # First try to remove the file if it exists (to handle permission issues)
+            if output_file.exists():
+                try:
+                    output_file.unlink()
+                except PermissionError:
+                    console.print("[yellow]Attempting to fix permissions...[/yellow]")
+                    fix_report_permissions(output_file)
+                    output_file.unlink()
+            
+            # Write the new file
             console.print(f"[blue]Writing report to: {output_file}[/blue]")
             output_file.write_text(output)
             
-            # Set file permissions
-            output_file.chmod(0o644)
-            
-            # Try to set group ownership to www-data (requires sudo)
-            try:
-                import pwd
-                import grp
-                www_data_gid = grp.getgrnam('www-data').gr_gid
-                os.chown(str(output_file), os.getuid(), www_data_gid)
-            except (PermissionError, KeyError) as e:
-                console.print(f"[yellow]Warning: Could not set www-data group ownership. You may need to run: sudo chown :www-data {output_file}[/yellow]")
+            # Fix permissions after writing
+            fix_report_permissions(output_file)
             
             return str(output_file)
 
