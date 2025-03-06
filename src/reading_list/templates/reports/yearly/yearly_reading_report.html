@@ -119,19 +119,32 @@
             gap: 1.5rem;
         }
 
+        .month-section {
+            margin-bottom: 2rem;
+        }
+
+        .month-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--color-primary), var(--color-success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
         .month-card {
-            width: 100%;
             background: var(--color-surface);
             padding: 1.5rem;
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .month-header {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--color-primary);
+        .month-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .book-list {
@@ -270,14 +283,14 @@
                     <canvas id="booksChart"></canvas>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">{{ "{:,}".format(total_words) if total_words else 0 }}</div>
-                    <div class="stat-label">Words Read</div>
-                    <canvas id="wordsChart"></canvas>
-                </div>
-                <div class="stat-card">
                     <div class="stat-value">{{ "{:,}".format(total_pages) if total_pages else 0 }}</div>
                     <div class="stat-label">Pages Read</div>
                     <canvas id="pagesChart"></canvas>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ "{:,}".format(total_words) if total_words else 0 }}</div>
+                    <div class="stat-label">Words Read</div>
+                    <canvas id="wordsChart"></canvas>
                 </div>
             </div>
         </div>
@@ -287,22 +300,20 @@
                 {% for month in months %}
                 {% if month.books %}
                 <section class="month-section" data-month="{{ month.number }}">
+                    <h2 class="month-title">{{ month.name }}</h2>
                     <div class="month-card">
-                        <div class="month-header">
-                            <h2 class="month-title">{{ month.name }}</h2>
-                            <div class="month-stats">
-                                <div class="stat-pill books">
-                                    <span class="stat-number">{{ month.total_books if month.total_books else 0 }}</span>
-                                    Books
-                                </div>
-                                <div class="stat-pill words">
-                                    <span class="stat-number">{{ "{:,}".format(month.total_words) if month.total_words else 0 }}</span>
-                                    Words
-                                </div>
-                                <div class="stat-pill pages">
-                                    <span class="stat-number">{{ "{:,}".format(month.total_pages) if month.total_pages else 0 }}</span>
-                                    Pages
-                                </div>
+                        <div class="month-stats">
+                            <div class="stat-pill books">
+                                <span class="stat-number">{{ month.total_books if month.total_books else 0 }}</span>
+                                Books
+                            </div>
+                            <div class="stat-pill pages">
+                                <span class="stat-number">{{ "{:,}".format(month.total_pages) if month.total_pages else 0 }}</span>
+                                Pages
+                            </div>
+                            <div class="stat-pill words">
+                                <span class="stat-number">{{ "{:,}".format(month.total_words) if month.total_words else 0 }}</span>
+                                Words
                             </div>
                         </div>
 
