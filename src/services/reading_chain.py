@@ -22,20 +22,32 @@ class ReadingChainService:
 
     def get_books_for_media(self, media_type: str) -> List[Dict[str, Any]]:
         """Get books for specific media type"""
+        # Simple count query first
+        count_query = f"""
+            SELECT COUNT(*) 
+            FROM books b
+            JOIN inv i ON b.id = i.book_id
+            WHERE i.owned_{media_type.lower()} = TRUE
+        """
+        total_count = self.db.execute(count_query).scalar()
+        print(f"\n=== {media_type} Books ===")
+        print(f"Total in database: {total_count}")
+
         query = """
             SELECT
-                b.id_book,
+                b.id,
                 b.title,
                 b.author_name_first,
                 b.author_name_second,
                 b.page_count as pages,
-                r.priority,
+                r.rank as priority,
                 r.date_started,
                 r.date_finished_actual,
-                r.date_finished_estimate as date_estimated_completion,
+                r.date_est_end as date_estimated_completion,
                 CASE
                     WHEN r.date_finished_actual IS NOT NULL THEN 100
-                    WHEN r.progress IS NOT NULL THEN r.progress
+                    WHEN r.days_elapsed_to_read IS NOT NULL THEN 
+                        (r.days_elapsed_to_read * 100.0 / NULLIF(r.days_estimate, 0))
                     ELSE 0
                 END as progress,
                 CASE
@@ -44,14 +56,32 @@ class ReadingChainService:
                     ELSE 'upcoming'
                 END as status
             FROM books b
-            JOIN readings r ON b.id_book = r.id_book
-            JOIN inventory i ON b.id_book = i.id_book
+            JOIN inv i ON b.id = i.book_id
+            LEFT JOIN read r ON b.id = r.book_id
             WHERE i.owned_{} = TRUE
-            ORDER BY r.priority DESC, r.date_started DESC
+            ORDER BY r.rank DESC NULLS LAST, r.date_started DESC NULLS LAST
         """.format(media_type.lower())
-
+        
+        # Execute and get raw results
         results = self.db.execute(query).fetchall()
-        return [self._format_book(dict(row)) for row in results]
+        print(f"Raw results count: {len(results)}")
+        
+        # Print first few raw results
+        print("First 3 raw results:")
+        for i, row in enumerate(results[:3]):
+            print(f"Row {i + 1}:", dict(row))
+        
+        # Format books and print counts at each step
+        formatted_books = []
+        for row in results:
+            book = self._format_book(dict(row))
+            formatted_books.append(book)
+            if len(formatted_books) == 11:  # Check if we hit 11
+                print("WARNING: Hit 11 books during formatting!")
+                print("Last book formatted:", book)
+        
+        print(f"Final formatted count: {len(formatted_books)}")
+        return formatted_books
 
     def get_total_books(self) -> int:
         """Get total number of books"""
@@ -74,14 +104,16 @@ class ReadingChainService:
 
     def _format_book(self, row: Dict[str, Any]) -> Dict[str, Any]:
         """Format book data for template"""
-        return {
-            'id': row['id_book'],
+        formatted = {
+            'book_id': row['id'],
             'title': row['title'],
             'author': f"{row['author_name_first']} {row['author_name_second']}".strip(),
             'pages': row['pages'],
             'progress': row['progress'],
-            'current': row['status'] == 'current',
+            'is_current': row['status'] == 'current',
             'priority': row['priority'],
             'date_started': row['date_started'],
             'date_est_end': row['date_estimated_completion']
         }
+        print(f"Formatting book: {formatted['title']}")  # Debug print
+        return formatted

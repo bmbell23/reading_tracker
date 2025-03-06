@@ -91,6 +91,10 @@ class EntryEditor:
             validated['has_cover'] = parse_boolean(data['has_cover'])
         if 'isbn_id' in data:
             validated['isbn_id'] = int(data['isbn_id']) if data['isbn_id'] else None
+        if 'page_count' in data:
+            validated['page_count'] = int(data['page_count']) if data['page_count'] else None
+        if 'word_count' in data:
+            validated['word_count'] = int(data['word_count']) if data['word_count'] else None
 
         return validated
 

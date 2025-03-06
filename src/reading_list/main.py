@@ -85,3 +85,36 @@ async def internal_error_handler(request, exc):
         content="<h1>Internal Server Error</h1><p>The server encountered an error. Please check the logs for details.</p>",
         status_code=500
     )
+
+@app.get("/tbr", response_class=HTMLResponse)
+async def tbr_manager(request: Request):
+    """Display the TBR manager interface."""
+    try:
+        # Initialize the ReadingChainService
+        chain_service = ReadingChainService()
+        
+        # Get all chains with their books
+        all_chains = chain_service.get_all_chains_with_books()
+        
+        # Reformat the data structure to match template expectations
+        chains = {
+            chain['media'].lower(): {
+                'total_books': chain['total_books'],
+                'total_pages': chain['total_pages'],
+                'completion_rate': chain['completion_rate'],
+                'books': chain['books']
+            }
+            for chain in all_chains
+        }
+        
+        return templates.TemplateResponse(
+            "tbr/tbr_manager.html",
+            {
+                "request": request,
+                "chains": chains,
+                "title": "TBR Manager"
+            }
+        )
+    except Exception as e:
+        print(f"Error in tbr_manager: {str(e)}")
+        raise

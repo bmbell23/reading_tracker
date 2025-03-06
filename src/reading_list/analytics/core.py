@@ -2,11 +2,12 @@
 import pandas as pd
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
-from datetime import datetime, date, timedelta, date, timedelta
+from datetime import datetime, date, timedelta
 from sqlalchemy import extract, text
 from ..models.base import SessionLocal
 from ..models.reading import Reading
 from ..models.book import Book
+from ..database import engine  # Add this import
 
 @dataclass
 class ReadingStats:
@@ -158,7 +159,7 @@ class AuthorAnalytics:
     """Analytics specific to author statistics"""
     
     def __init__(self):
-        self.engine = engine
+        self.session = SessionLocal()  # Use SessionLocal instead of engine directly
 
     def get_top_authors(self, limit: int = 10) -> pd.DataFrame:
         """Get most read authors by book count and word count"""
@@ -174,13 +175,13 @@ class AuthorAnalytics:
             ORDER BY books_read DESC
             LIMIT :limit
         """
-        return pd.read_sql(text(query), self.engine, params={'limit': limit})
+        return pd.read_sql(text(query), engine, params={'limit': limit})
 
 class SeriesAnalytics:
     """Analytics specific to book series"""
     
     def __init__(self):
-        self.engine = engine
+        self.session = SessionLocal()  # Use SessionLocal instead of engine directly
 
     def get_series_completion(self) -> pd.DataFrame:
         """Get completion status of different series"""
@@ -196,7 +197,7 @@ class SeriesAnalytics:
             GROUP BY b.series
             ORDER BY total_books DESC
         """
-        return pd.read_sql(query, self.engine)
+        return pd.read_sql(query, engine)
 
 class TimeAnalytics:
     """Analytics for time-based reading patterns"""
@@ -218,7 +219,7 @@ class TimeAnalytics:
             GROUP BY {group_by}
             ORDER BY period
         """
-        return pd.read_sql(query, self.engine)
+        return pd.read_sql(query, engine)
 
 class ReportAnalytics:
     """Analytics specifically for generating reading reports"""

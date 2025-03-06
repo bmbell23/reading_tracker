@@ -148,10 +148,21 @@ class ModelHandler:
         for field_name, prompt, field_type in fields:
             current = getattr(existing, field_name) if existing else None
             if Prompt.ask(f"Update {prompt}? [cyan](current: {current})[/cyan]", choices=['y', 'n'], default='n') == 'y':
-                if field_type == 'boolean':
-                    data[field_name] = Prompt.ask(prompt, choices=['y', 'n']) == 'y'
-                else:
-                    data[field_name] = Prompt.ask(prompt)
+                value = Prompt.ask(prompt)
+                # Convert empty string to None
+                if value.strip() == '':
+                    value = None
+                # Convert numeric strings to integers for appropriate fields
+                elif field_name in {'page_count', 'word_count', 'series_number'}:
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        StyleConfig.console.print(f"Invalid number format for {field_name}: {value}", style=StyleConfig.ERROR)
+                        continue
+                data[field_name] = value
+                StyleConfig.console.print(f"Debug: Added {field_name} = {value} to update data")
+
+        StyleConfig.console.print(f"Debug: Final update data: {data}")
 
         if self.model == Book:
             return self.editor.get_book_data(data, existing)

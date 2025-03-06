@@ -95,37 +95,62 @@ class ReadingVisualizer:
     def generate_dashboard(self, output_path: str):
         """Generate a complete HTML dashboard with all charts"""
         from dash import Dash, html, dcc
+        import plotly.io as pio
+        from pathlib import Path
         
-        app = Dash(__name__)
+        # Create figures
+        trends_fig = self.create_reading_trends_chart()
+        author_fig = self.create_author_distribution_chart()
+        series_fig = self.create_series_progress_chart()
+        velocity_fig = self.create_reading_velocity_chart()
         
-        app.layout = html.Div([
-            html.H1("Reading Analytics Dashboard"),
+        # Calculate relative path to chain report
+        dashboard_path = Path(output_path)
+        chain_report_path = "../reading_chain.html"  # Relative path from dashboard to chain report
+        
+        # Generate HTML content
+        dashboard_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Reading Analytics Dashboard</title>
+            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+            <style>
+                .dashboard-section {{ margin: 20px 0; }}
+                .chart-container {{ display: inline-block; width: 48%; margin: 1%; }}
+            </style>
+        </head>
+        <body>
+            <h1>Reading Analytics Dashboard</h1>
             
-            # Wrap charts in a flex container
-            html.Div([
-                # Each chart in a flex item with width set to 33%
-                html.Div([
-                    dcc.Graph(figure=self.create_reading_trends_chart())
-                ], style={'width': '33%', 'display': 'inline-block'}),
-                
-                html.Div([
-                    dcc.Graph(figure=self.create_author_distribution_chart())
-                ], style={'width': '33%', 'display': 'inline-block'}),
-                
-                html.Div([
-                    dcc.Graph(figure=self.create_series_progress_chart())
-                ], style={'width': '33%', 'display': 'inline-block'})
-            ], style={
-                'display': 'flex',
-                'flexDirection': 'row',
-                'justifyContent': 'space-between',
-                'gap': '20px',
-                'marginTop': '20px'
-            })
-        ], style={
-            'padding': '20px',
-            'maxWidth': '1800px',  # Increased to accommodate horizontal layout
-            'margin': '0 auto'
-        })
+            <div class="dashboard-section">
+                <h2>Reading Chains</h2>
+                <iframe src="{chain_report_path}" style="width: 100%; height: 600px; border: none;"></iframe>
+            </div>
+            
+            <div class="dashboard-section">
+                <div class="chart-container">
+                    {pio.to_html(trends_fig, full_html=False)}
+                </div>
+                <div class="chart-container">
+                    {pio.to_html(author_fig, full_html=False)}
+                </div>
+            </div>
+            
+            <div class="dashboard-section">
+                <div class="chart-container">
+                    {pio.to_html(series_fig, full_html=False)}
+                </div>
+                <div class="chart-container">
+                    {pio.to_html(velocity_fig, full_html=False)}
+                </div>
+            </div>
+        </body>
+        </html>
+        """
         
-        app.write_html(output_path)
+        # Ensure the output directory exists
+        dashboard_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write the HTML file
+        dashboard_path.write_text(dashboard_html)

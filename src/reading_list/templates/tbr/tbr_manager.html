@@ -4,12 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="TBR Manager - Track your reading progress across different media types">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>TBR Manager</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/tbr_manager.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{{ title }}</title>
+    <style>
+        /* Add your CSS here or link to external stylesheet */
+        .tbr-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .reading-chains {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .reading-chain {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .book-card {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+            cursor: move; /* Indicates draggable */
+        }
+        
+        .book-cover {
+            width: 80px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+        
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .book-info {
+            flex-grow: 1;
+        }
+        
+        .book-info h3 {
+            margin: 0 0 8px 0;
+        }
+        
+        .book-info p {
+            margin: 0 0 8px 0;
+        }
+        
+        .series-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: var(--color-accent, #3498db);
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+        
+        /* Media-specific colors */
+        .kindle { color: {{ media_colors.kindle.text_color }}; }
+        .hardcover { color: {{ media_colors.hardcover.text_color }}; }
+        .audio { color: {{ media_colors.audio.text_color }}; }
+        
+        .chain-stats {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <!-- Main container -->
     <div class="tbr-container">
         <!-- Toolbar -->
         <div class="toolbar">
@@ -22,50 +113,40 @@
             <button class="export-btn">Export</button>
         </div>
 
-        <!-- Loading overlay -->
-        <div class="loading-overlay" hidden>
-            <div class="spinner"></div>
-            <p>Loading...</p>
-        </div>
-
-        <!-- Reading chains container -->
+        <!-- Reading Chains -->
         <div class="reading-chains">
-            <!-- Kindle chain -->
-            <div class="reading-chain" data-chain-type="kindle">
-                <h2>Kindle Books</h2>
-                <div class="book-list"></div>
+            {% for media_type, data in chains.items() %}
+            <div class="reading-chain" data-chain-type="{{ media_type }}">
+                <h2 class="{{ media_type }}">{{ media_type|title }} Books</h2>
+                <div class="chain-stats">
+                    <span>Books: {{ data.total_books|default(0) }}</span>
+                    <span>Pages: {{ data.total_pages|default(0) }}</span>
+                    <span>Completion: {{ data.completion_rate|default(0) }}%</span>
+                </div>
+                <div class="book-list">
+                    {% for book in data.books %}
+                    <div class="book-card {{ media_type }} {{ book.is_current and 'current' or '' }}" 
+                         data-book-id="{{ book.book_id }}"
+                         draggable="true">
+                        <div class="book-cover">
+                            <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}">
+                        </div>
+                        <div class="book-info">
+                            <h3>{{ book.title }}</h3>
+                            <p>{{ book.author }}</p>
+                            {% if book.series %}
+                            <span class="series-badge">{{ book.series }} #{{ book.series_number }}</span>
+                            {% endif %}
+                            {% if book.is_current %}
+                            <div class="progress-bar" style="width: {{ book.progress|default(0) }}%"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-
-            <!-- Hardcover chain -->
-            <div class="reading-chain" data-chain-type="hardcover">
-                <h2>Hardcover Books</h2>
-                <div class="book-list"></div>
-            </div>
-
-            <!-- Audio chain -->
-            <div class="reading-chain" data-chain-type="audio">
-                <h2>Audiobooks</h2>
-                <div class="book-list"></div>
-            </div>
+            {% endfor %}
         </div>
     </div>
-
-    <!-- Filter buttons -->
-    <div class="filter-container">
-        <button class="filter-btn" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="current">Current</button>
-        <button class="filter-btn" data-filter="upcoming">Upcoming</button>
-    </div>
-
-    <!-- Scripts -->
-    <script src="{{ url_for('static', filename='js/tbr_manager.js') }}" defer></script>
-
-    <!-- Error boundary -->
-    <script>
-        window.addEventListener('error', function(e) {
-            console.error('Runtime error:', e);
-            document.body.classList.add('js-error');
-        });
-    </script>
 </body>
 </html>

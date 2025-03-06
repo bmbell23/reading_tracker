@@ -15,7 +15,8 @@ from rich.console import Console
 from ..models.base import SessionLocal
 from ..models.reading import Reading
 from ..models.book import Book
-from ..utils.paths import get_project_paths, find_project_root
+from ..utils.paths import get_project_paths, find_project_root, ensure_directory
+from ..utils.permissions import fix_report_permissions
 
 console = Console()
 
@@ -152,57 +153,133 @@ def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: 
         'book_id': reading.book_id
     }
 
+def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+    """
+    Organize readings into chains by media type.
+    
+    Args:
+        readings: List of reading records from database
+        
+    Returns:
+        Dictionary of media types containing their reading chains
+    """
+    # Initialize chains structure
+    chains = {
+        'kindle': {'chain': []},
+        'hardcover': {'chain': []},
+        'audio': {'chain': []}
+    }
+    
+    # Media type colors for consistent styling
+    media_colors = {
+        'kindle': {'text_color': '#0ea5e9'},  # sky-500
+        'hardcover': {'text_color': '#84cc16'},  # lime-500
+        'audio': {'text_color': '#8b5cf6'}  # violet-500
+    }
+    
+    # Group readings by media type
+    for reading in readings:
+        if reading.media in chains:
+            reading_data = {
+                'title': reading.title,
+                'read_id': reading.read_id,
+                'book_id': reading.book_id,
+                'date_started': reading.date_started,
+                'date_finished': reading.date_finished_actual,
+                'media': reading.media
+            }
+            chains[reading.media]['chain'].append(reading_data)
+    
+    return chains
+
 def generate_chain_report() -> None:
     """Generate the reading chain report"""
-    project_paths = get_project_paths()
-    
-    # Set up Jinja environment with correct template directory
-    template_dir = project_paths['workspace'] / 'src' / 'reading_list' / 'templates'
-    env = Environment(loader=FileSystemLoader(str(template_dir)))
-    
-    # Media type colors - updated to match standardized colors
-    media_colors = {
-        'kindle': {'text_color': '#3B82F6'},    # blue
-        'hardcover': {'text_color': '#A855F7'},  # purple
-        'audio': {'text_color': '#FB923C'}       # warm orange
-    }
-
     try:
-        session = SessionLocal()
-        # Get current readings
-        current_readings = get_current_readings(session)
-        
-        # Organize chains by media type
-        chains = {}
-        for reading in current_readings:
-            media = reading.media.lower()
-            if media not in chains:
-                chains[media] = {'chain': []}
-            
-            chain = get_reading_chain(session, reading.read_id)
-            chains[media]['chain'] = [
-                get_book_data(book, book.read_id == reading.read_id, not book.date_started)
-                for book in chain
-            ]
+        project_paths = get_project_paths()
+        reports_dir = project_paths['workspace'] / 'reports'
+        output_path = reports_dir / 'reading_chain.html'
 
-        # Get template and render
-        template = env.get_template('reports/chain/reading_chain.html')
-        html = template.render(
-            title="Reading Chains",
-            description="Current and upcoming books in each reading chain",
-            chains=chains,
-            media_colors=media_colors,
-            generated_date=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        )
+        # Media colors for consistent styling
+        media_colors = {
+            'kindle': {'text_color': '#0ea5e9'},  # sky-500
+            'hardcover': {'text_color': '#84cc16'},  # lime-500
+            'audio': {'text_color': '#8b5cf6'}  # violet-500
+        }
+
+        # Create and fix permissions for reports directory
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        ensure_directory(reports_dir)
         
-        # Create output directory if it doesn't exist
-        output_path = project_paths['workspace'] / 'reports' / 'reading_chain.html'
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(html)
-        
-        console.print(f"\n[green]Report generated: {output_path}[/green]")
-    finally:
-        session.close()
+        # If file exists, try to remove it first
+        if output_path.exists():
+            try:
+                output_path.unlink()
+            except PermissionError:
+                # Instead of trying to fix permissions and unlink again,
+                # we'll use a temporary file approach
+                temp_path = output_path.with_name(f'reading_chain_{int(datetime.now().timestamp())}.html.tmp')
+                
+                with SessionLocal() as session:
+                    # Get current readings
+                    current_readings = get_current_readings(session)
+                    
+                    # Print found readings
+                    for reading in current_readings:
+                        console.print(
+                            f"ID: {reading.read_id}, "
+                            f"Title: {reading.title}, "
+                            f"Media: {reading.media}"
+                        )
+                        console.print(
+                            f"Started: {reading.date_started}, "
+                            f"Finished: {reading.date_finished_actual}"
+                        )
+
+                    # Get template directory
+                    template_dir = project_paths['templates']
+                    env = Environment(loader=FileSystemLoader(str(template_dir)))
+
+                    # Get chains data
+                    chains = organize_chains_by_media(current_readings)
+
+                    # Get template and render
+                    template = env.get_template('reports/chain/reading_chain.html')
+                    html = template.render(
+                        title="Reading Chains",
+                        description="Current and upcoming books in each reading chain",
+                        chains=chains,
+                        media_colors=media_colors,
+                        generated_date=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    )
+                    
+                    # Write to temporary file first
+                    console.print(f"[blue]Writing report to temporary file...[/blue]")
+                    temp_path.write_text(html)
+                    
+                    try:
+                        # Try to move the temporary file to the final location
+                        import shutil
+                        shutil.move(str(temp_path), str(output_path))
+                        console.print(f"[blue]Writing report to: {output_path}[/blue]")
+                    except PermissionError:
+                        # If we can't move it, keep using the temp file
+                        output_path = temp_path
+                        console.print(f"[yellow]Using temporary file due to permissions: {output_path}[/yellow]")
+
+                    # Try to fix permissions, but don't fail if we can't
+                    try:
+                        fix_report_permissions(output_path)
+                    except Exception as e:
+                        console.print("\n[yellow]To fix permissions completely, run:[/yellow]")
+                        console.print("[yellow]sudo ./scripts/utils/fix_permissions.sh[/yellow]")
+
+                    console.print(f"\n[green]Report generated: {output_path}[/green]")
+                    
+                    return str(output_path)
+
+    except Exception as e:
+        console.print(f"\n[red]Error generating report: {str(e)}[/red]")
+        raise
 
 def main():
     """Main entry point"""
