@@ -37,6 +37,68 @@
             background-clip: text;
             color: transparent;
         }
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 4px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+
+        .filter-option input[type="radio"] {
+            display: none;
+        }
+
+        .filter-button {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-button:hover {
+            background: #f3f4f6;
+        }
+
+        .filter-option input[type="radio"]:checked + .filter-button {
+            background: #f3f4f6;
+        }
+
+        /* Media-specific colors */
+        .filter-button.kindle {
+            color: #0066CC;
+        }
+
+        .filter-button.hardcover {
+            color: #6B4BA3;
+        }
+
+        .filter-button.audio {
+            color: #FF6600;
+        }
+
+        .filter-option input[type="radio"]:checked + .filter-button.kindle {
+            background: #EFF6FF;
+        }
+
+        .filter-option input[type="radio"]:checked + .filter-button.hardcover {
+            background: #F8F5FF;
+        }
+
+        .filter-option input[type="radio"]:checked + .filter-button.audio {
+            background: #FFF7ED;
+        }
         .book-chain {
             display: flex;
             flex-direction: column;
@@ -352,6 +414,26 @@
 <body>
     <div class="chain-container">
         <h1 class="page-title">Current Reads and TBR</h1>
+        <div class="filter-container">
+            <div class="filter-group">
+                <label class="filter-option">
+                    <input type="radio" name="media-filter" value="all" checked>
+                    <span class="filter-button">All</span>
+                </label>
+                <label class="filter-option">
+                    <input type="radio" name="media-filter" value="kindle">
+                    <span class="filter-button kindle">Kindle</span>
+                </label>
+                <label class="filter-option">
+                    <input type="radio" name="media-filter" value="hardcover">
+                    <span class="filter-button hardcover">Hardcover</span>
+                </label>
+                <label class="filter-option">
+                    <input type="radio" name="media-filter" value="audio">
+                    <span class="filter-button audio">Audio</span>
+                </label>
+            </div>
+        </div>
         <div class="book-chain">
             {% for book in books %}
             <div class="book-card {{ book.media.lower() }} {% if book.is_current %}current-book{% endif %} {% if book.is_future %}future-book{% endif %}">
@@ -406,5 +488,29 @@
     <div class="footer">
         Generated on {{ generated_date }}
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('input[name="media-filter"]');
+            const bookCards = document.querySelectorAll('.book-card');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('change', function() {
+                    const selectedMedia = this.value;
+                    
+                    bookCards.forEach(card => {
+                        if (selectedMedia === 'all') {
+                            card.style.display = 'flex';
+                        } else {
+                            if (card.classList.contains(selectedMedia)) {
+                                card.style.display = 'flex';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
