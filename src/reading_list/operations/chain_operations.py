@@ -433,9 +433,9 @@ class ChainOperations:
             
             # Media type colors
             media_colors = {
-                'kindle': {'text_color': '#0ea5e9'},  # sky-500
-                'hardcover': {'text_color': '#84cc16'},  # lime-500
-                'audio': {'text_color': '#8b5cf6'}  # violet-500
+                'kindle': {'text_color': '#37A0E8'},    # Kindle blue
+                'hardcover': {'text_color': '#6B4BA3'}, # Space purple
+                'audio': {'text_color': '#F6911E'}      # Audible orange
             }
             
             # Render template

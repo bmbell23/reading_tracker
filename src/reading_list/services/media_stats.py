@@ -45,9 +45,9 @@ class MediaStatsService:
     def _get_media_color(self, media: str) -> str:
         """Get the display color for a media type."""
         media_colors = {
-            'audio': 'orange1',
-            'hardcover': 'purple',
-            'kindle': 'blue'
+            'audio': '#F6911E',      # Audible orange
+            'hardcover': '#6B4BA3',  # Space purple
+            'kindle': '#37A0E8'      # Kindle blue
         }
         return media_colors.get(media.lower(), 'white')
 

@@ -120,9 +120,9 @@ def generate_tbr_report():
         
         # Media colors (matching your chain report)
         media_colors = {
-            'kindle': {'text_color': '#0ea5e9', 'color': '#0ea5e9'},
-            'hardcover': {'text_color': '#84cc16', 'color': '#84cc16'},
-            'audio': {'text_color': '#8b5cf6', 'color': '#8b5cf6'}
+            'kindle': {'text_color': '#37A0E8', 'color': '#37A0E8'},
+            'hardcover': {'text_color': '#6B4BA3', 'color': '#6B4BA3'},
+            'audio': {'text_color': '#F6911E', 'color': '#F6911E'}
         }
         
         # Calculate total books across all chains

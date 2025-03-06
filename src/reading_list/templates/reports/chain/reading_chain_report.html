@@ -53,26 +53,27 @@
 
         /* Kindle styling */
         .book-card.kindle {
-            border-left: 4px solid #0ea5e9;  /* More subtle blue */
+            border-left: 4px solid #0066CC;  /* Deeper Kindle blue */
         }
         .book-card.kindle.current-book {
-            background: linear-gradient(to right, rgba(14, 165, 233, 0.03), transparent);
+            background: linear-gradient(to right, rgba(0, 102, 204, 0.03), transparent);
         }
 
-        /* Hardcover styling */
+        /* Hardcover styling - keeping the current space purple as it works well */
         .book-card.hardcover {
-            border-left: 4px solid #8b5cf6;  /* More subtle purple */
+            border-left: 4px solid #6B4BA3;  /* Space purple */
         }
         .book-card.hardcover.current-book {
-            background: linear-gradient(to right, rgba(139, 92, 246, 0.03), transparent);
+            background: linear-gradient(to right, rgba(107, 75, 163, 0.03), transparent);
         }
 
         /* Audio styling */
         .book-card.audio {
-            border-left: 4px solid #f97316;  /* More subtle orange */
+            border-left: 4px solid #FF6600;  /* Warmer Audible orange */
         }
         .book-card.audio.current-book {
-            background: linear-gradient(to right, rgba(249, 115, 22, 0.03), transparent);
+            background: linear-gradient(to right, rgba(255, 102, 0, 0.03), transparent);
+            border-color: #FF6600;  /* Warmer Audible orange */
         }
 
         /* Current book styling - enhanced visibility */
@@ -80,6 +81,21 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
             border-width: 2px;  /* Slightly thicker border */
             position: relative;  /* For pseudo-element */
+        }
+
+        .book-card.kindle.current-book {
+            border-color: #0066CC;  /* Deeper Kindle blue */
+            background: linear-gradient(to right, rgba(0, 102, 204, 0.03), transparent);
+        }
+
+        .book-card.hardcover.current-book {
+            border-color: #6B4BA3;  /* Space purple */
+            background: linear-gradient(to right, rgba(107, 75, 163, 0.03), transparent);
+        }
+
+        .book-card.audio.current-book {
+            border-color: #FF6600;  /* Warmer Audible orange */
+            background: linear-gradient(to right, rgba(255, 102, 0, 0.03), transparent);
         }
 
         /* Base status badge style - shared between current and future books */
@@ -110,38 +126,38 @@
         .book-card.kindle.current-book::before {
             content: "Kindle";
             background: #EFF6FF;
-            color: #0ea5e9;
+            color: #0066CC;  /* Deeper Kindle blue */
         }
 
         .book-card.hardcover.current-book::before {
             content: "Hardcover";
-            background: #FAF5FF;
-            color: #A855F7;
+            background: #F8F5FF;
+            color: #6B4BA3;  /* Space purple */
         }
 
         .book-card.audio.current-book::before {
             content: "Audio";
             background: #FFF7ED;
-            color: #FB923C;
+            color: #FF6600;  /* Warmer Audible orange */
         }
 
         /* Media-specific status badge styling for future books */
         .book-card.kindle.future-book::before {
             content: "TBR";
             background: #EFF6FF;
-            color: #0ea5e9;
+            color: #0066CC;  /* Deeper Kindle blue */
         }
 
         .book-card.hardcover.future-book::before {
             content: "TBR";
-            background: #FAF5FF;
-            color: #A855F7;
+            background: #F8F5FF;
+            color: #6B4BA3;  /* Space purple */
         }
 
         .book-card.audio.future-book::before {
             content: "TBR";
             background: #FFF7ED;
-            color: #FB923C;
+            color: #FF6600;  /* Warmer Audible orange */
         }
 
         /* Mobile adjustments */

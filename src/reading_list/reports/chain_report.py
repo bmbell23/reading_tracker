@@ -178,9 +178,9 @@ def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any
     
     # Media type colors for consistent styling
     media_colors = {
-        'kindle': {'text_color': '#0ea5e9'},     # sky-500 - blue
-        'hardcover': {'text_color': '#A855F7'},  # purple-500
-        'audio': {'text_color': '#FB923C'}       # orange-400
+        'kindle': {'text_color': '#0066CC'},     # Deeper Kindle blue
+        'hardcover': {'text_color': '#6B4BA3'},  # Space purple
+        'audio': {'text_color': '#FF6600'}       # Warmer Audible orange
     }
     
     # Group readings by media type
@@ -262,9 +262,9 @@ def generate_chain_report() -> None:
             html = template.render(
                 books=sorted_books,
                 media_colors={
-                    'kindle': {'text_color': '#0ea5e9'},
-                    'hardcover': {'text_color': '#A855F7'},
-                    'audio': {'text_color': '#FB923C'}
+                    'kindle': {'text_color': '#0066CC'},     # Deeper Kindle blue
+                    'hardcover': {'text_color': '#6B4BA3'},  # Space purple
+                    'audio': {'text_color': '#FF6600'}       # Warmer Audible orange
                 }
             )
 

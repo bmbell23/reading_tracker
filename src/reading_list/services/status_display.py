@@ -46,10 +46,10 @@ class StatusDisplay:
         """Get the color code for a media type."""
         media = media.lower()
         if media == 'hardcover':
-            return '#A855F7'  # Purple
+            return '#6B4BA3'  # Space purple
         elif media in ['audio', 'audiobook']:
-            return '#FB923C'  # Orange
-        return '#3B82F6'  # Default blue
+            return '#FF6600'  # Warmer Audible orange
+        return '#0066CC'  # Deeper Kindle blue
 
     def _format_author(self, book):
         """Format author name from book object."""
@@ -82,21 +82,21 @@ class StatusDisplay:
         """Get color based on media type."""
         media_lower = media.lower()
         if media_lower == 'audio':
-            return 'orange1'
+            return '#FF6600'  # Warmer Audible orange
         elif media_lower == 'hardcover':
-            return 'purple'
+            return '#6B4BA3'  # Space purple
         elif media_lower == 'kindle':
-            return 'blue'
+            return '#0066CC'  # Deeper Kindle blue
         return 'white'
 
     def _format_media_badge(self, media: str) -> str:
         """Format media type as an HTML badge."""
         media_colors = {
-            'kindle': ('#EFF6FF', '#3B82F6'),    # Light blue bg, blue text
-            'ebook': ('#EFF6FF', '#3B82F6'),     # Light blue bg, blue text
-            'hardcover': ('#FAF5FF', '#A855F7'), # Light purple bg, purple text
-            'audio': ('#FFF7ED', '#FB923C'),     # Light orange bg, orange text
-            'audiobook': ('#FFF7ED', '#FB923C'), # Light orange bg, orange text
+            'kindle': ('#EFF6FF', '#0066CC'),    # Light blue bg, Deeper Kindle blue text
+            'ebook': ('#EFF6FF', '#0066CC'),     # Light blue bg, Deeper Kindle blue text
+            'hardcover': ('#F8F5FF', '#6B4BA3'), # Light purple bg, Space purple text
+            'audio': ('#FFF7ED', '#FF6600'),     # Light orange bg, Warmer Audible orange text
+            'audiobook': ('#FFF7ED', '#FF6600'), # Light orange bg, Warmer Audible orange text
         }
 
         bg_color, text_color = media_colors.get(media.lower(), ('#F3F4F6', '#4B5563'))  # Default: light gray bg, gray text
