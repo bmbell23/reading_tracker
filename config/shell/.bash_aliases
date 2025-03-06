@@ -41,5 +41,5 @@ alias update_db='reading-list update-readings --all'
 
 alias ver='reading-list version --check'
 
-alias tbr='reading-list generate-tbr'
+alias tbr='reading-list chain-report'
 

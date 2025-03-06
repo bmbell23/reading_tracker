@@ -62,25 +62,14 @@ class ReadingChainService:
             ORDER BY r.rank DESC NULLS LAST, r.date_started DESC NULLS LAST
         """.format(media_type.lower())
         
-        # Execute and get raw results
         results = self.db.execute(query).fetchall()
-        print(f"Raw results count: {len(results)}")
         
-        # Print first few raw results
-        print("First 3 raw results:")
-        for i, row in enumerate(results[:3]):
-            print(f"Row {i + 1}:", dict(row))
-        
-        # Format books and print counts at each step
+        # Format books without the 11-book limit
         formatted_books = []
         for row in results:
             book = self._format_book(dict(row))
             formatted_books.append(book)
-            if len(formatted_books) == 11:  # Check if we hit 11
-                print("WARNING: Hit 11 books during formatting!")
-                print("Last book formatted:", book)
         
-        print(f"Final formatted count: {len(formatted_books)}")
         return formatted_books
 
     def get_total_books(self) -> int:

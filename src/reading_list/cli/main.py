@@ -15,7 +15,8 @@ from . import reorder_chain
 from . import update_entries
 from . import update_readings
 from . import chain_report
-from . import generate_tbr  # Add this import
+from . import generate_tbr
+from . import generate_dashboard  # Add this import
 
 def main():
     """Main CLI entry point."""
@@ -25,6 +26,12 @@ def main():
     )
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    
+    # Add generate-dashboard command
+    dashboard_parser = subparsers.add_parser(
+        "generate-dashboard",
+        help="Generate the reading dashboard and chain report"
+    )
     
     # Add generate-tbr command
     tbr_parser = subparsers.add_parser(
@@ -91,7 +98,9 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "generate-tbr":
+    if args.command == "generate-dashboard":
+        return generate_dashboard.main()
+    elif args.command == "generate-tbr":
         return generate_tbr.handle_command(args)
     elif args.command == "chain-report":
         return chain_report.main()

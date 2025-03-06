@@ -93,7 +93,8 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
             FROM read r
             JOIN books b ON r.book_id = b.id
             JOIN forward fw ON r.id_previous = fw.read_id
-            WHERE fw.position < 10  -- Limit to 10 future books
+            -- Remove this line that limits to 10 future books
+            -- WHERE fw.position < 10  -- Limit to 10 future books
         )
         SELECT * FROM forward
         ORDER BY position;
@@ -192,90 +193,81 @@ def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any
     
     return chains
 
+def format_date(date_value):
+    """Format date value, handling both datetime objects and strings"""
+    if not date_value:
+        return None
+    if isinstance(date_value, str):
+        try:
+            return datetime.strptime(date_value, '%Y-%m-%d').strftime('%Y-%m-%d')
+        except ValueError:
+            return date_value
+    return date_value.strftime('%Y-%m-%d')
+
 def generate_chain_report() -> None:
     """Generate the reading chain report"""
     try:
         project_paths = get_project_paths()
-        reports_dir = project_paths['workspace'] / 'reports'
-        output_path = reports_dir / 'reading_chain.html'
+        # Change the output directory to tbr
+        reports_dir = project_paths['workspace'] / 'reports' / 'tbr'
+        output_path = reports_dir / 'to_be_read.html'
 
-        # Media colors for consistent styling
-        media_colors = {
-            'kindle': {'text_color': '#0ea5e9'},  # sky-500
-            'hardcover': {'text_color': '#84cc16'},  # lime-500
-            'audio': {'text_color': '#8b5cf6'}  # violet-500
-        }
-
-        # Create and fix permissions for reports directory
+        # Create reports directory
         reports_dir.mkdir(parents=True, exist_ok=True)
         ensure_directory(reports_dir)
-        
-        # If file exists, try to remove it first
-        if output_path.exists():
-            try:
-                output_path.unlink()
-            except PermissionError:
-                # Instead of trying to fix permissions and unlink again,
-                # we'll use a temporary file approach
-                temp_path = output_path.with_name(f'reading_chain_{int(datetime.now().timestamp())}.html.tmp')
-                
-                with SessionLocal() as session:
-                    # Get current readings
-                    current_readings = get_current_readings(session)
+
+        # Define media colors
+        media_colors = {
+            'Kindle': {'text_color': '#0ea5e9'},  # sky-500
+            'Hardcover': {'text_color': '#84cc16'},  # lime-500
+            'Audio': {'text_color': '#8b5cf6'}  # violet-500
+        }
+
+        with SessionLocal() as session:
+            # Get current readings
+            current_readings = get_current_readings(session)
+            
+            # Get chains for each current reading
+            chains = {}
+            for reading in current_readings:
+                chain = get_reading_chain(session, reading.read_id)
+                if chain:
+                    media_type = reading.media
+                    if media_type not in chains:
+                        chains[media_type] = []
                     
-                    # Print found readings
-                    for reading in current_readings:
-                        console.print(
-                            f"ID: {reading.read_id}, "
-                            f"Title: {reading.title}, "
-                            f"Media: {reading.media}"
-                        )
-                        console.print(
-                            f"Started: {reading.date_started}, "
-                            f"Finished: {reading.date_finished_actual}"
-                        )
+                    # Format each book in the chain
+                    formatted_chain = []
+                    for idx, book in enumerate(chain):
+                        formatted_chain.append({
+                            'title': book.title,
+                            'author': format_author_name(book.author_name_first, book.author_name_second),
+                            'date_started': format_date(book.date_started),
+                            'date_est_start': format_date(book.date_est_start),
+                            'date_est_end': format_date(book.date_est_end),
+                            'is_current': idx == 0,
+                            'is_future': idx > 0,
+                            'cover_url': get_book_cover_path(book.book_id),
+                            'read_id': book.read_id,
+                            'book_id': book.book_id
+                        })
+                    chains[media_type].extend(formatted_chain)
 
-                    # Get template directory
-                    template_dir = project_paths['templates']
-                    env = Environment(loader=FileSystemLoader(str(template_dir)))
+            # Set up Jinja2 environment
+            template_dir = project_paths['templates'] / 'reports' / 'chain'
+            env = Environment(loader=FileSystemLoader(str(template_dir)))
+            template = env.get_template('reading_chain_report.html')
 
-                    # Get chains data
-                    chains = organize_chains_by_media(current_readings)
+            # Generate HTML
+            html = template.render(
+                chains=chains,
+                media_colors=media_colors,
+                generated_date=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            )
 
-                    # Get template and render
-                    template = env.get_template('reports/chain/reading_chain.html')
-                    html = template.render(
-                        title="Reading Chains",
-                        description="Current and upcoming books in each reading chain",
-                        chains=chains,
-                        media_colors=media_colors,
-                        generated_date=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    )
-                    
-                    # Write to temporary file first
-                    console.print(f"[blue]Writing report to temporary file...[/blue]")
-                    temp_path.write_text(html)
-                    
-                    try:
-                        # Try to move the temporary file to the final location
-                        import shutil
-                        shutil.move(str(temp_path), str(output_path))
-                        console.print(f"[blue]Writing report to: {output_path}[/blue]")
-                    except PermissionError:
-                        # If we can't move it, keep using the temp file
-                        output_path = temp_path
-                        console.print(f"[yellow]Using temporary file due to permissions: {output_path}[/yellow]")
-
-                    # Try to fix permissions, but don't fail if we can't
-                    try:
-                        fix_report_permissions(output_path)
-                    except Exception as e:
-                        console.print("\n[yellow]To fix permissions completely, run:[/yellow]")
-                        console.print("[yellow]sudo ./scripts/utils/fix_permissions.sh[/yellow]")
-
-                    console.print(f"\n[green]Report generated: {output_path}[/green]")
-                    
-                    return str(output_path)
+            # Write the report
+            output_path.write_text(html)
+            console.print(f"\n[green]Report generated: {output_path}[/green]")
 
     except Exception as e:
         console.print(f"\n[red]Error generating report: {str(e)}[/red]")
