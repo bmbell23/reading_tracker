@@ -36,19 +36,21 @@ def _prepare_monthly_data(readings: List[Dict]) -> tuple:
         if month_num not in month_data_dict:
             month_data_dict[month_num] = {
                 'name': month_name,
-                'number': month_num,  # Add this for reference
+                'number': month_num,
                 'books': [],
                 'total_books': 0,
                 'total_pages': 0,
                 'total_words': 0
             }
         
-        # Add book to month data
+        # Add book to month data - Let's add pages and words here
         month_data_dict[month_num]['books'].append({
-            'id': reading.get('book_id', ''),  # Add ID for book cover
+            'id': reading.get('book_id', ''),
             'title': reading['title'],
             'author': reading['author'],
-            'status': reading.get('status', '')
+            'status': reading.get('status', ''),
+            'pages': reading['pages'],  # Add pages
+            'words': reading['words']   # Add words
         })
         
         # Update monthly totals
@@ -97,13 +99,13 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
         # Change this line to use the correct template path
         template = env.get_template('yearly/yearly_reading_report.html')
         
-        # Calculate totals
-        total_books = len(readings)
-        total_pages = sum(reading.get('pages', 0) for reading in readings)
-        total_words = sum(reading.get('words', 0) for reading in readings)
-
-        # Prepare monthly data with the new structure
+        # First prepare monthly data
         months, monthly_books_data, monthly_pages_data, monthly_words_data = _prepare_monthly_data(readings)
+
+        # Calculate totals from monthly data
+        total_books = sum(month['total_books'] for month in months)
+        total_pages = sum(month['total_pages'] for month in months)
+        total_words = sum(month['total_words'] for month in months)
 
         # Console output if requested
         if format in ['console', 'both']:

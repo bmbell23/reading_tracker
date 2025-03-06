@@ -231,21 +231,21 @@ class ReportAnalytics:
         ]
 
     def get_yearly_readings(self, year: int, actual_only: bool = False, estimated_only: bool = False) -> List[Dict]:
-        """Get readings for a specific year with complete book information.
+        """Get readings for a specific year with complete book information."""
+        where_clause = f"WHERE strftime('%Y', COALESCE(r.date_finished_actual, r.date_est_end)) = :year"
+        if actual_only:
+            where_clause += " AND r.date_finished_actual IS NOT NULL"
+        elif estimated_only:
+            where_clause += " AND r.date_finished_actual IS NULL"
         
-        Args:
-            year: Year to get readings for
-            actual_only: Only include readings with actual completion dates
-            estimated_only: Only include readings with estimated completion dates
-        """
-        base_query = """
-            SELECT
+        query = f"""
+            SELECT 
                 strftime('%m', COALESCE(r.date_finished_actual, r.date_est_end)) as month,
                 b.id as book_id,
                 b.title,
-                b.author_name_first || ' ' || COALESCE(b.author_name_second, '') as author,
-                b.page_count as pages,
-                b.word_count as words,
+                b.author_name_first || ' ' || b.author_name_second as author,
+                COALESCE(b.page_count, 0) as pages,
+                COALESCE(b.word_count, 0) as words,
                 r.media as format,
                 date(r.date_started) as start_date,
                 date(r.date_finished_actual) as end_date,
@@ -255,37 +255,27 @@ class ReportAnalytics:
                 END as status
             FROM read r
             JOIN books b ON r.book_id = b.id
-            WHERE strftime('%Y', COALESCE(r.date_finished_actual, r.date_est_end)) = :year
+            {where_clause}
+            ORDER BY COALESCE(r.date_finished_actual, r.date_est_end)
         """
         
-        if actual_only:
-            base_query += " AND r.date_finished_actual IS NOT NULL"
-        elif estimated_only:
-            base_query += " AND r.date_finished_actual IS NULL"
-        
-        base_query += " ORDER BY COALESCE(r.date_finished_actual, r.date_est_end)"
-        
-        query = text(base_query)
-        result = self.session.execute(query, {"year": str(year)})
-        
-        # Convert to list of dictionaries with proper type conversion
+        result = self.session.execute(text(query), {"year": str(year)})
         readings = []
-        for row in result:
-            reading = row._mapping
-            # Ensure numeric fields are properly converted
-            reading = {
-                'month': int(reading['month']) if reading['month'] else 0,
-                'book_id': reading['book_id'],
-                'title': reading['title'],
-                'author': reading['author'],
-                'pages': int(reading['pages']) if reading['pages'] else 0,
-                'words': int(reading['words']) if reading['words'] else 0,
-                'format': reading['format'],
-                'start_date': reading['start_date'],
-                'end_date': reading['end_date'],
-                'status': reading['status']
+        
+        for row in result.fetchall():  # Use fetchall() to get all rows at once
+            reading_dict = {
+                'month': int(row.month) if row.month else 0,
+                'book_id': row.book_id,
+                'title': row.title,
+                'author': row.author,
+                'pages': int(row.pages or 0),
+                'words': int(row.words or 0),
+                'format': row.format,
+                'start_date': row.start_date,
+                'end_date': row.end_date,
+                'status': row.status
             }
-            readings.append(reading)
+            readings.append(reading_dict)
         
         return readings
 

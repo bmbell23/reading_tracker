@@ -18,19 +18,29 @@ class MediaStatsService:
 
     def _get_stats_query(self, finished_only: bool) -> str:
         """Get the SQL query for media statistics."""
-        base_query = """
+        finished_condition = "AND r.date_finished_actual IS NOT NULL" if finished_only else ""
+        
+        # Debug query to check data
+        print("DEBUG QUERY:")
+        print("""
+            SELECT b.title, b.word_count, b.page_count, r.media
+            FROM books b
+            INNER JOIN read r ON b.id = r.book_id
+            LIMIT 5;
+        """)
+        
+        return f"""
             SELECT
                 r.media,
                 COUNT(DISTINCT r.book_id) as book_count,
-                SUM(b.word_count) as total_words
+                COALESCE(SUM(b.word_count), 0) as total_words,
+                COALESCE(SUM(b.page_count), 0) as total_pages
             FROM read r
             INNER JOIN books b ON r.book_id = b.id
-            {where_clause}
+            {finished_condition}
             GROUP BY r.media
             ORDER BY book_count DESC
         """
-        where_clause = "WHERE r.date_finished_actual IS NOT NULL" if finished_only else ""
-        return base_query.format(where_clause=where_clause)
 
     def _get_media_color(self, media: str) -> str:
         """Get the display color for a media type."""
