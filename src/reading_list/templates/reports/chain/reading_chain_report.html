@@ -270,56 +270,34 @@
             overflow-wrap: break-word;
             word-wrap: break-word;
         }
-        .book-dates {
-            margin-bottom: 8px;
-            font-size: 1.05em;
-            color: #666;
-            margin-left: -16px;  /* Changed from -8px to -16px */
-            position: relative;
-            z-index: 3;
-        }
-        .book-dates p {
-            margin: 0;
-            line-height: 1.4;
-            display: block;  /* Ensure each paragraph is on its own line */
-        }
-        .book-dates .label {
-            color: #6b7280;  /* Modern gray */
-            font-weight: 500;
-            display: inline-block;
-            width: 85px;  /* Fixed width for alignment */
-            text-align: right;  /* Right-align the labels */
-            margin-right: 8px;  /* Space between label and value */
-        }
-        .book-dates .value {
-            color: #374151;
-            font-weight: 600;
-            display: inline-block;  /* Added to ensure consistent alignment */
-        }
+        .book-dates,
         .book-stats {
             font-size: 1.05em;
             color: #666;
-            margin-top: auto;
-            margin-left: -16px;  /* Changed from -8px to -16px */
+            margin-left: -5px;
             position: relative;
             z-index: 3;
         }
-        .book-stats .stat {
+
+        .stat {
             margin: 0;
             line-height: 1.4;
+            display: block;
         }
-        .book-stats .label {
-            color: #6b7280;  /* Modern gray */
+
+        .label {
+            color: #6b7280;
             font-weight: 500;
             display: inline-block;
-            width: 85px;  /* Fixed width for alignment */
-            text-align: right;  /* Right-align the labels */
-            margin-right: 8px;  /* Space between label and value */
+            width: 85px;
+            text-align: left;
+            margin-right: 8px;
         }
-        .book-stats .value {
+
+        .value {
             color: #374151;
             font-weight: 600;
-            display: inline-block;  /* Added to ensure consistent alignment */
+            display: inline-block;
         }
         .footer {
             text-align: center;
@@ -384,23 +362,23 @@
                     <p class="book-author">{{ book.author }}</p>
                     <div class="book-dates">
                         {% if book.is_current %}
-                            <p>
+                            <p class="stat">
                                 <span class="label">Started:</span>
                                 <span class="value">{{ book.date_started }}</span>
                             </p>
                             {% if book.date_est_end %}
-                            <p>
+                            <p class="stat">
                                 <span class="label">Finish:</span>
                                 <span class="value">{{ book.date_est_end }}</span>
                             </p>
                             {% endif %}
                         {% else %}
-                            <p>
+                            <p class="stat">
                                 <span class="label">Est. Start:</span>
                                 <span class="value">{{ book.date_est_start }}</span>
                             </p>
                             {% if book.date_est_end %}
-                            <p>
+                            <p class="stat">
                                 <span class="label">Est. Finish:</span>
                                 <span class="value">{{ book.date_est_end }}</span>
                             </p>
@@ -409,10 +387,16 @@
                     </div>
                     <div class="book-stats">
                         {% if book.page_count %}
-                        <p class="stat"><span class="label">Pages:</span> <span class="value">{{ book.page_count }}</span></p>
+                        <p class="stat">
+                            <span class="label">Pages:</span>
+                            <span class="value">{{ book.page_count }}</span>
+                        </p>
                         {% endif %}
                         {% if book.word_count %}
-                        <p class="stat"><span class="label">Words:</span> <span class="value">{{ "{:,}".format(book.word_count) }}</span></p>
+                        <p class="stat">
+                            <span class="label">Words:</span>
+                            <span class="value">{{ "{:,}".format(book.word_count) }}</span>
+                        </p>
                         {% endif %}
                     </div>
                 </div>
