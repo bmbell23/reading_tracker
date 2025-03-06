@@ -237,14 +237,19 @@
             width: 100px;
             height: 150px;
             object-fit: cover;
-            border-radius: 8px;        /* Slightly more rounded corners */
+            border-radius: 8px;
             flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Subtle shadow on covers */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
         .book-info {
             flex-grow: 1;
-            min-width: 0;  /* Allow text to wrap */
-            overflow: hidden;  /* Prevent overflow */
+            min-width: 0;
+            overflow: visible;
+            padding-left: 0;
+            position: relative;
+            z-index: 2;
         }
         .book-title {
             margin: 0 0 5px 0;
@@ -269,6 +274,9 @@
             margin-bottom: 8px;
             font-size: 1.05em;
             color: #666;
+            margin-left: -16px;  /* Changed from -8px to -16px */
+            position: relative;
+            z-index: 3;
         }
         .book-dates p {
             margin: 0;
@@ -278,17 +286,23 @@
         .book-dates .label {
             color: #6b7280;  /* Modern gray */
             font-weight: 500;
-            display: inline-block;  /* Changed from inline to inline-block */
-            margin-right: 5px;  /* Add some space between label and value */
+            display: inline-block;
+            width: 85px;  /* Fixed width for alignment */
+            text-align: right;  /* Right-align the labels */
+            margin-right: 8px;  /* Space between label and value */
         }
         .book-dates .value {
-            color: #374151;  /* Darker than labels */
-            font-weight: normal;
+            color: #374151;
+            font-weight: 600;
+            display: inline-block;  /* Added to ensure consistent alignment */
         }
         .book-stats {
             font-size: 1.05em;
             color: #666;
             margin-top: auto;
+            margin-left: -16px;  /* Changed from -8px to -16px */
+            position: relative;
+            z-index: 3;
         }
         .book-stats .stat {
             margin: 0;
@@ -297,11 +311,15 @@
         .book-stats .label {
             color: #6b7280;  /* Modern gray */
             font-weight: 500;
-            display: inline;
+            display: inline-block;
+            width: 85px;  /* Fixed width for alignment */
+            text-align: right;  /* Right-align the labels */
+            margin-right: 8px;  /* Space between label and value */
         }
         .book-stats .value {
-            color: #374151;  /* Darker than labels */
-            font-weight: normal;
+            color: #374151;
+            font-weight: 600;
+            display: inline-block;  /* Added to ensure consistent alignment */
         }
         .footer {
             text-align: center;
