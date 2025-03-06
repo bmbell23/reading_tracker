@@ -62,7 +62,7 @@
             padding: 1.5rem;
             border-radius: 0.75rem;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            height: 250px;
+            height: 280px;  // Increased from 250px to accommodate larger chart
         }
         
         .stat-value {
@@ -78,7 +78,7 @@
         }
 
         canvas {
-            height: 150px !important;
+            height: 180px !important;  // Increased from 150px
         }
 
         @media (max-width: 768px) {
@@ -181,7 +181,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="title-section">
+        <div class="title-section" style="text-align: center;">
             <h1>My Reading Journey in {{ year }}</h1>
             <p class="intro-text">{{ intro_text }}</p>
             <div class="title-decoration">
@@ -192,7 +192,14 @@
         </div>
 
         <div class="year-summary">
-            <h2>Year at a Glance</h2>
+            <div class="title-section" style="text-align: center;">
+                <h1>Year at a Glance</h1>
+                <div class="title-decoration">
+                    <span class="dot"></span>
+                    <span class="line"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-value">{{ total_books if total_books else 0 }}</div>
@@ -270,82 +277,124 @@
             const wordsData = {{ monthly_words_data }};
             const pagesData = {{ monthly_pages_data }};
             
+            // Common chart options to ensure consistent styling
+            const commonChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        intersect: true,        // Keep requiring direct intersection
+                        mode: 'nearest',        // Changed to nearest for more precision
+                        axis: 'x',             // Keep x-axis constraint
+                        position: 'nearest',    // Position tooltip near the cursor
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 16,           // Increased padding
+                        titleSpacing: 8,       // Increased spacing
+                        titleMarginBottom: 8,  // Increased margin
+                        bodySpacing: 8,        // Increased spacing
+                        titleAlign: 'center',   // Center align the title
+                        bodyAlign: 'center',    // Center align the body
+                        displayColors: false,   // Remove color box
+                        titleFont: {
+                            family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+                            size: 16,          // Increased from 13
+                            weight: '600',
+                            lineHeight: 1.2     // Add line height control
+                        },
+                        bodyFont: {
+                            family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+                            size: 15,          // Increased from 12
+                            weight: '400',
+                            lineHeight: 1.2     // Add line height control
+                        },
+                        callbacks: {
+                            title: function(context) {
+                                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                                  'July', 'August', 'September', 'October', 'November', 'December'];
+                                return monthNames[context[0].dataIndex];
+                            },
+                            label: function(context) {
+                                return context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',          // Changed to nearest
+                    intersect: true,          // Keep requiring intersection
+                    axis: 'x',               // Constrain to x-axis
+                    includeInvisible: false  // Don't include invisible datapoints
+                },
+                hitRadius: 5,               // Added hit radius for better detection
+                hoverRadius: 5,             // Added hover radius
+                scales: {
+                    y: {
+                        display: false,
+                        beginAtZero: true
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Plus Jakarta Sans', sans-serif",
+                                size: 16,
+                                weight: '700'
+                            },
+                            color: '#0f172a',
+                            maxRotation: 0,
+                            minRotation: 0,
+                            padding: 10
+                        }
+                    }
+                },
+                onHover: (event, elements) => {
+                    event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+                }
+            };
+
             new Chart(document.getElementById('booksChart'), {
                 type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],  // Changed from letters to numbers
                     datasets: [{
                         data: booksData,
                         backgroundColor: '#3b82f6',
                         borderRadius: 4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                options: commonChartOptions
             });
 
             new Chart(document.getElementById('wordsChart'), {
                 type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],  // Changed from letters to numbers
                     datasets: [{
                         data: wordsData,
                         backgroundColor: '#10b981',
                         borderRadius: 4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                options: commonChartOptions
             });
 
             new Chart(document.getElementById('pagesChart'), {
                 type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],  // Changed from letters to numbers
                     datasets: [{
                         data: pagesData,
                         backgroundColor: '#f59e0b',
                         borderRadius: 4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                options: commonChartOptions
             });
         });
     </script>
