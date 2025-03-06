@@ -81,28 +81,44 @@
             position: relative;  /* For pseudo-element */
         }
 
+        /* Base status badge style */
         .book-card.current-book::before {
-            content: "CURRENT";
             position: absolute;
-            left: 20px;  /* Match the card's padding */
-            top: 175px;  /* Reduced from 185px to be closer to the cover */
-            width: 100px;  /* Match cover width */
-            font-size: 0.7rem;
+            left: 20px;
+            top: 175px;
+            width: 100px;
+            font-size: 0.9rem;  /* Increased from 0.8rem to 0.9rem */
             font-weight: 600;
-            text-transform: uppercase;
-            padding: 4px 0;  /* Remove horizontal padding */
+            padding: 4px 0;
             border-radius: 4px;
-            background: #f0f9ff;
-            color: #0284c7;
+            text-align: center;
             letter-spacing: 0.05em;
-            text-align: center;  /* Center the text */
+        }
+
+        /* Media-specific status badge styling */
+        .book-card.kindle.current-book::before {
+            content: "Kindle";
+            background: #EFF6FF;  /* Light blue bg */
+            color: #0ea5e9;      /* sky-500 - blue */
+        }
+
+        .book-card.hardcover.current-book::before {
+            content: "Hardcover";
+            background: #FAF5FF;  /* Light purple bg */
+            color: #A855F7;      /* purple-500 */
+        }
+
+        .book-card.audio.current-book::before {
+            content: "Audio";
+            background: #FFF7ED;  /* Light orange bg */
+            color: #FB923C;      /* orange-400 */
         }
 
         /* Mobile adjustments */
         @media (max-width: 600px) {
             .book-card.current-book::before {
-                top: 165px;  /* Middle ground between 145px and 185px */
-                left: 15px;  /* Adjust left position to center with book cover on mobile */
+                top: 165px;
+                left: 15px;
             }
         }
 
