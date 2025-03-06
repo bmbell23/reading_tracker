@@ -5,7 +5,7 @@ Reading Chain Report Generator
 Generates reports showing the current state of reading chains.
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import date, datetime
 from pathlib import Path
 from sqlalchemy import text
@@ -124,23 +124,64 @@ def get_book_cover_path(book_id: int) -> str:
 
     return "../../assets/book_covers/0.jpg"
 
+def format_date_with_ordinal(d: Optional[date]) -> str:
+    """Format date as 'MMM DDst' (e.g., 'Mar 1st')"""
+    if not d:
+        return "Not scheduled"
+    
+    day = d.day
+    if 10 <= day % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+    
+    return d.strftime(f'%b {day}{suffix}')
+
 def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: bool = False) -> Dict[str, Any]:
     """Get formatted book data including cover URL"""
     
+    def parse_date(date_val):
+        if isinstance(date_val, str):
+            return datetime.strptime(date_val, '%Y-%m-%d').date()
+        return date_val if date_val else None
+
+    def format_date_with_ordinal(d: Optional[date]) -> str:
+        """Format date as 'MMM DDst' (e.g., 'Mar 1st')"""
+        if not d:
+            return "Not scheduled"
+        
+        day = d.day
+        if 10 <= day % 100 <= 20:
+            suffix = 'th'
+        else:
+            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+        
+        return d.strftime(f'%b {day}{suffix}')
+
+    # Parse dates
+    start_date = parse_date(reading.get('date_started'))
+    est_start = parse_date(reading.get('date_est_start'))
+    est_end = parse_date(reading.get('date_est_end'))
+    
+    # Format dates with ordinal suffixes
+    formatted_start = format_date_with_ordinal(start_date)
+    formatted_est_start = format_date_with_ordinal(est_start)
+    formatted_est_end = format_date_with_ordinal(est_end)
+    
     return {
-        'title': reading.title,
-        'author': format_author_name(reading.author_name_first, reading.author_name_second),
-        'date_started': format_date(reading.date_started) if reading.date_started else None,
-        'date_est_start': format_date(reading.date_est_start) if reading.date_est_start else None,
-        'date_est_end': format_date(reading.date_est_end) if reading.date_est_end else None,
-        'word_count': reading.word_count,
-        'page_count': reading.page_count,
+        'title': reading['title'],
+        'author': format_author_name(reading['author_name_first'], reading['author_name_second']),
+        'date_started': formatted_start,
+        'date_est_start': formatted_est_start,
+        'date_est_end': formatted_est_end,
+        'word_count': reading.get('word_count'),
+        'page_count': reading.get('page_count'),
         'is_current': is_current,
         'is_future': is_future,
-        'cover_url': get_book_cover_path(reading.book_id),
-        'read_id': reading.read_id,
-        'book_id': reading.book_id,
-        'media': reading.media
+        'cover_url': get_book_cover_path(reading['book_id']),
+        'read_id': reading['read_id'],
+        'book_id': reading['book_id'],
+        'media': reading['media']
     }
 
 def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
@@ -211,40 +252,47 @@ def generate_chain_report() -> None:
             for reading in current_readings:
                 chain = get_reading_chain(session, reading.read_id)
                 if chain:
-                    # Format each book in the chain
                     for idx, book in enumerate(chain):
-                        formatted_book = {
+                        raw_data = {
                             'title': book.title,
-                            'author': format_author_name(book.author_name_first, book.author_name_second),
-                            'date_started': format_date(book.date_started),
-                            'date_est_start': format_date(book.date_est_start),
-                            'date_est_end': format_date(book.date_est_end),
+                            'author_name_first': book.author_name_first,
+                            'author_name_second': book.author_name_second,
+                            'date_started': book.date_started,
+                            'date_est_start': book.date_est_start,
+                            'date_est_end': book.date_est_end,
                             'word_count': book.word_count,
                             'page_count': book.page_count,
-                            'is_current': idx == 0,
-                            'is_future': idx > 0,
-                            'cover_url': get_book_cover_path(book.book_id),
-                            'read_id': book.read_id,
                             'book_id': book.book_id,
+                            'read_id': book.read_id,
                             'media': reading.media
                         }
+                        
+                        formatted_book = get_book_data(raw_data, 
+                                                     is_current=(idx == 0), 
+                                                     is_future=(idx > 0))
+                        
+                        # Store raw dates for sorting
+                        formatted_book['_sort_key'] = (
+                            # Use actual start date if available, otherwise estimated start date
+                            book.date_started or book.date_est_start or datetime.max.date(),
+                            # Secondary sort by title
+                            book.title.lower()
+                        )
+                        
                         all_books.append(formatted_book)
 
-            # Sort books: current books first, then by estimated start date and title
-            sorted_books = sorted(all_books, key=lambda x: (
-                not x['is_current'],  # False sorts before True, so current books come first
-                x['date_est_start'] or '9999-12-31',  # Books without est_start date go last
-                x['title'].lower()  # Use title as tie-breaker
-            ))
+            # Sort all books by date (actual start date prioritized over estimated start date)
+            sorted_books = sorted(all_books, key=lambda x: x['_sort_key'])
 
             # Set up Jinja2 environment
             template_dir = project_paths['templates'] / 'reports' / 'chain'
             env = Environment(loader=FileSystemLoader(str(template_dir)))
             template = env.get_template('reading_chain_report.html')
 
-            # Generate HTML
+            # Generate HTML with current date
             html = template.render(
                 books=sorted_books,
+                generated_date=datetime.now().strftime('%b %d, %Y'),
                 media_colors={
                     'kindle': {'text_color': '#0066CC'},     # Deeper Kindle blue
                     'hardcover': {'text_color': '#6B4BA3'},  # Space purple

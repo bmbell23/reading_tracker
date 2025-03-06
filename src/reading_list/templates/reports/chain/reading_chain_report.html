@@ -358,21 +358,26 @@
                                 <span class="label">Started:</span>
                                 <span class="value">{{ book.date_started }}</span>
                             </p>
+                            {% if book.date_est_end %}
+                            <p>
+                                <span class="label">Finish:</span>
+                                <span class="value">{{ book.date_est_end }}</span>
+                            </p>
+                            {% endif %}
                         {% else %}
                             <p>
                                 <span class="label">Est. Start:</span>
                                 <span class="value">{{ book.date_est_start }}</span>
                             </p>
-                        {% endif %}
-                        {% if book.date_est_end %}
-                        <p>
-                            <span class="label">Est. Finish:</span>
-                            <span class="value">{{ book.date_est_end }}</span>
-                        </p>
+                            {% if book.date_est_end %}
+                            <p>
+                                <span class="label">Est. Finish:</span>
+                                <span class="value">{{ book.date_est_end }}</span>
+                            </p>
+                            {% endif %}
                         {% endif %}
                     </div>
                     <div class="book-stats">
-                        <p class="stat"><span class="label">Format:</span> <span class="value">{{ book.media }}</span></p>
                         {% if book.page_count %}
                         <p class="stat"><span class="label">Pages:</span> <span class="value">{{ book.page_count }}</span></p>
                         {% endif %}
