@@ -44,6 +44,7 @@
             background: white;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);  /* Subtle shadow */
             transition: box-shadow 0.2s ease;            /* Smooth transition for hover */
+            position: relative;  /* This is crucial for absolute positioning of badges */
         }
 
         .book-card:hover {
@@ -81,44 +82,74 @@
             position: relative;  /* For pseudo-element */
         }
 
-        /* Base status badge style */
-        .book-card.current-book::before {
+        /* Base status badge style - shared between current and future books */
+        .book-card.current-book::before,
+        .book-card.future-book::before {
             position: absolute;
-            left: 20px;
-            top: 175px;
-            width: 100px;
-            font-size: 0.9rem;  /* Increased from 0.8rem to 0.9rem */
+            left: 65px;
+            transform: translateX(-50%);
+            bottom: 15px;
+            min-width: 60px;
+            font-size: 0.9rem;
             font-weight: 600;
-            padding: 4px 0;
+            padding: 2px 8px;
             border-radius: 4px;
             text-align: center;
             letter-spacing: 0.05em;
+            white-space: nowrap;
+            z-index: 1;          /* Lower z-index */
         }
 
-        /* Media-specific status badge styling */
+        /* Ensure book cover appears above the badge */
+        .book-cover {
+            position: relative;  /* Needed for z-index to work */
+            z-index: 2;         /* Higher z-index than the badge */
+        }
+
+        /* Media-specific status badge styling for current books */
         .book-card.kindle.current-book::before {
             content: "Kindle";
-            background: #EFF6FF;  /* Light blue bg */
-            color: #0ea5e9;      /* sky-500 - blue */
+            background: #EFF6FF;
+            color: #0ea5e9;
         }
 
         .book-card.hardcover.current-book::before {
             content: "Hardcover";
-            background: #FAF5FF;  /* Light purple bg */
-            color: #A855F7;      /* purple-500 */
+            background: #FAF5FF;
+            color: #A855F7;
         }
 
         .book-card.audio.current-book::before {
             content: "Audio";
-            background: #FFF7ED;  /* Light orange bg */
-            color: #FB923C;      /* orange-400 */
+            background: #FFF7ED;
+            color: #FB923C;
+        }
+
+        /* Media-specific status badge styling for future books */
+        .book-card.kindle.future-book::before {
+            content: "TBR";
+            background: #EFF6FF;
+            color: #0ea5e9;
+        }
+
+        .book-card.hardcover.future-book::before {
+            content: "TBR";
+            background: #FAF5FF;
+            color: #A855F7;
+        }
+
+        .book-card.audio.future-book::before {
+            content: "TBR";
+            background: #FFF7ED;
+            color: #FB923C;
         }
 
         /* Mobile adjustments */
         @media (max-width: 600px) {
-            .book-card.current-book::before {
-                top: 165px;
-                left: 15px;
+            .book-card.current-book::before,
+            .book-card.future-book::before {
+                left: 60px;      /* Adjust for smaller margins on mobile */
+                bottom: 10px;
             }
         }
 
