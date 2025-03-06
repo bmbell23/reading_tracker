@@ -34,47 +34,62 @@
         .book-card {
             display: flex;
             gap: 15px;
-            padding: 20px;  /* Increased padding slightly */
-            border: 3px solid #eee;
-            border-radius: 6px;
-            width: 100%;  /* Make all cards full width of container */
+            padding: 20px;
+            border: 1px solid #e5e7eb;  /* Lighter, more subtle border */
+            border-radius: 12px;        /* Slightly more rounded corners */
+            width: 100%;
             box-sizing: border-box;
             margin: 0;
-            min-height: 180px;  /* Increased to accommodate larger covers */
+            min-height: 180px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);  /* Subtle shadow */
+            transition: box-shadow 0.2s ease;            /* Smooth transition for hover */
         }
 
+        .book-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);  /* Slightly lifted on hover */
+        }
+
+        /* Kindle styling */
         .book-card.kindle {
-            border: 3px solid #0ea5e9;
+            border-left: 4px solid #0ea5e9;  /* More subtle blue */
         }
-
-        .book-card.hardcover {
-            border: 3px solid #A855F7;
-        }
-
-        .book-card.audio {
-            border: 3px solid #FB923C;
-        }
-
         .book-card.kindle.current-book {
-            border-width: 4px;
-            background-color: rgba(14, 165, 233, 0.1);
+            background: linear-gradient(to right, rgba(14, 165, 233, 0.03), transparent);
         }
 
+        /* Hardcover styling */
+        .book-card.hardcover {
+            border-left: 4px solid #8b5cf6;  /* More subtle purple */
+        }
         .book-card.hardcover.current-book {
-            border-width: 4px;
-            background-color: rgba(168, 85, 247, 0.1);
+            background: linear-gradient(to right, rgba(139, 92, 246, 0.03), transparent);
         }
 
+        /* Audio styling */
+        .book-card.audio {
+            border-left: 4px solid #f97316;  /* More subtle orange */
+        }
         .book-card.audio.current-book {
-            border-width: 4px;
-            background-color: rgba(251, 146, 60, 0.1);
+            background: linear-gradient(to right, rgba(249, 115, 22, 0.03), transparent);
+        }
+
+        /* Current book additional styling */
+        .book-card.current-book {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Future book styling */
+        .future-book {
+            opacity: 0.9;
         }
         .book-cover {
-            width: 100px;      /* Increased from 80px */
-            height: 150px;     /* Increased from 120px */
+            width: 100px;
+            height: 150px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 8px;        /* Slightly more rounded corners */
             flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Subtle shadow on covers */
         }
         .book-info {
             flex-grow: 1;
@@ -88,9 +103,11 @@
             overflow-wrap: break-word;
             word-wrap: break-word;
             hyphens: auto;
+            color: #111827;  /* Darker, richer text */
+            font-weight: 600;
         }
         .book-author {
-            color: #333;  /* Darker color */
+            color: #374151;  /* Slightly lighter than title */
             font-weight: 600;  /* Semi-bold */
             margin: 0 0 10px 0;
             line-height: 1.4;
@@ -109,13 +126,13 @@
             display: block;  /* Ensure each paragraph is on its own line */
         }
         .book-dates .label {
-            color: #333;
-            font-weight: 600;
+            color: #6b7280;  /* Modern gray */
+            font-weight: 500;
             display: inline-block;  /* Changed from inline to inline-block */
             margin-right: 5px;  /* Add some space between label and value */
         }
         .book-dates .value {
-            color: #666;
+            color: #374151;  /* Darker than labels */
             font-weight: normal;
         }
         .book-stats {
@@ -128,16 +145,13 @@
             line-height: 1.4;
         }
         .book-stats .label {
-            color: #333;
-            font-weight: 600;
+            color: #6b7280;  /* Modern gray */
+            font-weight: 500;
             display: inline;
         }
         .book-stats .value {
-            color: #666;
+            color: #374151;  /* Darker than labels */
             font-weight: normal;
-        }
-        .future-book {
-            opacity: 0.8;
         }
         .footer {
             text-align: center;
@@ -161,9 +175,10 @@
             }
 
             .book-card {
-                padding: 10px;
+                padding: 15px;
                 gap: 10px;
                 min-height: 120px;
+                border-radius: 8px;
             }
 
             .book-cover {
