@@ -74,9 +74,48 @@
             background: linear-gradient(to right, rgba(249, 115, 22, 0.03), transparent);
         }
 
-        /* Current book additional styling */
+        /* Current book styling - enhanced visibility */
         .book-card.current-book {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            border-width: 2px;  /* Slightly thicker border */
+            position: relative;  /* For pseudo-element */
+        }
+
+        .book-card.current-book::before {
+            content: "CURRENT";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #f0f9ff;  /* Very light blue background */
+            color: #0284c7;      /* Darker blue text */
+            letter-spacing: 0.05em;
+        }
+
+        /* Media-specific current book styling */
+        .book-card.kindle.current-book {
+            background: linear-gradient(to right, rgba(14, 165, 233, 0.05), transparent);
+            border-color: #0ea5e9;
+        }
+
+        .book-card.hardcover.current-book {
+            background: linear-gradient(to right, rgba(168, 85, 247, 0.05), transparent);
+            border-color: #A855F7;
+        }
+
+        .book-card.audio.current-book {
+            background: linear-gradient(to right, rgba(251, 146, 60, 0.05), transparent);
+            border-color: #FB923C;
+        }
+
+        /* Enhance title for current books */
+        .book-card.current-book .book-title {
+            color: #000000;  /* Darker text for current books */
+            font-weight: 700;  /* Slightly bolder */
         }
 
         /* Future book styling */
