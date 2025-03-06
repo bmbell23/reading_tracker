@@ -15,6 +15,7 @@ from . import reorder_chain
 from . import update_entries
 from . import update_readings
 from . import chain_report
+from . import generate_tbr  # Add this import
 
 def main():
     """Main CLI entry point."""
@@ -24,6 +25,12 @@ def main():
     )
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    
+    # Add generate-tbr command
+    tbr_parser = subparsers.add_parser(
+        "generate-tbr",
+        help="Generate TBR (To Be Read) report"
+    )
     
     # Add chain-report command
     chain_report_parser = subparsers.add_parser(
@@ -84,7 +91,9 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "chain-report":
+    if args.command == "generate-tbr":
+        return generate_tbr.handle_command(args)
+    elif args.command == "chain-report":
         return chain_report.main()
     elif args.command == "update-entries":
         return update_entries.main()
