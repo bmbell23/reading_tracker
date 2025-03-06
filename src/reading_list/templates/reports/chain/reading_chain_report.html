@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading Chain Report</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #3b82f6;
+            --color-success: #10b981;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 10px;
@@ -22,8 +29,13 @@
         .page-title {
             text-align: center;
             margin: 20px 0 30px 0;
-            font-size: 1.8em;
-            color: #333;
+            font-size: 2rem;  /* Reduced from 2.5rem */
+            font-weight: 800;
+            background: linear-gradient(to right, var(--color-primary), var(--color-success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
         }
         .book-chain {
             display: flex;
@@ -344,7 +356,7 @@
 </head>
 <body>
     <div class="chain-container">
-        <h1 class="page-title">Reading Chain</h1>
+        <h1 class="page-title">Current Reads and TBR</h1>
         <div class="book-chain">
             {% for book in books %}
             <div class="book-card {{ book.media.lower() }} {% if book.is_current %}current-book{% endif %} {% if book.is_future %}future-book{% endif %}">
