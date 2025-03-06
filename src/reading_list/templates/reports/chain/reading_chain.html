@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .description {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 3rem;
+        }
+
+        .chains-container {
+            display: flex;
+            gap: 2rem;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .media-section {
+            flex: 1;
+            margin-bottom: 3rem;
+            min-width: 0; /* Prevents flex items from overflowing */
+        }
+
+        .media-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .reading-chain {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+
+        .book-card {
+            width: 100%;
+            flex: 0 0 auto;
+            padding: 1rem;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: grab;
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .book-card.current {
+            border: 2px solid currentColor;
+        }
+
+        .book-card.future {
+            opacity: 0.7;
+        }
+
+        .book-cover {
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto 1rem auto;
+            aspect-ratio: 2/3;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .book-author {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-dates {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        /* Media type specific colors */
+        .kindle { color: {{ media_colors.kindle.text_color }}; }
+        .hardcover { color: {{ media_colors.hardcover.text_color }}; }
+        .audio { color: {{ media_colors.audio.text_color }}; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ title }}</h1>
+        <div class="description">{{ description }}</div>
+    </div>
+
+    <div class="chains-container">
+        {% for media_type, data in chains.items() %}
+            {% if data.chain %}
+                <div class="media-section">
+                    <div class="media-title">
+                        <h2 class="{{ media_type }}">{{ media_type|title }}</h2>
+                    </div>
+                    <div class="reading-chain" data-chain-type="{{ media_type }}">
+                        {% for book in data.chain %}
+                            <div class="book-card {% if book.is_current %}current{% endif %} {% if book.is_future %}future{% endif %} {{ media_type }}"
+                                 data-reading-id="{{ book.read_id }}"
+                                 draggable="true">
+                                <div class="book-cover">
+                                    <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}">
+                                </div>
+                                <div class="book-title">{{ book.title }}</div>
+                                <div class="book-author">{{ book.author }}</div>
+                                <div class="book-dates">
+                                    {% if book.date_started %}
+                                        Started: {{ book.date_started.strftime('%Y-%m-%d') }}
+                                    {% elif book.date_est_start %}
+                                        Est. Start: {{ book.date_est_start.strftime('%Y-%m-%d') }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="footer">
+        Generated on {{ generated_date }}
+    </div>
+</body>
+</html>

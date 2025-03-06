@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projected Readings for {{ year }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .chart-container {
+            margin: 20px 0;
+            height: 400px;
+        }
+        .month-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Projected Reading Plan for {{ year }}</h1>
+    
+    <div class="stats-container">
+        <div>
+            <h3>Total Books: {{ monthly_books|sum }}</h3>
+        </div>
+        <div>
+            <h3>Total Pages: {{ monthly_pages|sum }}</h3>
+        </div>
+        <div>
+            <h3>Total Words: {{ monthly_words|sum }}</h3>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="monthlyStats"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="cumulativeStats"></canvas>
+    </div>
+
+    {% for month_num in range(1, 13) %}
+        {% if months_data[month_num]['books'] %}
+        <div class="month-section">
+            <h2>{{ month_names[month_num - 1] }}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Pages</th>
+                        <th>Est. Finish</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in months_data[month_num]['books'] %}
+                    <tr>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.pages }}</td>
+                        <td>{{ book.est_end.strftime('%Y-%m-%d') if book.est_end else 'TBD' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p>
+                Monthly Total: {{ months_data[month_num]['total_books'] }} books,
+                {{ months_data[month_num]['total_pages'] }} pages,
+                {{ months_data[month_num]['total_words'] }} words
+            </p>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="footer">
+        Generated on {{ generation_date }}
+    </div>
+
+    <script>
+        // Monthly Statistics Chart
+        new Chart(document.getElementById('monthlyStats'), {
+            type: 'bar',
+            data: {
+                labels: {{ month_names|tojson }},
+                datasets: [{
+                    label: 'Books',
+                    data: {{ monthly_books|tojson }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Reading Projections'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Cumulative Statistics Chart
+        new Chart(document.getElementById('cumulativeStats'), {
+            type: 'line',
+            data: {
+                labels: {{ month_names|tojson }},
+                datasets: [{
+                    label: 'Cumulative Books',
+                    data: {{ cumulative_books|tojson }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Cumulative Reading Progress'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

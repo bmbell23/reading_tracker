@@ -3,4 +3,15 @@
                 font-family: 'Plus Jakarta Sans', sans-serif;
                 margin: 2em;
             }
+            /* Add responsive behavior for charts */
+            @media (max-width: 1200px) {
+                .charts-container {
+                    flex-direction: column !important;
+                }
+                
+                .charts-container > div {
+                    width: 100% !important;
+                    margin-bottom: 20px;
+                }
+            }
         

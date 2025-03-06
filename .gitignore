@@ -65,10 +65,14 @@ logs/*
 assets/
 assets/book_covers/
 
-# Reports
-reports/
-reports/**/*
+# Reports output directory
+/reports/
+/reports/**/*
 !reports/.gitkeep
+
+# Keep templates
+!src/reading_list/templates/reports/
+!src/reading_list/templates/reports/**/*
 
 # Kanban
 .kanban/
