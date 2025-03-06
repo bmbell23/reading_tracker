@@ -39,13 +39,13 @@
         .book-card {
             display: flex;
             gap: 15px;
-            padding: 15px;
+            padding: 20px;  /* Increased padding slightly */
             border: 3px solid #eee;
             border-radius: 6px;
             width: 100%;  /* Make all cards full width of container */
             box-sizing: border-box;
             margin: 0;
-            min-height: 150px;
+            min-height: 180px;  /* Increased to accommodate larger covers */
         }
 
         /* Media-specific borders for ALL cards */
@@ -83,8 +83,8 @@
             background: inherit;
         }
         .book-cover {
-            width: 80px;      /* Slightly smaller cover for mobile */
-            height: 120px;
+            width: 100px;      /* Increased from 80px */
+            height: 150px;     /* Increased from 120px */
             object-fit: cover;
             border-radius: 4px;
             flex-shrink: 0;
@@ -176,11 +176,12 @@
             .book-card {
                 padding: 10px;
                 gap: 10px;
+                min-height: 120px;
             }
 
             .book-cover {
-                width: 60px;
-                height: 90px;
+                width: 70px;   /* Increased from 60px */
+                height: 105px; /* Increased from 90px */
             }
 
             .book-dates, .book-stats {
