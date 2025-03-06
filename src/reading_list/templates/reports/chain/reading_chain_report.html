@@ -84,16 +84,26 @@
         .book-card.current-book::before {
             content: "CURRENT";
             position: absolute;
-            top: 10px;
-            right: 10px;
+            left: 20px;  /* Match the card's padding */
+            top: 175px;  /* Reduced from 185px to be closer to the cover */
+            width: 100px;  /* Match cover width */
             font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
-            padding: 4px 8px;
+            padding: 4px 0;  /* Remove horizontal padding */
             border-radius: 4px;
-            background: #f0f9ff;  /* Very light blue background */
-            color: #0284c7;      /* Darker blue text */
+            background: #f0f9ff;
+            color: #0284c7;
             letter-spacing: 0.05em;
+            text-align: center;  /* Center the text */
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 600px) {
+            .book-card.current-book::before {
+                top: 165px;  /* Middle ground between 145px and 185px */
+                left: 15px;  /* Adjust left position to center with book cover on mobile */
+            }
         }
 
         /* Media-specific current book styling */
