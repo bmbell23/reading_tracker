@@ -103,7 +103,9 @@
         .book-card.current-book::before,
         .book-card.future-book::before {
             position: absolute;
-            left: 65px;
+            /* Calculate the middle of the book cover: 
+               card padding (20px) + half of book cover width (100px / 2) */
+            left: calc(20px + 50px);
             transform: translateX(-50%);
             bottom: 15px;
             min-width: 60px;
@@ -114,7 +116,7 @@
             text-align: center;
             letter-spacing: 0.05em;
             white-space: nowrap;
-            z-index: 1;          /* Lower z-index */
+            z-index: 1;
         }
 
         /* Ensure book cover appears above the badge */
@@ -163,27 +165,50 @@
 
         /* Mobile adjustments */
         @media (max-width: 600px) {
+            .book-card {
+                padding: 15px;  /* Reduced padding on mobile */
+            }
+
             .book-card.current-book::before,
             .book-card.future-book::before {
-                left: 60px;      /* Adjust for smaller margins on mobile */
+                /* Recalculate for mobile:
+                   mobile card padding (15px) + half of book cover width (100px / 2) */
+                left: calc(15px + 50px);
                 bottom: 10px;
             }
         }
 
-        /* Media-specific current book styling */
-        .book-card.kindle.current-book {
+        /* Media-specific current book styling - REMOVE these overrides */
+        /* .book-card.kindle.current-book {
             background: linear-gradient(to right, rgba(14, 165, 233, 0.05), transparent);
             border-color: #0ea5e9;
+        } */
+
+        /* Kindle styling - Use these consistent colors */
+        .book-card.kindle {
+            border-left: 4px solid #0066CC;  /* Deeper Kindle blue */
+        }
+        
+        .book-card.kindle.current-book {
+            border-color: #0066CC;  /* Deeper Kindle blue */
+            background: linear-gradient(to right, rgba(0, 102, 204, 0.03), transparent);
+        }
+
+        /* Current book styling - enhanced visibility */
+        .book-card.current-book {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            border-width: 2px;  /* Slightly thicker border */
+            position: relative;  /* For pseudo-element */
         }
 
         .book-card.hardcover.current-book {
-            background: linear-gradient(to right, rgba(168, 85, 247, 0.05), transparent);
-            border-color: #A855F7;
+            border-color: #6B4BA3;  /* Space purple */
+            background: linear-gradient(to right, rgba(107, 75, 163, 0.03), transparent);
         }
 
         .book-card.audio.current-book {
-            background: linear-gradient(to right, rgba(251, 146, 60, 0.05), transparent);
-            border-color: #FB923C;
+            border-color: #FF6600;  /* Warmer Audible orange */
+            background: linear-gradient(to right, rgba(255, 102, 0, 0.03), transparent);
         }
 
         /* Enhance title for current books */
