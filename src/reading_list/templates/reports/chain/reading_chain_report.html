@@ -33,18 +33,29 @@
         }
         .book-card {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             padding: 20px;
-            border: 1px solid #e5e7eb;  /* Lighter, more subtle border */
-            border-radius: 12px;        /* Slightly more rounded corners */
-            width: 100%;
-            box-sizing: border-box;
-            margin: 0;
-            min-height: 180px;
             background: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);  /* Subtle shadow */
-            transition: box-shadow 0.2s ease;            /* Smooth transition for hover */
-            position: relative;  /* This is crucial for absolute positioning of badges */
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            position: relative;
+            min-height: 160px;  /* Increased from 155px to 160px */
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Mobile styles with higher specificity */
+        @media screen and (max-width: 600px) {
+            .chain-container .book-card {
+                padding: 15px !important;
+                min-height: 170px !important;  /* Keeping mobile height the same */
+            }
+
+            .chain-container .book-card.current-book::before,
+            .chain-container .book-card.future-book::before {
+                left: 65px !important;
+                top: 170px !important;
+            }
         }
 
         .book-card:hover {
@@ -102,27 +113,17 @@
         /* Base status badge style - shared between current and future books */
         .book-card.current-book::before,
         .book-card.future-book::before {
+            content: "";
             position: absolute;
-            /* Calculate the middle of the book cover: 
-               card padding (20px) + half of book cover width (100px / 2) */
-            left: calc(20px + 50px);
+            left: 70px;
             transform: translateX(-50%);
-            bottom: 15px;
-            min-width: 60px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 2px 8px;
+            top: 170px;  /* Keep this the same as it's working well */
+            padding: 4px 8px;
             border-radius: 4px;
-            text-align: center;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 600;
             z-index: 1;
-        }
-
-        /* Ensure book cover appears above the badge */
-        .book-cover {
-            position: relative;  /* Needed for z-index to work */
-            z-index: 2;         /* Higher z-index than the badge */
+            white-space: nowrap;
         }
 
         /* Media-specific status badge styling for current books */
@@ -166,15 +167,14 @@
         /* Mobile adjustments */
         @media (max-width: 600px) {
             .book-card {
-                padding: 15px;  /* Reduced padding on mobile */
+                padding: 15px;
+                min-height: 260px;  /* Increased even more to fully contain badge */
             }
 
             .book-card.current-book::before,
             .book-card.future-book::before {
-                /* Recalculate for mobile:
-                   mobile card padding (15px) + half of book cover width (100px / 2) */
-                left: calc(15px + 50px);
-                bottom: 10px;
+                left: 65px;
+                top: 170px;
             }
         }
 
