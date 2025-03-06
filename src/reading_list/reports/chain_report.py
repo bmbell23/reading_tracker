@@ -127,36 +127,20 @@ def get_book_cover_path(book_id: int) -> str:
 def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: bool = False) -> Dict[str, Any]:
     """Get formatted book data including cover URL"""
     
-    # Convert string dates to datetime if they're strings
-    date_started = None
-    if reading.date_started:
-        date_started = (
-            reading.date_started 
-            if isinstance(reading.date_started, datetime) 
-            else datetime.strptime(reading.date_started, '%Y-%m-%d')
-        )
-
-    date_est_start = None
-    if reading.date_est_start:
-        date_est_start = (
-            reading.date_est_start 
-            if isinstance(reading.date_est_start, datetime) 
-            else datetime.strptime(reading.date_est_start, '%Y-%m-%d')
-        )
-
     return {
         'title': reading.title,
         'author': format_author_name(reading.author_name_first, reading.author_name_second),
-        'date_started': date_started,
-        'date_est_start': date_est_start,
-        'date_est_end': reading.date_est_end,
+        'date_started': format_date(reading.date_started) if reading.date_started else None,
+        'date_est_start': format_date(reading.date_est_start) if reading.date_est_start else None,
+        'date_est_end': format_date(reading.date_est_end) if reading.date_est_end else None,
         'word_count': reading.word_count,
         'page_count': reading.page_count,
         'is_current': is_current,
         'is_future': is_future,
         'cover_url': get_book_cover_path(reading.book_id),
         'read_id': reading.read_id,
-        'book_id': reading.book_id
+        'book_id': reading.book_id,
+        'media': reading.media
     }
 
 def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:

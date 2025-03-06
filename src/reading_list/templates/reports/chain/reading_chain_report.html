@@ -353,11 +353,16 @@
                     <h3 class="book-title">{{ book.title }}</h3>
                     <p class="book-author">{{ book.author }}</p>
                     <div class="book-dates">
-                        {% if book.date_est_start %}
-                        <p>
-                            <span class="label">Est. Start:</span>
-                            <span class="value">{{ book.date_est_start }}</span>
-                        </p>
+                        {% if book.is_current %}
+                            <p>
+                                <span class="label">Started:</span>
+                                <span class="value">{{ book.date_started }}</span>
+                            </p>
+                        {% else %}
+                            <p>
+                                <span class="label">Est. Start:</span>
+                                <span class="value">{{ book.date_est_start }}</span>
+                            </p>
                         {% endif %}
                         {% if book.date_est_end %}
                         <p>
