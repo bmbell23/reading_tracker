@@ -158,6 +158,28 @@ def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: 
         
         return d.strftime(f'%b {day}{suffix}')
 
+    def calculate_progress(start_date: Optional[date], est_end: Optional[date]) -> str:
+        """Calculate reading progress based on dates"""
+        if not start_date or not est_end:
+            return "0%"
+        
+        today = datetime.now().date()
+        
+        # If we're past the estimated end date, return 100%
+        if today >= est_end:
+            return "100%"
+        
+        # Calculate total days and days elapsed
+        total_days = (est_end - start_date).days
+        if total_days <= 0:  # Avoid division by zero
+            return "0%"
+            
+        days_elapsed = (today - start_date).days
+        
+        # Calculate percentage
+        percentage = min(100, max(0, (days_elapsed / total_days) * 100))
+        return f"{int(percentage)}%"
+
     # Parse dates
     start_date = parse_date(reading.get('date_started'))
     est_start = parse_date(reading.get('date_est_start'))
@@ -167,6 +189,11 @@ def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: 
     formatted_start = format_date_with_ordinal(start_date)
     formatted_est_start = format_date_with_ordinal(est_start)
     formatted_est_end = format_date_with_ordinal(est_end)
+    
+    # Calculate progress for current books
+    progress = "0%"
+    if is_current and start_date:
+        progress = calculate_progress(start_date, est_end)
     
     return {
         'title': reading['title'],
@@ -181,7 +208,8 @@ def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: 
         'cover_url': get_book_cover_path(reading['book_id']),
         'read_id': reading['read_id'],
         'book_id': reading['book_id'],
-        'media': reading['media']
+        'media': reading['media'],
+        'progress': progress  # New field
     }
 
 def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:

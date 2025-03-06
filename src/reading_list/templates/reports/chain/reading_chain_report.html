@@ -113,7 +113,7 @@
             border-radius: 12px;
             margin-bottom: 15px;
             position: relative;
-            min-height: 160px;  /* Increased from 155px to 160px */
+            min-height: 140px;  /* Reduced from 160px to 140px */
             transition: all 0.2s ease-in-out;
         }
 
@@ -409,6 +409,43 @@
                 margin-bottom: 15px;
             }
         }
+
+        /* Add these new CSS rules while keeping all existing CSS */
+        .progress-bar-container {
+            width: calc(100% - 50px); /* Make room for percentage */
+            height: 6px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            margin-top: auto; /* Push to bottom */
+            margin-bottom: 12px; /* Increased from 8px to 12px */
+            position: relative;
+            overflow: visible; /* Allow percentage to show outside */
+            margin-top: 16px; /* New property */
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(
+                to right,
+                #FF0080,  /* Hot pink */
+                #FF8C00,  /* Orange */
+                #40E0D0,  /* Turquoise */
+                #00FA9A   /* Spring green */
+            );
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            right: -45px; /* Position outside the bar */
+            bottom: -7px; /* Align with the bar */
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            width: 40px; /* Fixed width for percentage */
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -480,6 +517,12 @@
                         </p>
                         {% endif %}
                     </div>
+                    {% if book.is_current %}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ book.progress|default('0%') }}"></div>
+                        <div class="progress-text">{{ book.progress|default('0%') }}</div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
