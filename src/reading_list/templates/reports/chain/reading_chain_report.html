@@ -19,16 +19,11 @@
             width: 100%;
             box-sizing: border-box;
         }
-        .media-section {
-            width: 100%;
-            margin-bottom: 20px;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-        .media-title {
-            margin-top: 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eee;
+        .page-title {
+            text-align: center;
+            margin: 20px 0 30px 0;
+            font-size: 1.8em;
+            color: #333;
         }
         .book-chain {
             display: flex;
@@ -48,39 +43,31 @@
             min-height: 180px;  /* Increased to accommodate larger covers */
         }
 
-        /* Media-specific borders for ALL cards */
-        .media-section.Kindle .book-card {
+        .book-card.kindle {
             border: 3px solid #0ea5e9;
         }
 
-        .media-section.Hardcover .book-card {
+        .book-card.hardcover {
             border: 3px solid #A855F7;
         }
 
-        .media-section.Audio .book-card {
+        .book-card.audio {
             border: 3px solid #FB923C;
         }
 
-        /* Additional styling for current books */
-        .media-section.Kindle .book-card.current-book {
+        .book-card.kindle.current-book {
             border-width: 4px;
             background-color: rgba(14, 165, 233, 0.1);
         }
 
-        .media-section.Hardcover .book-card.current-book {
+        .book-card.hardcover.current-book {
             border-width: 4px;
             background-color: rgba(168, 85, 247, 0.1);
         }
 
-        .media-section.Audio .book-card.current-book {
+        .book-card.audio.current-book {
             border-width: 4px;
             background-color: rgba(251, 146, 60, 0.1);
-        }
-
-        /* Remove any conflicting styles */
-        .current-book {
-            border-color: inherit;
-            background: inherit;
         }
         .book-cover {
             width: 100px;      /* Increased from 80px */
@@ -204,46 +191,41 @@
 </head>
 <body>
     <div class="chain-container">
-        {% for media_type, books in chains.items() %}
-        <div class="media-section {{ media_type }}">
-            <h2 class="media-title" style="color: {{ media_colors[media_type].text_color }}">
-                {{ media_type }} Reading Chain
-            </h2>
-            <div class="book-chain">
-                {% for book in books %}
-                <div class="book-card {% if book.is_current %}current-book{% endif %} {% if book.is_future %}future-book{% endif %}">
-                    <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" class="book-cover">
-                    <div class="book-info">
-                        <h3 class="book-title">{{ book.title }}</h3>
-                        <p class="book-author">{{ book.author }}</p>
-                        <div class="book-dates">
-                            {% if book.date_est_start %}
-                            <p>
-                                <span class="label">Est. Start:</span>
-                                <span class="value">{{ book.date_est_start }}</span>
-                            </p>
-                            {% endif %}
-                            {% if book.date_est_end %}
-                            <p>
-                                <span class="label">Est. Finish:</span>
-                                <span class="value">{{ book.date_est_end }}</span>
-                            </p>
-                            {% endif %}
-                        </div>
-                        <div class="book-stats">
-                            {% if book.page_count %}
-                            <p class="stat"><span class="label">Pages:</span> <span class="value">{{ book.page_count }}</span></p>
-                            {% endif %}
-                            {% if book.word_count %}
-                            <p class="stat"><span class="label">Words:</span> <span class="value">{{ "{:,}".format(book.word_count) }}</span></p>
-                            {% endif %}
-                        </div>
+        <h1 class="page-title">Reading Chain</h1>
+        <div class="book-chain">
+            {% for book in books %}
+            <div class="book-card {{ book.media.lower() }} {% if book.is_current %}current-book{% endif %} {% if book.is_future %}future-book{% endif %}">
+                <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" class="book-cover">
+                <div class="book-info">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <p class="book-author">{{ book.author }}</p>
+                    <div class="book-dates">
+                        {% if book.date_est_start %}
+                        <p>
+                            <span class="label">Est. Start:</span>
+                            <span class="value">{{ book.date_est_start }}</span>
+                        </p>
+                        {% endif %}
+                        {% if book.date_est_end %}
+                        <p>
+                            <span class="label">Est. Finish:</span>
+                            <span class="value">{{ book.date_est_end }}</span>
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="book-stats">
+                        <p class="stat"><span class="label">Format:</span> <span class="value">{{ book.media }}</span></p>
+                        {% if book.page_count %}
+                        <p class="stat"><span class="label">Pages:</span> <span class="value">{{ book.page_count }}</span></p>
+                        {% endif %}
+                        {% if book.word_count %}
+                        <p class="stat"><span class="label">Words:</span> <span class="value">{{ "{:,}".format(book.word_count) }}</span></p>
+                        {% endif %}
                     </div>
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     <div class="footer">
         Generated on {{ generated_date }}

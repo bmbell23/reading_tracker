@@ -213,38 +213,23 @@ def generate_chain_report() -> None:
     """Generate the reading chain report"""
     try:
         project_paths = get_project_paths()
-        # Change the output directory to tbr
         reports_dir = project_paths['workspace'] / 'reports' / 'tbr'
         output_path = reports_dir / 'to_be_read.html'
-
-        # Create reports directory
         reports_dir.mkdir(parents=True, exist_ok=True)
         ensure_directory(reports_dir)
-
-        # Define media colors (capitalized for template)
-        media_colors = {
-            'Kindle': {'text_color': '#0ea5e9'},     # sky-500 - blue
-            'Hardcover': {'text_color': '#A855F7'},  # purple-500
-            'Audio': {'text_color': '#FB923C'}       # orange-400
-        }
 
         with SessionLocal() as session:
             # Get current readings
             current_readings = get_current_readings(session)
             
-            # Get chains for each current reading
-            chains = {}
+            # Get chains for each current reading and combine them
+            all_books = []
             for reading in current_readings:
                 chain = get_reading_chain(session, reading.read_id)
                 if chain:
-                    media_type = reading.media
-                    if media_type not in chains:
-                        chains[media_type] = []
-                    
                     # Format each book in the chain
-                    formatted_chain = []
                     for idx, book in enumerate(chain):
-                        formatted_chain.append({
+                        formatted_book = {
                             'title': book.title,
                             'author': format_author_name(book.author_name_first, book.author_name_second),
                             'date_started': format_date(book.date_started),
@@ -256,9 +241,17 @@ def generate_chain_report() -> None:
                             'is_future': idx > 0,
                             'cover_url': get_book_cover_path(book.book_id),
                             'read_id': book.read_id,
-                            'book_id': book.book_id
-                        })
-                    chains[media_type].extend(formatted_chain)
+                            'book_id': book.book_id,
+                            'media': reading.media
+                        }
+                        all_books.append(formatted_book)
+
+            # Sort books: current books first, then by estimated start date and title
+            sorted_books = sorted(all_books, key=lambda x: (
+                not x['is_current'],  # False sorts before True, so current books come first
+                x['date_est_start'] or '9999-12-31',  # Books without est_start date go last
+                x['title'].lower()  # Use title as tie-breaker
+            ))
 
             # Set up Jinja2 environment
             template_dir = project_paths['templates'] / 'reports' / 'chain'
@@ -267,9 +260,12 @@ def generate_chain_report() -> None:
 
             # Generate HTML
             html = template.render(
-                chains=chains,
-                media_colors=media_colors,
-                generated_date=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                books=sorted_books,
+                media_colors={
+                    'kindle': {'text_color': '#0ea5e9'},
+                    'hardcover': {'text_color': '#A855F7'},
+                    'audio': {'text_color': '#FB923C'}
+                }
             )
 
             # Write the report
