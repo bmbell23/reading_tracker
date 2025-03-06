@@ -69,6 +69,8 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
                 b.title,
                 b.author_name_first,
                 b.author_name_second,
+                b.word_count,
+                b.page_count,
                 0 as position
             FROM read r
             JOIN books b ON r.book_id = b.id
@@ -89,12 +91,12 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
                 b.title,
                 b.author_name_first,
                 b.author_name_second,
+                b.word_count,
+                b.page_count,
                 fw.position + 1
             FROM read r
             JOIN books b ON r.book_id = b.id
             JOIN forward fw ON r.id_previous = fw.read_id
-            -- Remove this line that limits to 10 future books
-            -- WHERE fw.position < 10  -- Limit to 10 future books
         )
         SELECT * FROM forward
         ORDER BY position;
@@ -147,6 +149,9 @@ def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: 
         'author': format_author_name(reading.author_name_first, reading.author_name_second),
         'date_started': date_started,
         'date_est_start': date_est_start,
+        'date_est_end': reading.date_est_end,
+        'word_count': reading.word_count,
+        'page_count': reading.page_count,
         'is_current': is_current,
         'is_future': is_future,
         'cover_url': get_book_cover_path(reading.book_id),
@@ -245,6 +250,8 @@ def generate_chain_report() -> None:
                             'date_started': format_date(book.date_started),
                             'date_est_start': format_date(book.date_est_start),
                             'date_est_end': format_date(book.date_est_end),
+                            'word_count': book.word_count,
+                            'page_count': book.page_count,
                             'is_current': idx == 0,
                             'is_future': idx > 0,
                             'cover_url': get_book_cover_path(book.book_id),

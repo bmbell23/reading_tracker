@@ -96,6 +96,15 @@
             color: #666;
             font-size: 0.9em;
         }
+        .book-stats {
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .book-stats .stat {
+            margin: 0;  /* Remove default paragraph margin */
+            line-height: 1.4;  /* Adjust line spacing */
+        }
     </style>
 </head>
 <body>
@@ -113,11 +122,19 @@
                         <h3 class="book-title">{{ book.title }}</h3>
                         <p class="book-author">{{ book.author }}</p>
                         <div class="book-dates">
-                            {% if book.date_started %}
-                            <p>Started: {{ book.date_started }}</p>
+                            {% if book.date_est_start %}
+                            <p>Est. Start: {{ book.date_est_start }}</p>
                             {% endif %}
                             {% if book.date_est_end %}
-                            <p>Estimated completion: {{ book.date_est_end }}</p>
+                            <p>Est. Finish: {{ book.date_est_end }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="book-stats">
+                            {% if book.page_count %}
+                            <p class="stat">{{ book.page_count }} pages</p>
+                            {% endif %}
+                            {% if book.word_count %}
+                            <p class="stat">{{ "{:,}".format(book.word_count) }} words</p>
                             {% endif %}
                         </div>
                     </div>
