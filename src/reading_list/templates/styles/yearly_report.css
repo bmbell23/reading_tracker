@@ -14,4 +14,12 @@
                     margin-bottom: 20px;
                 }
             }
+            .book-stats {
+                margin-top: 8px;
+                font-size: 0.9em;
+                color: #666;
+            }
+            .book-pages, .book-words {
+                line-height: 1.4;
+            }
         

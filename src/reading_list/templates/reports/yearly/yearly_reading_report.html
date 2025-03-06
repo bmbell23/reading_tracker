@@ -181,9 +181,14 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Reading Report {{ year }}</h1>
+        <div class="title-section">
+            <h1>My Reading Journey in {{ year }}</h1>
             <p class="intro-text">{{ intro_text }}</p>
+            <div class="title-decoration">
+                <span class="dot"></span>
+                <span class="line"></span>
+                <span class="dot"></span>
+            </div>
         </div>
 
         <div class="year-summary">
@@ -234,11 +239,15 @@
                         <div class="books-grid">
                             {% for book in month.books %}
                             <div class="book-card">
-                                <div class="book-title">{{ book.title }}</div>
-                                <div class="book-author">{{ book.author }}</div>
-                                <div class="book-stats">
-                                    <span class="pages">{{ "{:,}".format(book.pages) if book.pages else 0 }} pages</span>
-                                    <span class="words">{{ "{:,}".format(book.words) if book.words else 0 }} words</span>
+                                <div class="book-info">
+                                    <div class="book-title-container">
+                                        <h3 class="book-title">{{ book.title }}</h3>
+                                    </div>
+                                    <div class="book-author">{{ book.author }}</div>
+                                    <div class="book-stats">
+                                        <div class="book-pages">{{ "{:,}".format(book.pages) }} pages</div>
+                                        <div class="book-words">{{ "{:,}".format(book.words) }} words</div>
+                                    </div>
                                 </div>
                                 {% if book.date_finished %}
                                 <div class="book-date">Finished: {{ book.date_finished }}</div>

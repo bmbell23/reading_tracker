@@ -1,5 +1,6 @@
 """Generate yearly reading reports."""
 from datetime import datetime
+import os
 from pathlib import Path
 from typing import Optional, Dict, List
 from jinja2 import Environment, FileSystemLoader
@@ -14,7 +15,10 @@ def _get_template_env() -> Environment:
     project_paths = get_project_paths()
     workspace = project_paths['workspace']
     template_dir = workspace / 'src' / 'reading_list' / 'templates' / 'reports'
-    return Environment(loader=FileSystemLoader(str(template_dir)))
+    console.print(f"[blue]Template directory: {template_dir}[/blue]")
+    env = Environment(loader=FileSystemLoader(str(template_dir)))
+    console.print(f"[blue]Available templates: {env.list_templates()}[/blue]")
+    return env
 
 def _prepare_monthly_data(readings: List[Dict]) -> tuple:
     """Prepare monthly data for the report."""
@@ -50,7 +54,9 @@ def _prepare_monthly_data(readings: List[Dict]) -> tuple:
             'author': reading['author'],
             'status': reading.get('status', ''),
             'pages': reading['pages'],  # Add pages
-            'words': reading['words']   # Add words
+            'words': reading['words'],   # Add words
+            'pages_display': f"{reading['pages']:,} pages",  # Formatted display string
+            'words_display': f"{reading['words']:,} words"   # Formatted display string
         })
         
         # Update monthly totals
@@ -92,12 +98,11 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
             console.print(f"[yellow]No readings found for year {year}[/yellow]")
             return None
 
-        # Add debug prints
+        # Add more debug prints
         env = _get_template_env()
-        console.print(f"[blue]Loading template from: {env.loader.searchpath}[/blue]")
-        
-        # Change this line to use the correct template path
+        console.print(f"[blue]Attempting to load template: yearly/yearly_reading_report.html[/blue]")
         template = env.get_template('yearly/yearly_reading_report.html')
+        console.print(f"[blue]Template loaded successfully[/blue]")
         
         # First prepare monthly data
         months, monthly_books_data, monthly_pages_data, monthly_words_data = _prepare_monthly_data(readings)
@@ -143,8 +148,24 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
             reports_dir = project_paths['workspace'] / 'reports' / 'yearly'
             reports_dir.mkdir(parents=True, exist_ok=True)
             
+            # Set directory permissions
+            reports_dir.chmod(0o755)
+            
             output_file = reports_dir / f'reading_report_{year}.html'
+            console.print(f"[blue]Writing report to: {output_file}[/blue]")
             output_file.write_text(output)
+            
+            # Set file permissions
+            output_file.chmod(0o644)
+            
+            # Try to set group ownership to www-data (requires sudo)
+            try:
+                import pwd
+                import grp
+                www_data_gid = grp.getgrnam('www-data').gr_gid
+                os.chown(str(output_file), os.getuid(), www_data_gid)
+            except (PermissionError, KeyError) as e:
+                console.print(f"[yellow]Warning: Could not set www-data group ownership. You may need to run: sudo chown :www-data {output_file}[/yellow]")
             
             return str(output_file)
 
