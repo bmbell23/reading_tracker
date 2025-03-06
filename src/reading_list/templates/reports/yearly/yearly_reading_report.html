@@ -114,12 +114,13 @@
         }
 
         .month-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
         }
 
         .month-card {
+            width: 100%;
             background: var(--color-surface);
             padding: 1.5rem;
             border-radius: 0.75rem;
@@ -165,6 +166,20 @@
             }
         }
 
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .book-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
         /* Responsive adjustments */
         @media (max-width: 1200px) {
             .stats-grid, .charts-container {
@@ -175,6 +190,16 @@
                 max-width: 100%;
                 width: 100%;
                 margin-bottom: 20px;
+            }
+
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .books-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
