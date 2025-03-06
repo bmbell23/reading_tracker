@@ -118,11 +118,11 @@ def get_book_cover_path(book_id: int) -> str:
     covers_path = project_paths['workspace'] / 'assets' / 'book_covers'
 
     for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-        cover_path = f"assets/book_covers/{book_id}{ext}"
+        cover_path = f"../../assets/book_covers/{book_id}{ext}"
         if (covers_path / f"{book_id}{ext}").exists():
             return cover_path
 
-    return "assets/book_covers/0.jpg"
+    return "../../assets/book_covers/0.jpg"
 
 def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: bool = False) -> Dict[str, Any]:
     """Get formatted book data including cover URL"""
