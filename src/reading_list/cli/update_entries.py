@@ -107,6 +107,7 @@ class ModelHandler:
             'genre': 'Genre',
             'has_cover': 'Has Cover',
             'isbn_id': 'ISBN',
+            'page_count': 'Page Count',
             # Reading fields
             'date_started': 'Start Date (YYYY-MM-DD)',
             'date_finished': 'Finish Date (YYYY-MM-DD)',

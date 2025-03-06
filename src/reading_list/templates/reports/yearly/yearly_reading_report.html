@@ -231,6 +231,41 @@
             font-size: 0.875rem;
         }
 
+        .stat-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            background: var(--color-surface);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-pill .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-pill.books .stat-number {
+            color: var(--color-primary); /* Blue */
+        }
+
+        .stat-pill.pages .stat-number {
+            color: #f97316; /* Orange */
+        }
+
+        .stat-pill.words .stat-number {
+            color: var(--color-success); /* Green */
+        }
+
+        .stat-pill {
+            font-size: 0.875rem;
+            color: var(--color-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 1200px) {
             .stats-grid, .charts-container {
