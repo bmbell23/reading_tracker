@@ -13,7 +13,7 @@
             background: #f5f5f5;
         }
         .chain-container {
-            max-width: 1200px;
+            max-width: 700px;  /* Reduced container width */
             margin: 0 auto;
         }
         .media-section {
@@ -37,30 +37,82 @@
         .book-card {
             display: flex;
             gap: 20px;
-            padding: 15px;
+            padding: 20px;
             border: 1px solid #eee;
             border-radius: 6px;
+            width: 600px;      /* Fixed, narrower width */
+            margin: 0 auto;
+            min-height: 180px; /* Minimum height, but can expand */
         }
         .book-cover {
-            width: 100px;
+            width: 100px;      /* Slightly smaller cover */
             height: 150px;
             object-fit: cover;
             border-radius: 4px;
+            flex-shrink: 0;
         }
         .book-info {
             flex-grow: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - 120px); /* Account for cover width + gap */
         }
         .book-title {
             margin: 0 0 5px 0;
             font-size: 1.2em;
+            line-height: 1.3;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
+            /* Remove fixed line count limit to allow natural wrapping */
         }
         .book-author {
-            color: #666;
+            color: #333;  /* Darker color */
+            font-weight: 600;  /* Semi-bold */
             margin: 0 0 10px 0;
+            line-height: 1.4;
+            font-size: 1.1em;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
         .book-dates {
-            font-size: 0.9em;
+            margin-bottom: 8px;
+            font-size: 1.05em;
             color: #666;
+        }
+        .book-dates p {
+            margin: 0;
+            line-height: 1.4;
+            display: block;  /* Ensure each paragraph is on its own line */
+        }
+        .book-dates .label {
+            color: #333;
+            font-weight: 600;
+            display: inline-block;  /* Changed from inline to inline-block */
+            margin-right: 5px;  /* Add some space between label and value */
+        }
+        .book-dates .value {
+            color: #666;
+            font-weight: normal;
+        }
+        .book-stats {
+            font-size: 1.05em;
+            color: #666;
+            margin-top: auto;
+        }
+        .book-stats .stat {
+            margin: 0;
+            line-height: 1.4;
+        }
+        .book-stats .label {
+            color: #333;
+            font-weight: 600;
+            display: inline;
+        }
+        .book-stats .value {
+            color: #666;
+            font-weight: normal;
         }
         .current-book {
             border-color: inherit;
@@ -96,15 +148,6 @@
             color: #666;
             font-size: 0.9em;
         }
-        .book-stats {
-            margin-top: 8px;
-            font-size: 0.9em;
-            color: #666;
-        }
-        .book-stats .stat {
-            margin: 0;  /* Remove default paragraph margin */
-            line-height: 1.4;  /* Adjust line spacing */
-        }
     </style>
 </head>
 <body>
@@ -123,18 +166,24 @@
                         <p class="book-author">{{ book.author }}</p>
                         <div class="book-dates">
                             {% if book.date_est_start %}
-                            <p>Est. Start: {{ book.date_est_start }}</p>
+                            <p>
+                                <span class="label">Est. Start:</span>
+                                <span class="value">{{ book.date_est_start }}</span>
+                            </p>
                             {% endif %}
                             {% if book.date_est_end %}
-                            <p>Est. Finish: {{ book.date_est_end }}</p>
+                            <p>
+                                <span class="label">Est. Finish:</span>
+                                <span class="value">{{ book.date_est_end }}</span>
+                            </p>
                             {% endif %}
                         </div>
                         <div class="book-stats">
                             {% if book.page_count %}
-                            <p class="stat">{{ book.page_count }} pages</p>
+                            <p class="stat"><span class="label">Pages:</span> <span class="value">{{ book.page_count }}</span></p>
                             {% endif %}
                             {% if book.word_count %}
-                            <p class="stat">{{ "{:,}".format(book.word_count) }} words</p>
+                            <p class="stat"><span class="label">Words:</span> <span class="value">{{ "{:,}".format(book.word_count) }}</span></p>
                             {% endif %}
                         </div>
                     </div>
