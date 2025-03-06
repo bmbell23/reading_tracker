@@ -8,7 +8,7 @@ class ReadingChainService:
     def get_all_chains_with_books(self) -> List[Dict[str, Any]]:
         """Get all reading chains with their books"""
         chains = []
-        for media_type in ['Kindle', 'Hardcover', 'Audio']:
+        for media_type in ['kindle', 'hardcover', 'audio']:  # Changed to lowercase
             books = self.get_books_for_media(media_type)
             chain = {
                 'media': media_type,

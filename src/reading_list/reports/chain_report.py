@@ -173,9 +173,9 @@ def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any
     
     # Media type colors for consistent styling
     media_colors = {
-        'kindle': {'text_color': '#0ea5e9'},  # sky-500
-        'hardcover': {'text_color': '#84cc16'},  # lime-500
-        'audio': {'text_color': '#8b5cf6'}  # violet-500
+        'kindle': {'text_color': '#0ea5e9'},     # sky-500 - blue
+        'hardcover': {'text_color': '#A855F7'},  # purple-500
+        'audio': {'text_color': '#FB923C'}       # orange-400
     }
     
     # Group readings by media type
@@ -216,11 +216,11 @@ def generate_chain_report() -> None:
         reports_dir.mkdir(parents=True, exist_ok=True)
         ensure_directory(reports_dir)
 
-        # Define media colors
+        # Define media colors (capitalized for template)
         media_colors = {
-            'Kindle': {'text_color': '#0ea5e9'},  # sky-500
-            'Hardcover': {'text_color': '#84cc16'},  # lime-500
-            'Audio': {'text_color': '#8b5cf6'}  # violet-500
+            'Kindle': {'text_color': '#0ea5e9'},     # sky-500 - blue
+            'Hardcover': {'text_color': '#A855F7'},  # purple-500
+            'Audio': {'text_color': '#FB923C'}       # orange-400
         }
 
         with SessionLocal() as session:

@@ -106,6 +106,14 @@ async def tbr_manager(request: Request):
         # Get all chains with their books
         all_chains = chain_service.get_all_chains_with_books()
         
+        # Debug print to see the structure
+        print("\nChains structure:")
+        for chain in all_chains:
+            print(f"Media type: {chain['media']}")
+            print(f"Total books: {chain['total_books']}")
+            print("First book:", chain['books'][0] if chain['books'] else "No books")
+            print("-" * 50)
+        
         # Reformat the data structure to match template expectations
         chains = {
             chain['media'].lower(): {
@@ -116,6 +124,9 @@ async def tbr_manager(request: Request):
             }
             for chain in all_chains
         }
+        
+        # Debug print the final structure
+        print("\nFinal chains structure:", chains.keys())
         
         return templates.TemplateResponse(
             "tbr/tbr_manager.html",

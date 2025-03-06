@@ -23,16 +23,16 @@
             border-radius: 8px;
         }
         
-        .reading-chains {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+        .chain-container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
-        .reading-chain {
+        .media-section {
             background: white;
-            padding: 20px;
             border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
@@ -81,22 +81,44 @@
         
         .progress-bar {
             height: 4px;
-            background: var(--color-accent, #3498db);
+            background: var(--color-accent);
             border-radius: 2px;
             margin-top: 8px;
         }
         
         /* Media-specific colors */
-        .kindle { color: #3498db; }  /* Keep blue for Kindle */
-        .hardcover { color: #A855F7; }  /* Purple for hardcover */
-        .audio { color: #FB923C; }  /* Orange for audio */
+        .kindle-section .media-title { 
+            color: #0ea5e9;  /* sky-500 - blue */
+        }
         
-        .chain-stats {
-            display: flex;
-            gap: 15px;
-            margin: 10px 0;
-            font-size: 0.9em;
-            color: #666;
+        .hardcover-section .media-title { 
+            color: #A855F7;  /* purple-500 */
+        }
+        
+        .audio-section .media-title { 
+            color: #FB923C;  /* orange-400 */
+        }
+        
+        /* Current book styling based on media type */
+        .kindle-section .book-card.current-book {
+            border: 2px solid #0ea5e9;
+            background-color: rgba(14, 165, 233, 0.1);
+        }
+        
+        .hardcover-section .book-card.current-book {
+            border: 2px solid #A855F7;
+            background-color: rgba(168, 85, 247, 0.1);
+        }
+        
+        .audio-section .book-card.current-book {
+            border: 2px solid #FB923C;
+            background-color: rgba(251, 146, 60, 0.1);
+        }
+        
+        /* Remove the generic current-book style */
+        .current-book {
+            border-color: inherit;
+            background: inherit;
         }
     </style>
 </head>
@@ -114,18 +136,13 @@
         </div>
 
         <!-- Reading Chains -->
-        <div class="reading-chains">
+        <div class="chain-container">
             {% for media_type, data in chains.items() %}
-            <div class="reading-chain" data-chain-type="{{ media_type }}">
-                <h2 class="{{ media_type }}">{{ media_type|title }} Books</h2>
-                <div class="chain-stats">
-                    <span>Books: {{ data.total_books|default(0) }}</span>
-                    <span>Pages: {{ data.total_pages|default(0) }}</span>
-                    <span>Completion: {{ data.completion_rate|default(0) }}%</span>
-                </div>
-                <div class="book-list">
+            <div class="media-section {{ media_type }}-section">
+                <h2 class="media-title">{{ media_type|title }} Books</h2>
+                <div class="book-chain">
                     {% for book in data.books %}
-                    <div class="book-card {{ media_type }} {{ book.is_current and 'current' or '' }}" 
+                    <div class="book-card {{ 'current-book' if book.is_current else 'future-book' }}"
                          data-book-id="{{ book.book_id }}"
                          draggable="true">
                         <div class="book-cover">

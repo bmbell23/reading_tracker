@@ -63,8 +63,20 @@
             color: #666;
         }
         .current-book {
-            border-color: #4CAF50;
-            background: #f1f8e9;
+            border-color: inherit;
+            background: inherit;
+        }
+        .Kindle .current-book {
+            border: 2px solid #0ea5e9;
+            background-color: rgba(14, 165, 233, 0.1);
+        }
+        .Hardcover .current-book {
+            border: 2px solid #A855F7;
+            background-color: rgba(168, 85, 247, 0.1);
+        }
+        .Audio .current-book {
+            border: 2px solid #FB923C;
+            background-color: rgba(251, 146, 60, 0.1);
         }
         .future-book {
             opacity: 0.8;
@@ -80,7 +92,7 @@
 <body>
     <div class="chain-container">
         {% for media_type, books in chains.items() %}
-        <div class="media-section">
+        <div class="media-section {{ media_type }}">
             <h2 class="media-title" style="color: {{ media_colors[media_type].text_color }}">
                 {{ media_type }} Reading Chain
             </h2>
