@@ -56,7 +56,8 @@ def _prepare_monthly_data(readings: List[Dict]) -> tuple:
             'pages': reading['pages'],  # Add pages
             'words': reading['words'],   # Add words
             'pages_display': f"{reading['pages']:,} pages",  # Formatted display string
-            'words_display': f"{reading['words']:,} words"   # Formatted display string
+            'words_display': f"{reading['words']:,} words",   # Formatted display string - Added comma here
+            'cover_url': f"/assets/book_covers/{reading.get('book_id', '0')}.jpg"  # Added cover URL
         })
         
         # Update monthly totals
