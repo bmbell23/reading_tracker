@@ -3,7 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reading Chain Report</title>
+    
+    <!-- Browser tab title -->
+    <title>My GreatReads TBR</title>
+    
+    <!-- Social media sharing metadata -->
+    <meta property="og:title" content="My GreatReads TBR">
+    <meta property="og:description" content="Currently reading and upcoming books">
+    <meta property="og:type" content="website">
+    {% for book in books %}
+        {% if book.is_current %}
+            <meta property="og:image" content="https://great-reads.com{{ book.cover_url }}">
+        {% endif %}
+    {% endfor %}
+    
+    <!-- Twitter Card metadata -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="My GreatReads TBR">
+    <meta name="twitter:description" content="Currently reading and upcoming books">
+    {% for book in books %}
+        {% if book.is_current %}
+            <meta name="twitter:image" content="https://great-reads.com{{ book.cover_url }}">
+        {% endif %}
+    {% endfor %}
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
@@ -118,8 +141,29 @@
             border-radius: 12px;
             margin-bottom: 15px;
             position: relative;
-            min-height: 120px;  /* Increased from 100px to 120px */
+            min-height: 160px;  /* Increased from 120px */
+            height: fit-content; /* Ensure it grows with content */
             transition: all 0.2s ease-in-out;
+        }
+
+        /* Chrome-specific adjustments */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            .book-card {
+                min-height: 170px; /* Even taller for Chrome */
+            }
+            
+            /* Maintain mobile adjustments */
+            @media screen and (max-width: 600px) {
+                .book-card {
+                    min-height: 200px !important;
+                }
+
+                .book-card.current-book::before,
+                .book-card.future-book::before {
+                    left: 65px !important;
+                    top: 200px !important;
+                }
+            }
         }
 
         .book-info {
