@@ -17,7 +17,8 @@ from ..models.reading import Reading
 from ..models.book import Book
 from ..utils.paths import get_project_paths, find_project_root, ensure_directory
 from ..utils.permissions import fix_report_permissions
-from ..utils.progress_calculator import calculate_reading_progress  # Add this import
+from ..utils.progress_calculator import calculate_reading_progress
+from ..queries.common_queries import CommonQueries  # Fixed import path
 
 console = Console()
 
@@ -191,7 +192,8 @@ def format_book_data(reading: Dict[str, Any], is_current: bool = False, is_futur
         'read_id': reading['read_id'],
         'book_id': reading['book_id'],
         'media': reading['media'],
-        'progress': progress
+        'progress': progress,
+        'is_reread': reading.get('is_reread', False)  # Add reread flag
     }
 
 def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
@@ -244,9 +246,14 @@ def format_date(date_value):
             return date_value
     return date_value.strftime('%Y-%m-%d')
 
-def generate_chain_report() -> None:
+def generate_chain_report(args=None):
     """Generate the reading chain report"""
     try:
+        # Get reread books
+        common_queries = CommonQueries()
+        reread_books = common_queries.get_reread_books(reread_type='upcoming')
+        reread_book_ids = {reading.book_id for reading in reread_books}
+
         project_paths = get_project_paths()
         reports_dir = project_paths['workspace'] / 'reports' / 'tbr'
         output_path = reports_dir / 'to_be_read.html'
@@ -274,7 +281,8 @@ def generate_chain_report() -> None:
                             'page_count': book.page_count,
                             'book_id': book.book_id,
                             'read_id': book.read_id,
-                            'media': reading.media
+                            'media': reading.media,
+                            'is_reread': book.book_id in reread_book_ids  # Add reread flag
                         }
                         
                         formatted_book = format_book_data(raw_data, 
@@ -307,7 +315,8 @@ def generate_chain_report() -> None:
                     'kindle': {'text_color': '#0066CC'},     # Deeper Kindle blue
                     'hardcover': {'text_color': '#6B4BA3'},  # Space purple
                     'audio': {'text_color': '#FF6600'}       # Warmer Audible orange
-                }
+                },
+                reread_book_ids=reread_book_ids  # Add reread book IDs to context
             )
 
             # Write the report

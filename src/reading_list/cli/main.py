@@ -103,7 +103,7 @@ def main():
     elif args.command == "generate-tbr":
         return generate_tbr.handle_command(args)
     elif args.command == "chain-report":
-        return chain_report.main()
+        return chain_report.handle_command(args)
     elif args.command == "update-entries":
         return update_entries.main()
     elif args.command == "update-readings":

@@ -545,6 +545,33 @@
             border-radius: 10px;
             transition: width 0.3s ease;
         }
+        .book-card {
+            position: relative; /* Ensure this is here for absolute positioning */
+        }
+        
+        .reread-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .reread-icon img {
+            width: 100%;
+            height: 100%;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .reread-icon img:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -573,6 +600,11 @@
         <div class="book-chain">
             {% for book in books %}
             <div class="book-card {{ book.media.lower() }} {% if book.is_current %}current-book{% endif %} {% if book.is_future %}future-book{% endif %}">
+                {% if book.book_id in reread_book_ids %}
+                <div class="reread-icon">
+                    <img src="../../assets/icons/reread.png" alt="↺" title="This is a reread">
+                </div>
+                {% endif %}
                 <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" class="book-cover">
                 <div class="book-info">
                     <h3 class="book-title">{{ book.title }}</h3>

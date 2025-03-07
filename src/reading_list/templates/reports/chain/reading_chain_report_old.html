@@ -210,7 +210,33 @@
         .book-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
+            width: 100%;
+        }
+        .reread-icon {
+            width: 24px;
+            height: 24px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .reread-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .reread-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .reread-badge img {
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .reread-badge img:hover {
+            opacity: 1;
         }
         .book-info {
             flex-grow: 1;
@@ -335,7 +361,14 @@
                                         </div>
                                         <!-- Book info -->
                                         <div class="book-info">
-                                            <div class="book-title">{{ book.title }}</div>
+                                            <div class="book-header">
+                                                <h3 class="book-title">{{ book.title }}</h3>
+                                                {% if book.is_reread %}
+                                                <div class="reread-icon">
+                                                    <img src="../../assets/reread.png" alt="Reread indicator" title="This is a reread">
+                                                </div>
+                                                {% endif %}
+                                            </div>
                                             <div class="book-author">{{ book.author }}</div>
                                             <div class="book-dates">
                                                 <div class="date-item">
