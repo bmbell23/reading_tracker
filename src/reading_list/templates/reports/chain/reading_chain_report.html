@@ -619,7 +619,15 @@
                     {% if book.is_current %}
                     <div class="progress-bar-container">
                         <div class="progress-bar" style="width: {{ book.progress|default('0%') }}"></div>
-                        <div class="progress-text">{{ book.progress|default('0%') }}</div>
+                        <div class="progress-text">
+                            {% if book.media.lower() == 'hardcover' %}
+                                {% set progress_decimal = book.progress.replace('%', '') | float / 100 %}
+                                {% set current_page = (progress_decimal * book.page_count) | round | int %}
+                                p{{ current_page }}
+                            {% else %}
+                                {{ book.progress|default('0%') }}
+                            {% endif %}
+                        </div>
                     </div>
                     {% endif %}
                 </div>
