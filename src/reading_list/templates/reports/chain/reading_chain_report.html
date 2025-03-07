@@ -69,6 +69,12 @@
             display: flex;
             justify-content: center;
             margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding: 10px 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.1);  /* Replace box-shadow with subtle border */
         }
 
         .filter-group {
@@ -674,11 +680,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             const filterButtons = document.querySelectorAll('input[name="media-filter"]');
             const bookCards = document.querySelectorAll('.book-card');
+            const filterContainer = document.querySelector('.filter-container');
 
             filterButtons.forEach(button => {
                 button.addEventListener('change', function() {
                     const selectedMedia = this.value;
                     
+                    // Existing filter logic
                     bookCards.forEach(card => {
                         if (selectedMedia === 'all') {
                             card.style.display = 'flex';
@@ -689,6 +697,12 @@
                                 card.style.display = 'none';
                             }
                         }
+                    });
+
+                    // Scroll to the filter container itself
+                    window.scrollTo({
+                        top: 0,  // Just go to the very top since filter is sticky
+                        behavior: 'smooth'
                     });
                 });
             });
