@@ -577,18 +577,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
             z-index: 2;
         }
 
         .reread-icon img {
             width: 100%;
             height: 100%;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            object-fit: contain;
+            transition: transform 0.2s ease;
         }
 
-        .reread-icon img:hover {
-            opacity: 1;
+        .reread-icon:hover img {
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -615,14 +616,18 @@
                     <input type="radio" name="media-filter" value="audio">
                     <span class="filter-button audio">Audio</span>
                 </label>
+                <label class="filter-option">
+                    <input type="radio" name="media-filter" value="reread">
+                    <span class="filter-button reread">Rereads</span>
+                </label>
             </div>
         </div>
         <div class="book-chain">
             {% for book in books %}
             <div class="book-card {{ book.media.lower() }} {% if book.is_current %}current-book{% endif %} {% if book.is_future %}future-book{% endif %}">
                 {% if book.book_id in reread_book_ids %}
-                <div class="reread-icon">
-                    <img src="../../assets/icons/reread.png" alt="↺" title="This is a reread">
+                <div class="reread-icon" onclick="filterRereads(event)">
+                    <img src="../../assets/icons/reread.png" alt="↺" title="Click to filter rereads">
                 </div>
                 {% endif %}
                 <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" class="book-cover">
@@ -694,32 +699,41 @@
         document.addEventListener('DOMContentLoaded', function() {
             const filterButtons = document.querySelectorAll('input[name="media-filter"]');
             const bookCards = document.querySelectorAll('.book-card');
-            const filterContainer = document.querySelector('.filter-container');
 
+            function filterBooks(mediaType) {
+                // Scroll to top first
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+
+                bookCards.forEach(card => {
+                    if (mediaType === 'all') {
+                        card.style.display = 'flex';
+                    } else if (mediaType === 'reread') {
+                        // Show only books with reread icon
+                        card.style.display = card.querySelector('.reread-icon') ? 'flex' : 'none';
+                    } else {
+                        // Original media type filtering
+                        card.style.display = card.classList.contains(mediaType) ? 'flex' : 'none';
+                    }
+                });
+            }
+
+            // Handle radio button changes
             filterButtons.forEach(button => {
                 button.addEventListener('change', function() {
-                    const selectedMedia = this.value;
-                    
-                    // Existing filter logic
-                    bookCards.forEach(card => {
-                        if (selectedMedia === 'all') {
-                            card.style.display = 'flex';
-                        } else {
-                            if (card.classList.contains(selectedMedia)) {
-                                card.style.display = 'flex';
-                            } else {
-                                card.style.display = 'none';
-                            }
-                        }
-                    });
-
-                    // Scroll to the filter container itself
-                    window.scrollTo({
-                        top: 0,  // Just go to the very top since filter is sticky
-                        behavior: 'smooth'
-                    });
+                    filterBooks(this.value);
                 });
             });
+
+            // Global function for reread icon clicks
+            window.filterRereads = function(event) {
+                event.stopPropagation();
+                const rereadRadio = document.querySelector('input[value="reread"]');
+                rereadRadio.checked = true;
+                filterBooks('reread');
+            };
         });
     </script>
 </body>
