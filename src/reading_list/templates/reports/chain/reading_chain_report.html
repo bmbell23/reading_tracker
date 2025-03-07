@@ -43,12 +43,18 @@
             background: white;
         }
         .chain-container {
+            position: relative;
             max-width: 700px;
             margin: 0 auto;
-            padding: 0 10px;
+            padding: 0 60px;  /* Increase left padding to make room for home icon */
             width: 100%;
             box-sizing: border-box;
         }
+        .title-link {
+            text-decoration: none;  /* Remove underline */
+            display: block;  /* Make sure it spans full width */
+        }
+
         .page-title {
             text-align: center;
             margin: 20px 0 30px 0;
@@ -64,7 +70,13 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             color: transparent;
+            transition: opacity 0.2s ease;  /* Smooth hover effect */
         }
+
+        .title-link:hover .page-title {
+            opacity: 0.8;  /* Subtle hover effect */
+        }
+
         .filter-container {
             display: flex;
             justify-content: center;
@@ -582,7 +594,9 @@
 </head>
 <body>
     <div class="chain-container">
-        <h1 class="page-title">Current Reads and TBR</h1>
+        <a href="/" class="title-link">
+            <h1 class="page-title">Current Reads and TBR</h1>
+        </a>
         <div class="filter-container">
             <div class="filter-group">
                 <label class="filter-option">
