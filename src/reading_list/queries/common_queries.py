@@ -5,6 +5,7 @@ from ..models.book import Book
 from ..models.base import SessionLocal
 from rich.console import Console
 from typing import Optional
+from sqlalchemy import func
 
 console = Console()
 
@@ -205,3 +206,58 @@ class CommonQueries:
         except Exception as e:
             self.console.print(f"[red]Error retrieving reading details: {e}[/red]")
             return None
+
+    def get_reread_books(self, reread_type: str = 'upcoming') -> list:
+        """
+        Get list of books that are rereads.
+        
+        Args:
+            reread_type: Either 'upcoming' or 'finished'
+                - 'upcoming': Books that have been read before and are in the current chain
+                - 'finished': Books that have been completely read multiple times
+        
+        Returns:
+            List of Reading objects that are rereads
+        """
+        try:
+            if reread_type == 'upcoming':
+                # Books that have been read before and are in current chain
+                query = (
+                    self.session.query(Reading)
+                    .join(Book)
+                    .filter(
+                        Reading.date_est_end.isnot(None),
+                        Reading.date_finished_actual.is_(None),
+                        Book.id.in_(
+                            self.session.query(Reading.book_id)
+                            .filter(Reading.date_finished_actual.isnot(None))
+                            .subquery()
+                        )
+                    )
+                )
+            elif reread_type == 'finished':
+                # Books that have been completely read multiple times
+                query = (
+                    self.session.query(
+                        Reading,
+                        func.count(Reading.id).label('times_read')
+                    )
+                    .join(Book)
+                    .filter(Reading.date_finished_actual.isnot(None))
+                    .group_by(Reading.book_id)
+                    .having(func.count(Reading.id) > 1)
+                )
+            else:
+                raise ValueError("reread_type must be either 'upcoming' or 'finished'")
+            
+            results = query.all()
+            
+            if not results:
+                self.console.print(f"\n[yellow]No {reread_type} rereads found[/yellow]")
+                return []
+                
+            return results
+
+        except Exception as e:
+            self.console.print(f"\n[red]Error finding {reread_type} rereads: {e}[/red]")
+            return []

@@ -6,8 +6,9 @@ from typing import List, Tuple, Any
 from rich.console import Console
 from rich.table import Table
 from rich.style import Style
+from sqlalchemy import text, func
 from ..models.base import engine
-from sqlalchemy import text
+from ..queries.common_queries import CommonQueries
 
 console = Console()
 
@@ -27,46 +28,43 @@ class SeriesStatsService:
             'title': Style(color="blue", bold=True),
         }
 
-    def _get_queries(self, finished_only: bool) -> dict[str, str]:
-        """Get the SQL queries for series statistics."""
-        finished_condition = "AND r.date_finished_actual IS NOT NULL" if finished_only else ""
-        
+    def _get_queries(self, finished_only: bool = False, upcoming: bool = False) -> dict[str, str]:
+        """Get SQL queries for statistics."""
+        base_condition = """
+            r.date_finished_actual IS NOT NULL
+        """ if not upcoming else """
+            r.date_est_start IS NOT NULL 
+            AND r.date_est_end IS NOT NULL
+            AND r.date_finished_actual IS NULL
+        """
+
+        if finished_only and not upcoming:
+            base_condition += " AND r.date_finished_actual IS NOT NULL"
+
         return {
-            'series': f"""
-                SELECT
+            "series": f"""
+                SELECT 
                     b.series,
                     COUNT(DISTINCT b.id) as book_count,
                     SUM(b.word_count) as total_words,
-                    GROUP_CONCAT(DISTINCT b.author_name_first || ' ' || b.author_name_second) as author
+                    GROUP_CONCAT(DISTINCT COALESCE(b.author_name_first || ' ' || b.author_name_second, '')) as authors
                 FROM books b
-                INNER JOIN read r ON b.id = r.book_id
-                WHERE b.series IS NOT NULL {finished_condition}
+                JOIN read r ON r.book_id = b.id
+                WHERE b.series IS NOT NULL
+                AND {base_condition}
                 GROUP BY b.series
                 ORDER BY total_words DESC
             """,
-            'standalone': f"""
-                SELECT
+            "standalone": f"""
+                SELECT 
                     b.title,
-                    b.author_name_first || ' ' || b.author_name_second as author,
+                    COALESCE(b.author_name_first || ' ' || b.author_name_second, '') as author,
                     b.word_count
                 FROM books b
-                INNER JOIN read r ON b.id = r.book_id
-                WHERE b.series IS NULL {finished_condition}
+                JOIN read r ON r.book_id = b.id
+                WHERE b.series IS NULL
+                AND {base_condition}
                 ORDER BY b.word_count DESC
-            """,
-            'reread': f"""
-                SELECT
-                    b.title,
-                    b.author_name_first || ' ' || b.author_name_second as author,
-                    COUNT(*) as times_read,
-                    b.word_count,
-                    (COUNT(*) * b.word_count) - b.word_count as additional_words
-                FROM books b
-                INNER JOIN read r ON b.id = r.book_id
-                {f"WHERE r.date_finished_actual IS NOT NULL" if finished_only else ""}
-                GROUP BY b.id, b.title, b.author_name_first, b.author_name_second, b.word_count
-                HAVING COUNT(*) > 1
-                ORDER BY additional_words DESC
             """
         }
 
@@ -322,23 +320,55 @@ class SeriesStatsService:
 
         return csv_dir
 
-    def generate_stats(self, finished_only: bool = False, csv_output: bool = False) -> None:
+    def generate_stats(self, finished_only: bool = False, csv_output: bool = False, upcoming: bool = False) -> None:
         """
         Generate and display series statistics.
 
         Args:
             finished_only: If True, only include finished books
             csv_output: If True, also save results to CSV
+            upcoming: If True, show upcoming books instead of finished books
         """
         with engine.connect() as conn:
-            queries = self._get_queries(finished_only)
+            queries = self._get_queries(finished_only, upcoming)
             results = {
                 name: conn.execute(text(query)).fetchall()
                 for name, query in queries.items()
             }
 
+            # Get reread data using common query
+            common_queries = CommonQueries()
+            reread_results = common_queries.get_reread_books(
+                reread_type='upcoming' if upcoming else 'finished'
+            )
+            
+            # Transform reread results to match expected format
+            if upcoming:
+                results['reread'] = [
+                    (
+                        reading.book.title,
+                        f"{reading.book.author_name_first} {reading.book.author_name_second}".strip(),
+                        2,  # For upcoming, it's always 2 (1 previous + 1 upcoming)
+                        reading.book.word_count,
+                        reading.book.word_count  # For upcoming, additional words is just the word count once
+                    )
+                    for reading in reread_results
+                ]
+            else:
+                results['reread'] = [
+                    (
+                        reading[0].book.title,
+                        f"{reading[0].book.author_name_first} {reading[0].book.author_name_second}".strip(),
+                        reading[1],
+                        reading[0].book.word_count,
+                        reading[0].book.word_count * (reading[1] - 1)  # Additional words from rereads
+                    )
+                    for reading in reread_results
+                ]
+
             if csv_output:
                 output_dir = self._save_to_csv(results, finished_only)
+                status = "upcoming" if upcoming else ("finished" if finished_only else "all")
                 console.print(f"\n[blue]CSV files have been created in:[/blue] {output_dir}")
 
             # Display tables with spacing
