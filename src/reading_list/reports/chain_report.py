@@ -17,6 +17,7 @@ from ..models.reading import Reading
 from ..models.book import Book
 from ..utils.paths import get_project_paths, find_project_root, ensure_directory
 from ..utils.permissions import fix_report_permissions
+from ..utils.progress_calculator import calculate_reading_progress  # Add this import
 
 console = Console()
 
@@ -137,16 +138,14 @@ def format_date_with_ordinal(d: Optional[date]) -> str:
     
     return d.strftime(f'%b {day}{suffix}')
 
-def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: bool = False) -> Dict[str, Any]:
-    """Get formatted book data including cover URL"""
-    
-    def parse_date(date_val):
-        if isinstance(date_val, str):
-            return datetime.strptime(date_val, '%Y-%m-%d').date()
-        return date_val if date_val else None
+def format_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: bool = False) -> Dict[str, Any]:
+    """Format book data for template rendering."""
+    def parse_date(d):
+        """Parse date string to date object"""
+        return datetime.strptime(d, '%Y-%m-%d').date() if d else None
 
-    def format_date_with_ordinal(d: Optional[date]) -> str:
-        """Format date as 'MMM DDst' (e.g., 'Mar 1st')"""
+    def format_date_with_ordinal(d):
+        """Format date with ordinal suffix"""
         if not d:
             return "Not scheduled"
         
@@ -158,28 +157,6 @@ def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: 
         
         return d.strftime(f'%b {day}{suffix}')
 
-    def calculate_progress(start_date: Optional[date], est_end: Optional[date]) -> str:
-        """Calculate reading progress based on dates"""
-        if not start_date or not est_end:
-            return "0%"
-        
-        today = datetime.now().date()
-        
-        # If we're past the estimated end date, return 100%
-        if today >= est_end:
-            return "100%"
-        
-        # Calculate total days and days elapsed
-        total_days = (est_end - start_date).days
-        if total_days <= 0:  # Avoid division by zero
-            return "0%"
-            
-        days_elapsed = (today - start_date).days
-        
-        # Calculate percentage
-        percentage = min(100, max(0, (days_elapsed / total_days) * 100))
-        return f"{int(percentage)}%"
-
     # Parse dates
     start_date = parse_date(reading.get('date_started'))
     est_start = parse_date(reading.get('date_est_start'))
@@ -190,10 +167,15 @@ def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: 
     formatted_est_start = format_date_with_ordinal(est_start)
     formatted_est_end = format_date_with_ordinal(est_end)
     
-    # Calculate progress for current books
+    # Calculate progress for current books using shared calculator
     progress = "0%"
     if is_current and start_date:
-        progress = calculate_progress(start_date, est_end)
+        # Create a simple reading object with required attributes
+        reading_obj = type('Reading', (), {
+            'date_started': start_date,
+            'date_est_end': est_end
+        })
+        progress = calculate_reading_progress(reading_obj, datetime.now().date())
     
     return {
         'title': reading['title'],
@@ -209,7 +191,7 @@ def get_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: 
         'read_id': reading['read_id'],
         'book_id': reading['book_id'],
         'media': reading['media'],
-        'progress': progress  # New field
+        'progress': progress
     }
 
 def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
@@ -295,7 +277,7 @@ def generate_chain_report() -> None:
                             'media': reading.media
                         }
                         
-                        formatted_book = get_book_data(raw_data, 
+                        formatted_book = format_book_data(raw_data, 
                                                      is_current=(idx == 0), 
                                                      is_future=(idx > 0))
                         
