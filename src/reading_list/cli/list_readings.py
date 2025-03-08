@@ -27,6 +27,7 @@ def get_readings() -> List[Dict]:
                 r.date_est_start,
                 r.date_est_end,
                 b.word_count,
+                b.page_count,
                 r.days_estimate
             FROM read r
             JOIN books b ON r.book_id = b.id
@@ -52,6 +53,7 @@ def display_readings(readings: List[Dict]) -> None:
     table.add_column("Title", style="bold")
     table.add_column("Start Date", justify="center")
     table.add_column("End Date", justify="center")
+    table.add_column("Pages", justify="right")
     table.add_column("Words", justify="right")
     table.add_column("Days Est.", justify="right")
 
@@ -71,9 +73,11 @@ def display_readings(readings: List[Dict]) -> None:
         media_color = MEDIA_COLORS.get(media, 'white')
         formatted_media = f"[{media_color}]{media.title()}[/{media_color}]"
 
-        # Format word count with commas
+        # Format word count and page count with commas
         word_count = reading.get('word_count')
+        page_count = reading.get('page_count')
         formatted_words = f"{word_count:,}" if word_count else ""
+        formatted_pages = f"{page_count:,}" if page_count else ""
 
         table.add_row(
             str(reading.get('read_id', '')),
@@ -81,6 +85,7 @@ def display_readings(readings: List[Dict]) -> None:
             reading.get('title', '')[:50],
             formatted_start,
             formatted_end,
+            formatted_pages,
             formatted_words,
             str(reading.get('days_estimate', ''))
         )
