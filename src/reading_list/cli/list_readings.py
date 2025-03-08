@@ -55,7 +55,7 @@ def display_readings(readings: List[Dict]) -> None:
     table.add_column("End Date", justify="center")
     table.add_column("Pages", justify="right")
     table.add_column("Words", justify="right")
-    table.add_column("Days Est.", justify="right")
+    table.add_column("Days", justify="right")
 
     for reading in readings:
         # Determine start date (actual or estimated)

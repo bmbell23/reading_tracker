@@ -66,13 +66,15 @@ class ModelHandler:
             table.add_column("Media")
             table.add_column("Days")
             for entry in entries:
+                # Handle both SQLAlchemy models and preview objects
+                book_title = entry.book.title if hasattr(entry.book, 'title') else entry.book
                 table.add_row(
-                    str(entry.id),
-                    entry.book.title,
-                    str(entry.date_started) if entry.date_started else "Not started",
-                    str(entry.date_finished_actual) if entry.date_finished_actual else "In progress",
-                    entry.media or "Unknown",
-                    str(entry.days_elapsed_to_read) if entry.days_elapsed_to_read else "-"
+                    str(getattr(entry, 'id', '')),
+                    book_title,
+                    str(getattr(entry, 'date_started', '')) if getattr(entry, 'date_started', None) else "Not started",
+                    str(getattr(entry, 'date_finished_actual', '')) if getattr(entry, 'date_finished_actual', None) else "In progress",
+                    getattr(entry, 'media', '') or "Unknown",
+                    str(getattr(entry, 'days_elapsed_to_read', '')) if getattr(entry, 'days_elapsed_to_read', None) else "-"
                 )
         elif self.model == Inventory:
             table.add_column("ID", justify="right")
@@ -164,10 +166,12 @@ class ModelHandler:
 
         StyleConfig.console.print(f"Debug: Final update data: {data}")
 
-        if self.model == Book:
+        # Return the raw data directly for Reading model
+        if self.model == Reading:
+            return data
+        # Use editor methods for other models
+        elif self.model == Book:
             return self.editor.get_book_data(data, existing)
-        elif self.model == Reading:
-            return self.editor.get_reading_data(data, existing.book_id, existing)
         elif self.model == Inventory:
             return self.editor.get_inventory_data(data, existing.book_id, existing)
 
@@ -242,34 +246,41 @@ class DatabaseUpdater:
 
             # Get new data
             data = handler.get_input_data(is_new=False, existing=entry)
+            StyleConfig.console.print(f"\n[yellow]Debug - New data received:[/yellow] {data}")
+            
             if not data:
                 StyleConfig.console.print("No changes made", style="yellow")
                 return
 
-            # Create a temporary copy of the entry to show preview
-            preview_entry = type(entry)()
-            for attr, value in vars(entry).items():
-                if not attr.startswith('_'):  # Skip SQLAlchemy internal attributes
-                    setattr(preview_entry, attr, value)
+            # Get a fresh instance from the database
+            fresh_entry = self.session.get(type(entry), entry.id)
+            if not fresh_entry:
+                raise ValueError(f"Entry with ID {entry.id} not found")
 
-            # Apply proposed changes to preview
+            StyleConfig.console.print(f"\n[yellow]Debug - Before update:[/yellow] media={fresh_entry.media}")
+            
+            # Apply the changes
             for key, value in data.items():
                 if value is not None:
-                    setattr(preview_entry, key, value)
+                    StyleConfig.console.print(f"[yellow]Debug - Setting {key}={value}[/yellow]")
+                    setattr(fresh_entry, key, value)
 
-            # Show preview
-            StyleConfig.console.print("\n[bold cyan]Preview of Changes:[/bold cyan]")
-            handler.display_results([preview_entry])
+            StyleConfig.console.print(f"\n[yellow]Debug - After update, before commit:[/yellow] media={fresh_entry.media}")
 
-            # Confirm changes
-            if Confirm.ask("\nApply these changes?", default=False):
-                updated_entry = self.editor.update_entry(type(entry), entry.id, data)
+            try:
+                # Commit the changes
+                self.session.commit()
+                
+                # Get the updated entry and display it
+                updated_entry = self.session.get(type(entry), entry.id)
+                StyleConfig.console.print(f"\n[yellow]Debug - After commit:[/yellow] media={updated_entry.media}")
+                
                 StyleConfig.console.print("\n[bold green]Database updated successfully![/bold green]")
+                handler.display_results([updated_entry])
 
-                if isinstance(entry, Book):
-                    self._prompt_related_updates(entry.id)
-            else:
-                StyleConfig.console.print("Update cancelled", style="yellow")
+            except Exception as commit_error:
+                self.session.rollback()
+                raise Exception(f"Failed to commit changes: {str(commit_error)}")
 
         except Exception as e:
             self.session.rollback()

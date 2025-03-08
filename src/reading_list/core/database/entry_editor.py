@@ -143,7 +143,7 @@ class EntryEditor:
     def update_entry(self, model: Type, entry_id: int, data: Dict[str, Any]) -> Any:
         """Update an existing entry with validated data"""
         try:
-            # Get the entry first
+            # Get a fresh instance of the entry
             entry = self.session.get(model, entry_id)
             if not entry:
                 raise ValueError(f"No {model.__name__} entry found with ID {entry_id}")
@@ -162,19 +162,17 @@ class EntryEditor:
                     book = self.session.get(Book, entry.book_id)
                     book = self.session.merge(book)
 
-            # Begin transaction
-            with self.session.begin():
-                # Update attributes
-                for key, value in data.items():
-                    setattr(entry, key, value)
+            # Update attributes
+            for key, value in data.items():
+                setattr(entry, key, value)
 
-                # Explicitly add/merge the entry
-                entry = self.session.merge(entry)
-                
-                # Flush to ensure relationships are updated
-                self.session.flush()
-
-            # Refresh the entry to get updated data
+            # Mark as modified
+            self.session.add(entry)
+            
+            # Commit changes
+            self.session.commit()
+            
+            # Refresh to get updated data
             self.session.refresh(entry)
             
             return entry
