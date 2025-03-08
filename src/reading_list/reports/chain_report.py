@@ -22,45 +22,70 @@ from ..queries.common_queries import CommonQueries  # Fixed import path
 
 console = Console()
 
-def get_current_readings(conn) -> List[Dict[str, Any]]:
-    """Get all current readings"""
-    query = """
-        SELECT
-            r.id as read_id,
-            r.media,
-            r.date_started,
-            r.date_finished_actual,
-            b.id as book_id,
-            b.title
-        FROM read r
-        JOIN books b ON r.book_id = b.id
-        WHERE r.date_started IS NOT NULL
-        AND r.date_finished_actual IS NULL
-        ORDER BY r.media;
-    """
-    results = conn.execute(text(query)).fetchall()
-
-    # Debug output
-    console.print("\n[bold]Current Readings Found:[/bold]")
-    for r in results:
-        console.print(f"ID: {r.read_id}, Title: {r.title}, Media: {r.media}")
-        console.print(f"Started: {r.date_started}, Finished: {r.date_finished_actual}")
-
-    return results
+def get_current_readings(db) -> List[Reading]:
+    """Get all readings from the database."""
+    return db.query(Reading).filter(
+        Reading.date_started.isnot(None),
+        Reading.date_finished_actual.is_(None)
+    ).all()
 
 def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
     """
-    Get the reading chain from current reading forward
+    Get the complete reading chain (previous and next books)
     
     Args:
         conn: Database connection
         reading_id: ID of the reading to get chain for
     """
     query = """
-        WITH RECURSIVE forward AS (
-            -- Initial (current) reading
+        WITH RECURSIVE 
+        backward AS (
+            -- Initial (current) reading for backward chain
             SELECT
-                r.id as read_id,
+                r.id,  
+                r.id_previous,
+                r.book_id,
+                r.media,
+                r.date_started,
+                r.date_finished_actual,
+                r.date_est_start,
+                r.date_est_end,
+                b.title,
+                b.author_name_first,
+                b.author_name_second,
+                b.word_count,
+                b.page_count,
+                0 as position
+            FROM read r
+            JOIN books b ON r.book_id = b.id
+            WHERE r.id = :reading_id
+
+            UNION ALL
+
+            -- Previous books in chain
+            SELECT
+                r.id,
+                r.id_previous,
+                r.book_id,
+                r.media,  -- Using each reading's own media value
+                r.date_started,
+                r.date_finished_actual,
+                r.date_est_start,
+                r.date_est_end,
+                b.title,
+                b.author_name_first,
+                b.author_name_second,
+                b.word_count,
+                b.page_count,
+                bw.position - 1
+            FROM read r
+            JOIN books b ON r.book_id = b.id
+            JOIN backward bw ON r.id = bw.id_previous
+        ),
+        forward AS (
+            -- Initial (current) reading for forward chain
+            SELECT
+                r.id,  
                 r.id_previous,
                 r.book_id,
                 r.media,
@@ -82,10 +107,10 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
 
             -- Next books in chain
             SELECT
-                r.id as read_id,
+                r.id,
                 r.id_previous,
                 r.book_id,
-                r.media,
+                r.media,  -- Using each reading's own media value
                 r.date_started,
                 r.date_finished_actual,
                 r.date_est_start,
@@ -98,9 +123,13 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
                 fw.position + 1
             FROM read r
             JOIN books b ON r.book_id = b.id
-            JOIN forward fw ON r.id_previous = fw.read_id
+            JOIN forward fw ON r.id_previous = fw.id
         )
-        SELECT * FROM forward
+        SELECT * FROM (
+            SELECT * FROM backward WHERE position < 0
+            UNION ALL
+            SELECT * FROM forward
+        )
         ORDER BY position;
     """
     
@@ -160,8 +189,15 @@ def format_book_data(reading: Dict[str, Any], is_current: bool = False, is_futur
 
     # Parse dates
     start_date = parse_date(reading.get('date_started'))
+    finished_date = parse_date(reading.get('date_finished_actual'))
     est_start = parse_date(reading.get('date_est_start'))
     est_end = parse_date(reading.get('date_est_end'))
+    
+    # A book is "current" if it has a start date but no finish date
+    is_current = bool(start_date and not finished_date)
+    
+    # A book is "future" if it hasn't been started yet
+    is_future = not start_date
     
     # Format dates with ordinal suffixes
     formatted_start = format_date_with_ordinal(start_date)
@@ -186,14 +222,14 @@ def format_book_data(reading: Dict[str, Any], is_current: bool = False, is_futur
         'date_est_end': formatted_est_end,
         'word_count': reading.get('word_count'),
         'page_count': reading.get('page_count'),
-        'is_current': is_current,
-        'is_future': is_future,
+        'is_current': is_current,  # Now properly determined by start/finish dates
+        'is_future': is_future,    # Now properly determined by start date
         'cover_url': get_book_cover_path(reading['book_id']),
-        'read_id': reading['read_id'],
+        'id': reading['id'],
         'book_id': reading['book_id'],
         'media': reading['media'],
         'progress': progress,
-        'is_reread': reading.get('is_reread', False)  # Add reread flag
+        'is_reread': reading.get('is_reread', False)
     }
 
 def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
@@ -267,27 +303,26 @@ def generate_chain_report(args=None):
             # Get chains for each current reading and combine them
             all_books = []
             for reading in current_readings:
-                chain = get_reading_chain(session, reading.read_id)
+                chain = get_reading_chain(session, reading.id)
                 if chain:
-                    for idx, book in enumerate(chain):
+                    for book in chain:
                         raw_data = {
                             'title': book.title,
                             'author_name_first': book.author_name_first,
                             'author_name_second': book.author_name_second,
                             'date_started': book.date_started,
+                            'date_finished_actual': book.date_finished_actual,
                             'date_est_start': book.date_est_start,
                             'date_est_end': book.date_est_end,
                             'word_count': book.word_count,
                             'page_count': book.page_count,
                             'book_id': book.book_id,
-                            'read_id': book.read_id,
-                            'media': reading.media,
-                            'is_reread': book.book_id in reread_book_ids  # Add reread flag
+                            'id': book.id,
+                            'media': book.media,
+                            'is_reread': book.book_id in reread_book_ids
                         }
                         
-                        formatted_book = format_book_data(raw_data, 
-                                                     is_current=(idx == 0), 
-                                                     is_future=(idx > 0))
+                        formatted_book = format_book_data(raw_data)
                         
                         # Store raw dates for sorting
                         formatted_book['_sort_key'] = (
