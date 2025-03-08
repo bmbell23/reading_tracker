@@ -79,24 +79,22 @@
 
         .filter-container {
             display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            position: sticky;
-            top: 0;
-            background: #fff;
-            padding: 10px 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(0,0,0,0.1);  /* Replace box-shadow with subtle border */
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
         .filter-group {
             display: flex;
-            gap: 10px;
-            background: white;
-            padding: 4px;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+        }
+
+        .filter-option input[type="checkbox"]:checked + .filter-button,
+        .filter-option input[type="radio"]:checked + .filter-button {
+            background: var(--accent-color);
+            color: var(--text-on-accent);
         }
 
         .filter-option input[type="radio"] {
@@ -600,10 +598,19 @@
         </a>
         <div class="filter-container">
             <div class="filter-group">
+                <!-- Status filters (radio buttons) -->
                 <label class="filter-option">
-                    <input type="radio" name="media-filter" value="tbr" checked>
+                    <input type="radio" name="status-filter" value="tbr" checked>
                     <span class="filter-button">TBR</span>
                 </label>
+                <label class="filter-option">
+                    <input type="radio" name="status-filter" value="read">
+                    <span class="filter-button read">Read</span>
+                </label>
+            </div>
+            
+            <div class="filter-group">
+                <!-- Media filters (radio buttons) -->
                 <label class="filter-option">
                     <input type="radio" name="media-filter" value="kindle">
                     <span class="filter-button kindle">Kindle</span>
@@ -615,10 +622,6 @@
                 <label class="filter-option">
                     <input type="radio" name="media-filter" value="audio">
                     <span class="filter-button audio">Audio</span>
-                </label>
-                <label class="filter-option">
-                    <input type="radio" name="media-filter" value="read">
-                    <span class="filter-button read">Read</span>
                 </label>
             </div>
         </div>
@@ -697,51 +700,57 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const filterButtons = document.querySelectorAll('input[name="media-filter"]');
+            const statusFilters = document.querySelectorAll('input[name="status-filter"]');
+            const mediaFilters = document.querySelectorAll('input[name="media-filter"]');
             const bookCards = document.querySelectorAll('.book-card');
 
-            function filterBooks(mediaType) {
-                // Scroll to top first
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-
-                bookCards.forEach(card => {
-                    switch(mediaType) {
-                        case 'tbr':
-                            // Show only current and future books (those without a completion date)
-                            const isCompleted = !card.classList.contains('current-book') && 
-                                             !card.classList.contains('future-book');
-                            card.style.display = isCompleted ? 'none' : 'flex';
-                            break;
-                        
-                        case 'read':
-                            // Show only completed books (those with an end date)
-                            const isFinished = !card.classList.contains('current-book') && 
-                                             !card.classList.contains('future-book');
-                            card.style.display = isFinished ? 'flex' : 'none';
-                            break;
-                        
-                        case 'kindle':
-                        case 'hardcover':
-                        case 'audio':
-                            // Original media type filtering
-                            card.style.display = card.classList.contains(mediaType) ? 'flex' : 'none';
-                            break;
+            // Allow deselection of media filters
+            mediaFilters.forEach(radio => {
+                radio.addEventListener('click', function(e) {
+                    if (this.checked && this._previouslyChecked) {
+                        e.preventDefault();
+                        this.checked = false;
+                        applyFilters(); // Trigger filter application when unchecking
                     }
-                });
-            }
-
-            // Handle radio button changes
-            filterButtons.forEach(button => {
-                button.addEventListener('change', function() {
-                    filterBooks(this.value);
+                    this._previouslyChecked = this.checked;
                 });
             });
 
-            // Apply TBR filter by default on page load
-            filterBooks('tbr');
+            function applyFilters() {
+                const statusFilter = document.querySelector('input[name="status-filter"]:checked').value;
+                const selectedMediaFilter = document.querySelector('input[name="media-filter"]:checked');
+
+                bookCards.forEach(card => {
+                    let showByStatus = false;
+                    let showByMedia = false;
+
+                    // Status filter logic
+                    if (statusFilter === 'tbr') {
+                        showByStatus = card.classList.contains('current-book') || 
+                                     card.classList.contains('future-book');
+                    } else if (statusFilter === 'read') {
+                        showByStatus = !card.classList.contains('current-book') && 
+                                     !card.classList.contains('future-book');
+                    }
+
+                    // Media filter logic - show all if no media filter is selected
+                    if (!selectedMediaFilter) {
+                        showByMedia = true;
+                    } else {
+                        showByMedia = card.classList.contains(selectedMediaFilter.value);
+                    }
+
+                    // Show card only if it matches both filters
+                    card.style.display = (showByStatus && showByMedia) ? 'flex' : 'none';
+                });
+            }
+
+            // Handle all filter changes
+            statusFilters.forEach(radio => radio.addEventListener('change', applyFilters));
+            mediaFilters.forEach(radio => radio.addEventListener('change', applyFilters));
+
+            // Apply initial filters
+            applyFilters();
         });
     </script>
 </body>
