@@ -259,9 +259,11 @@
         .book-card::before {
             content: "";
             position: absolute;
-            left: 70px;
+            /* Account for card padding (15px) + half book cover width (100px/2) */
+            left: calc(15px + 50px);
             transform: translateX(-50%);
-            top: 170px;
+            /* Align top of badge with bottom of cover: padding (15px) + cover height (150px) */
+            top: 165px;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
@@ -369,11 +371,8 @@
             width: 100px;
             height: 150px;
             object-fit: cover;
-            border-radius: 8px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .book-info {
             flex-grow: 1;
