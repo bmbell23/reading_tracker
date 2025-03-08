@@ -601,8 +601,8 @@
         <div class="filter-container">
             <div class="filter-group">
                 <label class="filter-option">
-                    <input type="radio" name="media-filter" value="all" checked>
-                    <span class="filter-button">All</span>
+                    <input type="radio" name="media-filter" value="tbr" checked>
+                    <span class="filter-button">TBR</span>
                 </label>
                 <label class="filter-option">
                     <input type="radio" name="media-filter" value="kindle">
@@ -708,8 +708,11 @@
                 });
 
                 bookCards.forEach(card => {
-                    if (mediaType === 'all') {
-                        card.style.display = 'flex';
+                    if (mediaType === 'tbr') {
+                        // Show only current and future books (those without a completion date)
+                        const isCompleted = !card.classList.contains('current-book') && 
+                                         !card.classList.contains('future-book');
+                        card.style.display = isCompleted ? 'none' : 'flex';
                     } else if (mediaType === 'reread') {
                         // Show only books with reread icon
                         card.style.display = card.querySelector('.reread-icon') ? 'flex' : 'none';
@@ -726,6 +729,9 @@
                     filterBooks(this.value);
                 });
             });
+
+            // Apply TBR filter by default on page load
+            filterBooks('tbr');
 
             // Global function for reread icon clicks
             window.filterRereads = function(event) {
