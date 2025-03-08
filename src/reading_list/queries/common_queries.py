@@ -1,11 +1,10 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from sqlalchemy.orm import Session
 from ..models.reading import Reading
 from ..models.book import Book
 from ..models.base import SessionLocal
 from rich.console import Console
-from typing import Optional
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 console = Console()
 
@@ -260,4 +259,29 @@ class CommonQueries:
 
         except Exception as e:
             self.console.print(f"\n[red]Error finding {reread_type} rereads: {e}[/red]")
+            return []
+
+    def get_all_readings_ordered_by_start(self) -> List[Dict[str, Any]]:
+        """
+        Get all readings ordered by start date (actual or estimated)
+        Returns a list of readings with basic book info, ordered by start date
+        """
+        query = """
+            SELECT 
+                r.id,
+                r.date_started,
+                r.date_est_start,
+                b.title,
+                b.id as book_id,
+                r.media
+            FROM read r
+            JOIN books b ON r.book_id = b.id
+            ORDER BY COALESCE(date_started, date_est_start)
+        """
+        
+        try:
+            results = self.session.execute(text(query)).fetchall()
+            return [dict(row._mapping) for row in results]
+        except Exception as e:
+            self.console.print(f"\n[red]Error getting readings: {e}[/red]")
             return []

@@ -102,6 +102,15 @@ class EntryEditor:
         """Validate and process reading data"""
         validated = {'book_id': book_id}
 
+        if existing_reading:
+            # Ensure the existing reading is in the session
+            existing_reading = self.session.merge(existing_reading)
+            
+            # Get and merge the associated book
+            book = self.session.get(Book, book_id)
+            if book:
+                book = self.session.merge(book)
+
         if 'date_started' in data and data['date_started']:
             validated['date_started'] = parse_date(data['date_started'])
         if 'date_finished' in data and data['date_finished']:
@@ -110,6 +119,9 @@ class EntryEditor:
             validated['pages_read'] = int(data['pages_read']) if data['pages_read'] else 0
         if 'completed' in data:
             validated['completed'] = parse_boolean(data['completed'])
+        if 'id_previous' in data:
+            prev_id = data['id_previous']
+            validated['id_previous'] = int(prev_id) if prev_id else None
 
         return validated
 
@@ -130,16 +142,46 @@ class EntryEditor:
 
     def update_entry(self, model: Type, entry_id: int, data: Dict[str, Any]) -> Any:
         """Update an existing entry with validated data"""
-        entry = self.session.get(model, entry_id)
-        if not entry:
-            raise ValueError(f"No {model.__name__} entry found with ID {entry_id}")
+        try:
+            # Get the entry first
+            entry = self.session.get(model, entry_id)
+            if not entry:
+                raise ValueError(f"No {model.__name__} entry found with ID {entry_id}")
 
-        for key, value in data.items():
-            if value is not None:
-                setattr(entry, key, value)
+            # If this is a Reading entry and we're updating id_previous
+            if isinstance(entry, Reading) and 'id_previous' in data:
+                # Get the previous reading and book
+                prev_reading_id = int(data['id_previous'])
+                prev_reading = self.session.get(Reading, prev_reading_id)
+                if prev_reading:
+                    # Ensure both readings are in the session
+                    entry = self.session.merge(entry)
+                    prev_reading = self.session.merge(prev_reading)
+                    
+                    # Get the associated book
+                    book = self.session.get(Book, entry.book_id)
+                    book = self.session.merge(book)
 
-        self.session.commit()
-        return entry
+            # Begin transaction
+            with self.session.begin():
+                # Update attributes
+                for key, value in data.items():
+                    setattr(entry, key, value)
+
+                # Explicitly add/merge the entry
+                entry = self.session.merge(entry)
+                
+                # Flush to ensure relationships are updated
+                self.session.flush()
+
+            # Refresh the entry to get updated data
+            self.session.refresh(entry)
+            
+            return entry
+
+        except Exception as e:
+            self.session.rollback()
+            raise ValueError(f"Error updating {model.__name__}: {str(e)}")
 
     def get_related_entries(self, book_id: int) -> Dict[str, List[Any]]:
         """Get all related entries for a book"""

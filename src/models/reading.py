@@ -1,8 +1,9 @@
-from datetime import date
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, VARCHAR
+import math
+from datetime import date, timedelta
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from ..utils.constants import READING_SPEEDS, DEFAULT_WPD
 from .base import Base
+from .constants import READING_SPEEDS, DEFAULT_WPD
 
 class Reading(Base):
     __tablename__ = 'read'
@@ -42,7 +43,7 @@ class Reading(Base):
 
         media_lower = self.media.lower()
         words_per_day = READING_SPEEDS.get(media_lower, DEFAULT_WPD)
-        return int(self.book.word_count / words_per_day)
+        return math.ceil(self.book.word_count / words_per_day)
 
     def update_est_end_date(self):
         """Update the estimated end date based on start date and days estimate"""

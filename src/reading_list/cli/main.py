@@ -16,7 +16,8 @@ from . import update_entries
 from . import update_readings
 from . import chain_report
 from . import generate_tbr
-from . import generate_dashboard  # Add this import
+from . import generate_dashboard
+from . import list_readings
 
 def main():
     """Main CLI entry point."""
@@ -27,7 +28,7 @@ def main():
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     
-    # Add generate-dashboard command
+    # Register all subparsers
     dashboard_parser = subparsers.add_parser(
         "generate-dashboard",
         help="Generate the reading dashboard and chain report"
@@ -96,9 +97,14 @@ def main():
     sync_covers_parser = sync_covers.add_subparser(subparsers)
     email_report_parser = email_report.add_subparser(subparsers)
 
+    # Register list-readings command
+    list_readings_parser = list_readings.add_subparser(subparsers)
+
     args = parser.parse_args()
 
-    if args.command == "generate-dashboard":
+    if args.command == "list-readings":
+        return list_readings.handle_command(args)
+    elif args.command == "generate-dashboard":
         return generate_dashboard.main()
     elif args.command == "generate-tbr":
         return generate_tbr.handle_command(args)

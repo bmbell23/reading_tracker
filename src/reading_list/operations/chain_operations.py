@@ -11,6 +11,11 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, text
 from jinja2 import Environment, FileSystemLoader
+from rich.table import Table
+from rich.console import Console
+import math
+
+console = Console()
 
 from reading_list.models.reading import Reading
 from reading_list.models.book import Book
@@ -148,109 +153,52 @@ class ChainOperations:
             self.session.rollback()
             return False, f"Error: {str(e)}", None
 
-    def update_chain_dates(self, chain: List[Reading], start_pos: int = 0) -> None:
-        """Update estimated start and end dates for readings in a chain"""
-        for i in range(start_pos, len(chain)):
-            reading = chain[i]
-            if reading.days_estimate is not None:
-                if i == 0 or reading.date_started:
-                    start_date = reading.date_started if reading.date_started else (
-                        chain[i-1].date_est_end + timedelta(days=1) if i > 0 else reading.date_started
-                    )
-                    
-                    if start_date:
-                        old_start = reading.date_est_start
-                        old_end = reading.date_est_end
-                        new_start = start_date
-                        new_end = start_date + timedelta(days=reading.days_estimate)
-
-                        if old_start != new_start or old_end != new_end:
-                            old_date = old_start.strftime('%m/%d') if old_start else "None"
-                            print(f"Chain: {reading.book.title[:30]:30} {old_date:>5} → {new_start.strftime('%m/%d')}")
-                            reading.date_est_start = new_start
-                            reading.date_est_end = new_end
-
-    def update_media_chain_dates(self, media_type: str) -> Tuple[int, int]:
-        """
-        Update dates for all readings in a specific media type chain.
-        
-        Args:
-            media_type: Type of media (kindle, hardcover, audio)
-            
-        Returns:
-            Tuple of (updates_count, skipped_count)
-        """
+    def update_chain_dates(self, reading: Reading) -> Tuple[int, int]:
+        """Update estimated dates for a reading chain starting from the given reading"""
         updates_count = 0
         skipped_count = 0
 
-        # Get current reading (first unfinished book in the chain)
-        current = (self.session.query(Reading)
-                  .filter(Reading.media.ilike(f"%{media_type}%"))
-                  .filter(Reading.date_started <= date.today())
-                  .filter(Reading.date_finished_actual.is_(None))
-                  .first())
-
-        if not current:
-            print(f"No current {media_type} reading found")
-            return 0, 0
-
-        # Build chain from current reading
-        chain = []
-        while current:
-            chain.insert(0, current)
-            if not current.id_previous:
-                break
-            current = self.session.query(Reading).get(current.id_previous)
-
-        print(f"\nProcessing {media_type} chain ({len(chain)} books):")
-        
-        # Update dates for chain
-        for i in range(len(chain)):
-            reading = chain[i]
-            if reading.days_estimate is not None:
-                if i == 0 or reading.date_started:
-                    start_date = reading.date_started if reading.date_started else (
-                        chain[i-1].date_est_end + timedelta(days=1) if i > 0 else reading.date_started
-                    )
-                    
-                    if start_date:
-                        old_start = reading.date_est_start
-                        old_end = reading.date_est_end
-                        new_start = start_date
-                        new_end = start_date + timedelta(days=reading.days_estimate)
-
-                        if old_start != new_start or old_end != new_end:
-                            old_start_str = old_start.strftime('%m/%d/%y') if old_start else "None"
-                            old_end_str = old_end.strftime('%m/%d/%y') if old_end else "None"
-                            print(f"  {reading.book.title[:30]:30} "
-                                  f"{old_start_str:>8} → {new_start.strftime('%m/%d/%y')} | "
-                                  f"{old_end_str:>8} → {new_end.strftime('%m/%d/%y')}")
-                            reading.date_est_start = new_start
-                            reading.date_est_end = new_end
-                            updates_count += 1
+        # If this reading has a previous reading, we need its end date
+        if reading.id_previous:
+            prev_reading = self.session.get(Reading, reading.id_previous)
+            if prev_reading and prev_reading.date_est_end:
+                # Set estimated start date to day after previous reading's estimated end
+                reading.date_est_start = prev_reading.date_est_end + timedelta(days=1)
+                
+                # Calculate estimated end date based on days_estimate
+                if reading.days_estimate:
+                    reading.date_est_end = reading.date_est_start + timedelta(days=reading.days_estimate - 1)
+                    updates_count += 1
+                    print(f"Updated chain dates for: {reading.book.title[:30]:30} "
+                          f"Start: {reading.date_est_start} End: {reading.date_est_end}")
                 else:
                     skipped_count += 1
+                    print(f"Skipped {reading.book.title[:30]:30} - missing days_estimate")
+            else:
+                skipped_count += 1
+                print(f"Skipped {reading.book.title[:30]:30} - previous reading missing end date")
 
         return updates_count, skipped_count
 
     def update_all_chain_dates(self) -> Tuple[int, int]:
-        """
-        Update dates for all media type chains.
-        
-        Returns:
-            Tuple of (total_updates, total_skipped)
-        """
+        """Update estimated dates for all reading chains"""
         total_updates = 0
         total_skipped = 0
 
-        for media_type in ['kindle', 'hardcover', 'audio']:
-            updates, skipped = self.update_media_chain_dates(media_type)
+        # First, ensure all days_estimate values are up to date
+        self.update_days_estimate()
+        
+        # Get all readings that are part of chains (have a previous reading)
+        chain_readings = self.session.query(Reading).filter(Reading.id_previous.isnot(None)).all()
+        
+        for reading in chain_readings:
+            updates, skipped = self.update_chain_dates(reading)
             total_updates += updates
             total_skipped += skipped
 
-        if total_updates == 0:
-            print("\nNo chain date updates needed")
-        
+        if total_updates > 0:
+            self.session.commit()
+
         return total_updates, total_skipped
 
     def get_all_readings(self) -> List[Reading]:
@@ -271,7 +219,8 @@ class ChainOperations:
             media_lower = reading.media.lower()
             words_per_day = READING_SPEEDS.get(media_lower, DEFAULT_WPD)
             old_estimate = reading.days_estimate
-            new_estimate = int(reading.book.word_count / words_per_day)
+            # Changed from int() to math.ceil()
+            new_estimate = math.ceil(reading.book.word_count / words_per_day)
 
             if old_estimate != new_estimate:
                 old_str = str(old_estimate) if old_estimate is not None else "None"
@@ -455,3 +404,176 @@ class ChainOperations:
         
         except Exception as e:
             return f"Error generating report: {str(e)}", False
+
+    def preview_chain_updates(self) -> List[Dict]:
+        """Preview changes that would be made to chain dates"""
+        preview_changes = []
+        
+        readings = (self.session.query(Reading)
+                   .filter(Reading.date_finished_actual.is_(None))
+                   .order_by(Reading.id)
+                   .all())
+        
+        for reading in readings:
+            if not reading.days_estimate:
+                continue
+
+            # Gather additional verification data
+            base_data = {
+                'id': reading.id,
+                'title': reading.book.title,
+                'media': reading.media,
+                'word_count': reading.book.word_count,
+                'days_estimate': reading.days_estimate,
+                'current_start': reading.date_est_start,
+                'current_end': reading.date_est_end,
+            }
+
+            if reading.date_started:
+                estimated_end = reading.date_started + timedelta(days=reading.days_estimate - 1)
+                
+                if estimated_end != reading.date_est_end:
+                    preview_changes.append({
+                        **base_data,
+                        'new_start': reading.date_started,
+                        'new_end': estimated_end,
+                        'has_actual_start': True
+                    })
+            
+            elif reading.id_previous:
+                prev_reading = self.session.get(Reading, reading.id_previous)
+                if prev_reading and prev_reading.date_est_end:
+                    estimated_start = prev_reading.date_est_end + timedelta(days=1)
+                    estimated_end = estimated_start + timedelta(days=reading.days_estimate - 1)
+                    
+                    if (estimated_start != reading.date_est_start or 
+                        estimated_end != reading.date_est_end):
+                        preview_changes.append({
+                            **base_data,
+                            'new_start': estimated_start,
+                            'new_end': estimated_end,
+                            'has_actual_start': False
+                        })
+        
+        preview_changes.sort(key=lambda x: x['new_start'] or date.max)
+        return preview_changes
+
+    def display_chain_updates_preview(self, changes: List[Dict]) -> None:
+        """Display preview of chain date changes"""
+        if not changes:
+            console.print("[yellow]No chain date updates needed[/yellow]")
+            return
+
+        table = Table(title="Proposed Chain Date Updates")
+        table.add_column("ID", justify="right", style="cyan")
+        table.add_column("Media", style="magenta", width=12)
+        table.add_column("Book Title", style="blue")
+        table.add_column("Words", justify="right", style="green")
+        table.add_column("Est. Days", justify="right", style="yellow")
+        table.add_column("Current Est. Start", justify="center")
+        table.add_column("New Est. Start", justify="center")
+        table.add_column("Current Est. End", justify="center")
+        table.add_column("New Est. End", justify="center")
+
+        for change in changes:
+            # Format word count with commas
+            word_count = f"{change['word_count']:,}" if change['word_count'] else "N/A"
+            
+            current_start = str(change['current_start'] or '')
+            new_start = str(change['new_start'] or '')
+            if change.get('has_actual_start'):
+                current_start = new_start = str(change['new_start'])
+
+            table.add_row(
+                str(change['id']),
+                change['media'],
+                change['title'][:50],
+                word_count,
+                str(change['days_estimate']),
+                current_start,
+                new_start,
+                str(change['current_end'] or ''),
+                str(change['new_end'] or '')
+            )
+
+        console.print(table)
+        console.print(f"\nTotal changes: {len(changes)}")
+
+    def preview_days_estimate_updates(self) -> List[Dict]:
+        """Preview changes that would be made to days_estimate values"""
+        preview_changes = []
+        readings = self.get_all_readings()
+
+        for reading in readings:
+            if not reading.book.word_count or not reading.media:
+                continue
+
+            media_lower = reading.media.lower()
+            words_per_day = READING_SPEEDS.get(media_lower, DEFAULT_WPD)
+            old_estimate = reading.days_estimate
+            # Changed from int() to math.ceil()
+            new_estimate = math.ceil(reading.book.word_count / words_per_day)
+
+            if old_estimate != new_estimate:
+                preview_changes.append({
+                    'id': reading.id,
+                    'title': reading.book.title,
+                    'current_estimate': old_estimate,
+                    'new_estimate': new_estimate,
+                    'word_count': reading.book.word_count,
+                    'media': reading.media
+                })
+
+        return preview_changes
+
+    def display_days_estimate_preview(self, changes: List[Dict]) -> None:
+        """Display preview of days estimate changes"""
+        if not changes:
+            console.print("[yellow]No days estimate updates needed[/yellow]")
+            return
+
+        table = Table(title="Proposed Days Estimate Updates")
+        table.add_column("ID", justify="right", style="cyan")
+        table.add_column("Book Title", style="blue")
+        table.add_column("Media", style="magenta")
+        table.add_column("Word Count", justify="right", style="yellow")
+        table.add_column("Current Est.", justify="right", style="red")
+        table.add_column("New Est.", justify="right", style="green")
+
+        for change in changes:
+            table.add_row(
+                str(change['id']),
+                change['title'][:50],
+                change['media'],
+                f"{change['word_count']:,}",
+                str(change['current_estimate'] or 'None'),
+                str(change['new_estimate'])
+            )
+
+        console.print(table)
+        console.print(f"\nTotal changes: {len(changes)}")
+
+    def apply_days_estimate_updates(self, changes: List[Dict]) -> int:
+        """Apply the previewed days estimate updates"""
+        updates_count = 0
+        
+        for change in changes:
+            reading = self.session.get(Reading, change['id'])
+            if reading:
+                reading.days_estimate = change['new_estimate']
+                updates_count += 1
+
+        return updates_count
+
+    def apply_chain_updates(self, changes: List[Dict]) -> int:
+        """Apply the previewed chain date updates"""
+        updates_count = 0
+        
+        for change in changes:
+            reading = self.session.get(Reading, change['id'])
+            if reading:
+                reading.date_est_start = change['new_start']
+                reading.date_est_end = change['new_end']
+                updates_count += 1
+
+        return updates_count
