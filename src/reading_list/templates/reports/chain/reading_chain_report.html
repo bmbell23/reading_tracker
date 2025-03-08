@@ -617,8 +617,8 @@
                     <span class="filter-button audio">Audio</span>
                 </label>
                 <label class="filter-option">
-                    <input type="radio" name="media-filter" value="reread">
-                    <span class="filter-button reread">Rereads</span>
+                    <input type="radio" name="media-filter" value="read">
+                    <span class="filter-button read">Read</span>
                 </label>
             </div>
         </div>
@@ -708,17 +708,27 @@
                 });
 
                 bookCards.forEach(card => {
-                    if (mediaType === 'tbr') {
-                        // Show only current and future books (those without a completion date)
-                        const isCompleted = !card.classList.contains('current-book') && 
-                                         !card.classList.contains('future-book');
-                        card.style.display = isCompleted ? 'none' : 'flex';
-                    } else if (mediaType === 'reread') {
-                        // Show only books with reread icon
-                        card.style.display = card.querySelector('.reread-icon') ? 'flex' : 'none';
-                    } else {
-                        // Original media type filtering
-                        card.style.display = card.classList.contains(mediaType) ? 'flex' : 'none';
+                    switch(mediaType) {
+                        case 'tbr':
+                            // Show only current and future books (those without a completion date)
+                            const isCompleted = !card.classList.contains('current-book') && 
+                                             !card.classList.contains('future-book');
+                            card.style.display = isCompleted ? 'none' : 'flex';
+                            break;
+                        
+                        case 'read':
+                            // Show only completed books (those with an end date)
+                            const isFinished = !card.classList.contains('current-book') && 
+                                             !card.classList.contains('future-book');
+                            card.style.display = isFinished ? 'flex' : 'none';
+                            break;
+                        
+                        case 'kindle':
+                        case 'hardcover':
+                        case 'audio':
+                            // Original media type filtering
+                            card.style.display = card.classList.contains(mediaType) ? 'flex' : 'none';
+                            break;
                     }
                 });
             }
@@ -732,14 +742,6 @@
 
             // Apply TBR filter by default on page load
             filterBooks('tbr');
-
-            // Global function for reread icon clicks
-            window.filterRereads = function(event) {
-                event.stopPropagation();
-                const rereadRadio = document.querySelector('input[value="reread"]');
-                rereadRadio.checked = true;
-                filterBooks('reread');
-            };
         });
     </script>
 </body>
