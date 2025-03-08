@@ -340,11 +340,9 @@
         .book-card::before {
             content: "";
             position: absolute;
-            /* Account for card padding (20px) + half book cover width (100px/2) */
-            left: calc(20px + 50px);
+            left: calc(20px + 50px); /* Account for card padding (20px) + half book cover width (100px/2) */
             transform: translateX(-50%);
-            /* Align top of badge with bottom of cover: padding (20px) + cover height (150px) */
-            top: 170px;
+            top: 170px; /* Align with bottom of cover: padding (20px) + cover height (150px) */
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
@@ -391,17 +389,20 @@
             color: #FF6600;  /* Warmer Audible orange */
         }
 
-        /* Mobile adjustments */
-        @media (max-width: 600px) {
-            .book-card {
-                padding: 15px;
-                min-height: 205px; /* Keep consistent on mobile */
+        /* Mobile adjustments for ALL badge types */
+        @media screen and (max-width: 600px) {
+            .book-card::before,
+            .book-card.current-book::before,
+            .book-card.future-book::before,
+            .book-card:not(.future-book)::before {
+                left: 65px; /* Consistent positioning for all badge types */
+                top: 165px;
             }
 
-            .book-card.current-book::before,
-            .book-card.future-book::before {
-                left: 65px;
-                top: 170px;
+            /* Adjust for smaller card padding */
+            .book-card {
+                padding: 15px !important;
+                min-height: 200px !important;
             }
         }
 
