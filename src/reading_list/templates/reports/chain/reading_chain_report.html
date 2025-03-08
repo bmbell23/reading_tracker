@@ -42,12 +42,12 @@
             padding: 10px;
             background: white;
         }
+        /* Container to enforce consistent width */
         .chain-container {
-            position: relative;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 0 60px;  /* Increase left padding to make room for home icon */
             width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
             box-sizing: border-box;
         }
         .title-link {
@@ -79,16 +79,31 @@
 
         .filter-container {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 0 auto 40px auto; /* Center horizontally and add more space below */
+            width: 100%;
+            max-width: 800px; /* Or whatever width matches your book container */
         }
 
-        .filter-group {
+        .book-chain {
+            margin-top: 30px; /* Add space between filters and books */
+        }
+
+        /* Ensure the chain container itself is centered */
+        .chain-container {
             display: flex;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            background: var(--bg-secondary);
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px; /* Add some padding on the sides */
+        }
+
+  /* Ee /* Ensult filter groups eaintain their relative positioning */
+    .fil.fglter-oroupp{
+            flxplay;flx
+            gap10px
         }
 
         .filter-option input[type="checkbox"]:checked + .filter-button,
@@ -143,63 +158,59 @@
         .filter-option input[type="radio"]:checked + .filter-button.audio {
             background: #FFF7ED;
         }
+        /* Force consistent width on the book chain */
         .book-chain {
+            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 6px;  /* Reduced from default (likely 20px) to 12px */
+            align-items: center;
         }
+        /* Strict sizing for book cards */
         .book-card {
+            width: 100%;
+            max-width: 800px;
             display: flex;
             gap: 20px;
-            padding: 15px;
+            padding: 20px;
             background: white;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             margin-bottom: 15px;
             position: relative;
-            min-height: 160px;  /* Increased from 120px */
-            height: fit-content; /* Ensure it grows with content */
-            transition: all 0.2s ease-in-out;
+            min-height: 205px;
+            box-sizing: border-box;
         }
 
-        /* Chrome-specific adjustments */
-        @media screen and (-webkit-min-device-pixel-ratio:0) {
-            .book-card {
-                min-height: 170px; /* Even taller for Chrome */
-            }
-            
-            /* Maintain mobile adjustments */
-            @media screen and (max-width: 600px) {
-                .book-card {
-                    min-height: 200px !important;
-                }
-
-                .book-card.current-book::before,
-                .book-card.future-book::before {
-                    left: 65px !important;
-                    top: 200px !important;
-                }
-            }
+        .book-title {
+            margin: 0;
+            line-height: 1.3;
+            color: #111827;
+            font-weight: 600;
+            white-space: normal; /* Allow wrapping */
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%; /* Ensure it doesn't overflow its container */
         }
 
         .book-info {
             flex: 1;
+            min-width: 0; /* Prevent flex item from expanding */
             display: flex;
             flex-direction: column;
-            gap: 4px;  /* Reduced to 4px to tighten spacing between elements */
         }
 
         /* Mobile styles */
         @media screen and (max-width: 600px) {
             .chain-container .book-card {
                 padding: 15px !important;
-                min-height: 160px !important;  /* Increased from 140px to 160px */
+                min-height: 200px !important;  /* Reduced to 200px */
             }
 
             .chain-container .book-card.current-book::before,
             .chain-container .book-card.future-book::before {
                 left: 65px !important;
-                top: 160px !important;  /* Adjusted to match new height */
+                top: 165px !important;  /* Keeping badge position aligned with cover bottom */
             }
         }
 
@@ -259,11 +270,11 @@
         .book-card::before {
             content: "";
             position: absolute;
-            /* Account for card padding (15px) + half book cover width (100px/2) */
-            left: calc(15px + 50px);
+            /* Account for card padding (20px) + half book cover width (100px/2) */
+            left: calc(20px + 50px);
             transform: translateX(-50%);
-            /* Align top of badge with bottom of cover: padding (15px) + cover height (150px) */
-            top: 165px;
+            /* Align top of badge with bottom of cover: padding (20px) + cover height (150px) */
+            top: 170px;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
@@ -314,7 +325,7 @@
         @media (max-width: 600px) {
             .book-card {
                 padding: 15px;
-                min-height: 260px;  /* Increased even more to fully contain badge */
+                min-height: 205px; /* Keep consistent on mobile */
             }
 
             .book-card.current-book::before,
@@ -368,8 +379,8 @@
             opacity: 0.9;
         }
         .book-cover {
-            width: 100px;
-            height: 150px;
+            width: 100px;   /* Increased from 80px */
+            height: 150px;  /* Increased from 120px - maintaining 2:3 ratio */
             object-fit: cover;
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -595,20 +606,16 @@
             <h1 class="page-title">My GreatReads Bookshelf</h1>
         </a>
         <div class="filter-container">
+            <!-- TBR filter on left -->
             <div class="filter-group">
-                <!-- Status filters (radio buttons) -->
                 <label class="filter-option">
                     <input type="radio" name="status-filter" value="tbr" checked>
                     <span class="filter-button">TBR</span>
                 </label>
-                <label class="filter-option">
-                    <input type="radio" name="status-filter" value="read">
-                    <span class="filter-button read">Read</span>
-                </label>
             </div>
             
+            <!-- Media filters in middle -->
             <div class="filter-group">
-                <!-- Media filters (radio buttons) -->
                 <label class="filter-option">
                     <input type="radio" name="media-filter" value="kindle">
                     <span class="filter-button kindle">Kindle</span>
@@ -620,6 +627,14 @@
                 <label class="filter-option">
                     <input type="radio" name="media-filter" value="audio">
                     <span class="filter-button audio">Audio</span>
+                </label>
+            </div>
+
+            <!-- Read filter on right -->
+            <div class="filter-group">
+                <label class="filter-option">
+                    <input type="radio" name="status-filter" value="read">
+                    <span class="filter-button read">Read</span>
                 </label>
             </div>
         </div>
