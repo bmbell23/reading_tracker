@@ -255,14 +255,13 @@
             background: linear-gradient(to right, rgba(255, 102, 0, 0.03), transparent);
         }
 
-        /* Base status badge style - shared between current and future books */
-        .book-card.current-book::before,
-        .book-card.future-book::before {
+        /* Base status badge style - shared between all books */
+        .book-card::before {
             content: "";
             position: absolute;
             left: 70px;
             transform: translateX(-50%);
-            top: 170px;  /* Keep this the same as it's working well */
+            top: 170px;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
@@ -271,20 +270,20 @@
             white-space: nowrap;
         }
 
-        /* Media-specific status badge styling for current books */
-        .book-card.kindle.current-book::before {
+        /* Media-specific status badge styling for current and finished books */
+        .book-card.kindle:not(.future-book)::before {
             content: "Kindle";
             background: #EFF6FF;
             color: #0066CC;  /* Deeper Kindle blue */
         }
 
-        .book-card.hardcover.current-book::before {
+        .book-card.hardcover:not(.future-book)::before {
             content: "Hardcover";
             background: #F8F5FF;
             color: #6B4BA3;  /* Space purple */
         }
 
-        .book-card.audio.current-book::before {
+        .book-card.audio:not(.future-book)::before {
             content: "Audio";
             background: #FFF7ED;
             color: #FF6600;  /* Warmer Audible orange */
@@ -594,7 +593,7 @@
 <body>
     <div class="chain-container">
         <a href="/" class="title-link">
-            <h1 class="page-title">Current Reads and TBR</h1>
+            <h1 class="page-title">My GreatReads Bookshelf</h1>
         </a>
         <div class="filter-container">
             <div class="filter-group">
