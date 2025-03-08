@@ -77,39 +77,109 @@
             opacity: 0.8;  /* Subtle hover effect */
         }
 
+        /* Add the fade mask with even more subtle gradient */
+        .chain-container::after {
+            content: '';
+            position: fixed;
+            top: 80px; /* Start below the main title */
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.75) 0%,
+                rgba(255, 255, 255, 0.6) 40%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            pointer-events: none;
+            z-index: 90;
+        }
+
+        /* Ensure title stays on top */
+        .page-title {
+            position: relative;
+            z-index: 101;
+        }
+
+        /* Filter container with solid white background */
         .filter-container {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding: 15px 0;
+            z-index: 100;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 800px;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 20px;
-            margin: 0 auto 40px auto; /* Center horizontally and add more space below */
-            width: 100%;
-            max-width: 800px; /* Or whatever width matches your book container */
         }
 
+        /* White background that extends behind the filter container */
+        .chain-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: white;
+            z-index: 99;
+        }
+
+        /* Fade mask below filters */
+        .chain-container::after {
+            content: '';
+            position: fixed;
+            top: 50px;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 0.6) 40%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            pointer-events: none;
+            z-index: 90;
+        }
+
+        /* Add margin to book chain instead */
         .book-chain {
-            margin-top: 30px; /* Add space between filters and books */
+            margin-top: 40px;
         }
 
-        /* Ensure the chain container itself is centered */
-        .chain-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            padding: 0 20px; /* Add some padding on the sides */
+        /* Ensure filter buttons have solid background */
+        .filter-button {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            background-color: white; /* Ensure solid background */
+            position: relative; /* Create new stacking context */
+            z-index: 101; /* Above the container */
         }
 
-  /* Ee /* Ensult filter groups eaintain their relative positioning */
-    .fil.fglter-oroupp{
-            flxplay;flx
-            gap10px
+        /* Ensure proper stacking for book cards */
+        .book-card {
+            position: relative;
+            z-index: 1; /* Below the filters */
         }
 
-        .filter-option input[type="checkbox"]:checked + .filter-button,
+        /* Maintain hover effects */
+        .filter-button:hover {
+            background: #f3f4f6;
+        }
+
         .filter-option input[type="radio"]:checked + .filter-button {
-            background: var(--accent-color);
-            color: var(--text-on-accent);
+            background: #f3f4f6;
         }
 
         .filter-option input[type="radio"] {
@@ -121,7 +191,7 @@
             padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 700; /* Changed from 500 to 700 for bold */
             font-size: 0.9rem;
             transition: all 0.2s ease;
         }
@@ -717,15 +787,31 @@
             const mediaFilters = document.querySelectorAll('input[name="media-filter"]');
             const bookCards = document.querySelectorAll('.book-card');
 
+            // Add scroll to top function
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
             // Allow deselection of media filters
             mediaFilters.forEach(radio => {
                 radio.addEventListener('click', function(e) {
                     if (this.checked && this._previouslyChecked) {
                         e.preventDefault();
                         this.checked = false;
-                        applyFilters(); // Trigger filter application when unchecking
+                        applyFilters();
                     }
                     this._previouslyChecked = this.checked;
+                    scrollToTop(); // Add scroll to top on click
+                });
+            });
+
+            // Add click handler for status filters
+            statusFilters.forEach(radio => {
+                radio.addEventListener('click', function() {
+                    scrollToTop(); // Add scroll to top on click
                 });
             });
 
