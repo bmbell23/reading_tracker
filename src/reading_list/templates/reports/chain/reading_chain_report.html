@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Browser tab title -->
     <title>My GreatReads TBR</title>
-    
+
     <!-- Social media sharing metadata -->
     <meta property="og:title" content="My GreatReads TBR">
     <meta property="og:description" content="Currently reading and upcoming books">
@@ -16,7 +16,7 @@
             <meta property="og:image" content="https://great-reads.com{{ book.cover_url }}">
         {% endif %}
     {% endfor %}
-    
+
     <!-- Twitter Card metadata -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="My GreatReads TBR">
@@ -153,7 +153,7 @@
             margin-top: 40px;
         }
 
-        /* Ensure filter buttons have solid background */
+        /* Filter button base styles */
         .filter-button {
             display: inline-block;
             padding: 8px 16px;
@@ -162,9 +162,55 @@
             font-weight: 700;
             font-size: 0.9rem;
             transition: all 0.2s ease;
-            background-color: white; /* Ensure solid background */
-            position: relative; /* Create new stacking context */
-            z-index: 101; /* Above the container */
+            background-color: white;
+            position: relative;
+            z-index: 101;
+            opacity: 0.7;
+        }
+
+        /* Media-specific colors */
+        .filter-button.kindle {
+            color: #0066CC;
+        }
+
+        .filter-button.hardcover {
+            color: #6B4BA3;
+        }
+
+        .filter-button.audio {
+            color: #FF6600;
+        }
+
+        /* Checked states for media filters */
+        .filter-button[data-active="true"].kindle {
+            background: #EFF6FF;
+            opacity: 1;
+        }
+
+        .filter-button[data-active="true"].hardcover {
+            background: #F8F5FF;
+            opacity: 1;
+        }
+
+        .filter-button[data-active="true"].audio {
+            background: #FFF7ED;
+            opacity: 1;
+        }
+
+        /* General checked state */
+        .filter-button[data-active="true"] {
+            opacity: 1;
+        }
+
+        /* Hover states */
+        .filter-button:hover {
+            opacity: 1;
+            background: #f3f4f6;
+        }
+
+        /* Hide radio inputs */
+        .filter-option input[type="radio"] {
+            display: none;
         }
 
         /* Ensure proper stacking for book cards */
@@ -178,7 +224,7 @@
             background: #f3f4f6;
         }
 
-        .filter-option input[type="radio"]:checked + .filter-button {
+        .filter-button[data-active="true"] {
             background: #f3f4f6;
         }
 
@@ -200,7 +246,7 @@
             background: #f3f4f6;
         }
 
-        .filter-option input[type="radio"]:checked + .filter-button {
+        .filter-button[data-active="true"] {
             background: #f3f4f6;
         }
 
@@ -217,15 +263,15 @@
             color: #FF6600;
         }
 
-        .filter-option input[type="radio"]:checked + .filter-button.kindle {
+        .filter-button[data-active="true"].kindle {
             background: #EFF6FF;
         }
 
-        .filter-option input[type="radio"]:checked + .filter-button.hardcover {
+        .filter-button[data-active="true"].hardcover {
             background: #F8F5FF;
         }
 
-        .filter-option input[type="radio"]:checked + .filter-button.audio {
+        .filter-button[data-active="true"].audio {
             background: #FFF7ED;
         }
         /* Force consistent width on the book chain */
@@ -416,7 +462,7 @@
         .book-card.kindle {
             border-left: 4px solid #0066CC;  /* Deeper Kindle blue */
         }
-        
+
         .book-card.kindle.current-book {
             border-color: #0066CC;  /* Deeper Kindle blue */
             background: linear-gradient(to right, rgba(0, 102, 204, 0.03), transparent);
@@ -644,7 +690,7 @@
         .book-card {
             position: relative; /* Ensure this is here for absolute positioning */
         }
-        
+
         .reread-icon {
             position: absolute;
             right: 15px;
@@ -684,7 +730,7 @@
                     <span class="filter-button">TBR</span>
                 </label>
             </div>
-            
+
             <!-- Media filters in middle -->
             <div class="filter-group">
                 <label class="filter-option">
@@ -798,14 +844,29 @@
 
             // Allow deselection of media filters
             mediaFilters.forEach(radio => {
+                radio._wasChecked = false;
+
                 radio.addEventListener('click', function(e) {
-                    if (this.checked && this._previouslyChecked) {
+                    // If this radio was already checked, uncheck it
+                    if (this._wasChecked) {
                         e.preventDefault();
                         this.checked = false;
-                        applyFilters();
+                        this._wasChecked = false;
+                        // Remove active state from button
+                        this.nextElementSibling.dataset.active = "false";
+                    } else {
+                        // Update the previous state for all radios
+                        mediaFilters.forEach(r => {
+                            r._wasChecked = false;
+                            // Remove active state from all buttons
+                            r.nextElementSibling.dataset.active = "false";
+                        });
+                        this._wasChecked = true;
+                        // Add active state to selected button
+                        this.nextElementSibling.dataset.active = "true";
                     }
-                    this._previouslyChecked = this.checked;
-                    scrollToTop(); // Add scroll to top on click
+                    applyFilters();
+                    scrollToTop();
                 });
             });
 
@@ -826,10 +887,10 @@
 
                     // Status filter logic
                     if (statusFilter === 'tbr') {
-                        showByStatus = card.classList.contains('current-book') || 
+                        showByStatus = card.classList.contains('current-book') ||
                                      card.classList.contains('future-book');
                     } else if (statusFilter === 'read') {
-                        showByStatus = !card.classList.contains('current-book') && 
+                        showByStatus = !card.classList.contains('current-book') &&
                                      !card.classList.contains('future-book');
                     }
 
