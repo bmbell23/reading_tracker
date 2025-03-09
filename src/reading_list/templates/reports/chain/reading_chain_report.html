@@ -715,6 +715,21 @@
         .reread-icon:hover img {
             transform: scale(1.1);
         }
+
+        /* Add styles for status filter buttons */
+        .filter-button[data-active="true"] {
+            background: #f3f4f6;
+            opacity: 1;
+        }
+
+        /* You might want specific colors for TBR/Read buttons when active */
+        .filter-button[data-active="true"].read {
+            background: #dcfce7; /* Light green background */
+        }
+
+        .filter-button[data-active="true"].tbr {
+            background: #dbeafe; /* Light blue background */
+        }
     </style>
 </head>
 <body>
@@ -842,27 +857,22 @@
                 });
             }
 
-            // Allow deselection of media filters
+            // Handle media filters
             mediaFilters.forEach(radio => {
                 radio._wasChecked = false;
 
                 radio.addEventListener('click', function(e) {
-                    // If this radio was already checked, uncheck it
                     if (this._wasChecked) {
                         e.preventDefault();
                         this.checked = false;
                         this._wasChecked = false;
-                        // Remove active state from button
                         this.nextElementSibling.dataset.active = "false";
                     } else {
-                        // Update the previous state for all radios
                         mediaFilters.forEach(r => {
                             r._wasChecked = false;
-                            // Remove active state from all buttons
                             r.nextElementSibling.dataset.active = "false";
                         });
                         this._wasChecked = true;
-                        // Add active state to selected button
                         this.nextElementSibling.dataset.active = "true";
                     }
                     applyFilters();
@@ -870,11 +880,21 @@
                 });
             });
 
-            // Add click handler for status filters
+            // Handle status filters (TBR/Read)
             statusFilters.forEach(radio => {
-                radio.addEventListener('click', function() {
-                    scrollToTop(); // Add scroll to top on click
+                radio.addEventListener('change', function() {
+                    // Update visual state for all status filters
+                    statusFilters.forEach(r => {
+                        r.nextElementSibling.dataset.active = r.checked ? "true" : "false";
+                    });
+                    applyFilters();
+                    scrollToTop();
                 });
+            });
+
+            // Set initial active states
+            statusFilters.forEach(radio => {
+                radio.nextElementSibling.dataset.active = radio.checked ? "true" : "false";
             });
 
             function applyFilters() {
@@ -906,11 +926,7 @@
                 });
             }
 
-            // Handle all filter changes
-            statusFilters.forEach(radio => radio.addEventListener('change', applyFilters));
-            mediaFilters.forEach(radio => radio.addEventListener('change', applyFilters));
-
-            // Apply initial filters
+            // Initial filter application
             applyFilters();
         });
     </script>
