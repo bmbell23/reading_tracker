@@ -852,7 +852,58 @@
         document.addEventListener('DOMContentLoaded', function() {
             const statusFilters = document.querySelectorAll('input[name="status-filter"]');
             const mediaFilters = document.querySelectorAll('input[name="media-filter"]');
+            const bookChain = document.querySelector('.book-chain');
             const bookCards = document.querySelectorAll('.book-card');
+
+            // Function to sort book cards
+            function sortBookCards(reverse = false) {
+                // Convert to array and create a new array to avoid reference issues
+                const cards = Array.from(bookCards);
+
+                // Sort the array
+                cards.sort((a, b) => {
+                    const aDate = getDateFromCard(a);
+                    const bDate = getDateFromCard(b);
+
+                    if (reverse) {
+                        return aDate.getTime() - bDate.getTime();  // For 'read' filter: oldest first in array
+                    } else {
+                        return aDate.getTime() - bDate.getTime();  // For 'tbr' filter: oldest first in array
+                    }
+                });
+
+                // Remove all existing cards first
+                const container = bookChain;
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
+                }
+
+                // Create a document fragment for better performance
+                const fragment = document.createDocumentFragment();
+
+                if (reverse) {
+                    // For 'read' filter: append in reverse to get newest at top
+                    for (let i = cards.length - 1; i >= 0; i--) {
+                        fragment.appendChild(cards[i].cloneNode(true));
+                    }
+                } else {
+                    // For 'tbr' filter: append normally to get oldest at top
+                    cards.forEach(card => fragment.appendChild(card.cloneNode(true)));
+                }
+
+                // Append all cards at once
+                container.appendChild(fragment);
+            }
+
+            // Helper function to extract date from card
+            function getDateFromCard(card) {
+                // Always get the first date (start date or est. start date)
+                const dateStr = card.querySelector('.book-dates .value').textContent;
+
+                // Parse the date string or return a far future date if invalid
+                const parsedDate = new Date(dateStr);
+                return isNaN(parsedDate.getTime()) ? new Date('9999-12-31') : parsedDate;
+            }
 
             // Add scroll to top function
             function scrollToTop() {
@@ -892,7 +943,16 @@
                     statusFilters.forEach(r => {
                         r.nextElementSibling.dataset.active = r.checked ? "true" : "false";
                     });
+
+                    // Sort based on filter
+                    const isReadFilter = this.value === 'read';
+
+                    // Apply filters first
                     applyFilters();
+
+                    // Then sort the visible cards
+                    sortBookCards(isReadFilter);
+
                     scrollToTop();
                 });
             });
@@ -901,6 +961,9 @@
             statusFilters.forEach(radio => {
                 radio.nextElementSibling.dataset.active = radio.checked ? "true" : "false";
             });
+
+            // Initial sort (oldest to newest for default TBR view)
+            sortBookCards(false);
 
             function applyFilters() {
                 const statusFilter = document.querySelector('input[name="status-filter"]:checked').value;
@@ -928,6 +991,15 @@
 
                     // Show card only if it matches both filters
                     card.style.display = (showByStatus && showByMedia) ? 'flex' : 'none';
+                });
+            }
+
+            // Initial filter application
+            applyFilters();
+        });
+    </script>
+</body>
+</html>
                 });
             }
 

@@ -32,16 +32,11 @@ def get_current_readings(db) -> List[Reading]:
 def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
     """
     Get the complete reading chain (previous and next books)
-
-    Args:
-        conn: Database connection
-        reading_id: ID of the reading to get chain for
     """
     query = """
-        WITH RECURSIVE
-        backward AS (
-            -- Initial (current) reading for backward chain
-            SELECT
+        WITH RECURSIVE chain AS (
+            -- Initial (current) reading
+            SELECT DISTINCT
                 r.id,
                 r.id_previous,
                 r.book_id,
@@ -55,36 +50,16 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
                 b.author_name_second,
                 b.word_count,
                 b.page_count,
-                0 as position
+                0 as position,
+                cast(r.id as text) as path  -- Track the path as string
             FROM read r
             JOIN books b ON r.book_id = b.id
             WHERE r.id = :reading_id
 
-            UNION ALL
+            UNION
 
-            -- Previous books in chain
-            SELECT
-                r.id,
-                r.id_previous,
-                r.book_id,
-                r.media,  -- Using each reading's own media value
-                r.date_started,
-                r.date_finished_actual,
-                r.date_est_start,
-                r.date_est_end,
-                b.title,
-                b.author_name_first,
-                b.author_name_second,
-                b.word_count,
-                b.page_count,
-                bw.position - 1
-            FROM read r
-            JOIN books b ON r.book_id = b.id
-            JOIN backward bw ON r.id = bw.id_previous
-        ),
-        forward AS (
-            -- Initial (current) reading for forward chain
-            SELECT
+            -- Previous books
+            SELECT DISTINCT
                 r.id,
                 r.id_previous,
                 r.book_id,
@@ -98,19 +73,21 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
                 b.author_name_second,
                 b.word_count,
                 b.page_count,
-                0 as position
+                c.position - 1,
+                c.path || ',' || cast(r.id as text)  -- Extend path as comma-separated string
             FROM read r
             JOIN books b ON r.book_id = b.id
-            WHERE r.id = :reading_id
+            JOIN chain c ON r.id = c.id_previous
+            WHERE c.path NOT LIKE '%' || cast(r.id as text) || '%'  -- Check path string for cycles
 
-            UNION ALL
+            UNION
 
-            -- Next books in chain
-            SELECT
+            -- Next books
+            SELECT DISTINCT
                 r.id,
                 r.id_previous,
                 r.book_id,
-                r.media,  -- Using each reading's own media value
+                r.media,
                 r.date_started,
                 r.date_finished_actual,
                 r.date_est_start,
@@ -120,16 +97,29 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
                 b.author_name_second,
                 b.word_count,
                 b.page_count,
-                fw.position + 1
+                c.position + 1,
+                c.path || ',' || cast(r.id as text)  -- Extend path as comma-separated string
             FROM read r
             JOIN books b ON r.book_id = b.id
-            JOIN forward fw ON r.id_previous = fw.id
+            JOIN chain c ON c.id = r.id_previous
+            WHERE c.path NOT LIKE '%' || cast(r.id as text) || '%'  -- Check path string for cycles
         )
-        SELECT * FROM (
-            SELECT * FROM backward WHERE position < 0
-            UNION ALL
-            SELECT * FROM forward
-        )
+        SELECT DISTINCT
+            id,
+            id_previous,
+            book_id,
+            media,
+            date_started,
+            date_finished_actual,
+            date_est_start,
+            date_est_end,
+            title,
+            author_name_first,
+            author_name_second,
+            word_count,
+            page_count,
+            position
+        FROM chain
         ORDER BY position;
     """
 
@@ -295,12 +285,29 @@ def generate_chain_report(args=None):
             # Get current readings
             current_readings = get_current_readings(session)
 
+            # Debug: Print current readings
+            print("Current readings:")
+            for r in current_readings:
+                print(f"Reading ID: {r.id}, Book ID: {r.book_id}")
+
             # Get chains for each current reading and combine them
             all_books = []
+            seen_reading_ids = set()  # Track unique reading IDs
+
             for reading in current_readings:
                 chain = get_reading_chain(session, reading.id)
                 if chain:
                     for book in chain:
+                        # Debug: Print each book being added
+                        print(f"Processing: Reading ID: {book.id}, Book ID: {book.book_id}, Title: {book.title}")
+
+                        # Check for duplicates
+                        if book.id in seen_reading_ids:
+                            print(f"WARNING: Duplicate reading ID found: {book.id}")
+                            continue
+
+                        seen_reading_ids.add(book.id)
+
                         raw_data = {
                             'title': book.title,
                             'author_name_first': book.author_name_first,
@@ -318,16 +325,16 @@ def generate_chain_report(args=None):
                         }
 
                         formatted_book = process_reading_data(raw_data)
-
-                        # Store raw dates for sorting
                         formatted_book['_sort_key'] = (
-                            # Use actual start date if available, otherwise estimated start date
                             book.date_started or book.date_est_start or datetime.max.date(),
-                            # Secondary sort by title
                             book.title.lower()
                         )
-
                         all_books.append(formatted_book)
+
+            # Debug: Print final list
+            print("\nFinal book list:")
+            for book in all_books:
+                print(f"Reading ID: {book['id']}, Title: {book['title']}")
 
             # Sort all books by date (actual start date prioritized over estimated start date)
             sorted_books = sorted(all_books, key=lambda x: x['_sort_key'])
