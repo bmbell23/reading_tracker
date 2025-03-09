@@ -20,16 +20,16 @@ class ReadingStats:
 
 class ReadingAnalytics:
     """Core analytics class for reading statistics and visualizations"""
-    
+
     def __init__(self):
         self.session = SessionLocal()
 
     def get_reading_summary(self, year: Optional[int] = None) -> Dict:
         """Get overall reading statistics"""
         where_clause = f"WHERE strftime('%Y', r.date_finished_actual) = '{year}'" if year else ""
-        
+
         query = f"""
-            SELECT 
+            SELECT
                 COUNT(DISTINCT r.book_id) as total_books,
                 SUM(b.word_count) as total_words,
                 SUM(b.page_count) as total_pages,
@@ -41,7 +41,7 @@ class ReadingAnalytics:
         """
         with self.session.connect() as conn:
             result = conn.execute(text(query)).fetchone()
-            
+
         return {
             'total_books': result[0],
             'total_words': result[1],
@@ -53,7 +53,7 @@ class ReadingAnalytics:
     def get_reading_trends(self) -> "pd.DataFrame":
         """Get monthly reading trends"""
         query = """
-            SELECT 
+            SELECT
                 strftime('%Y-%m', r.date_finished_actual) as month,
                 COUNT(DISTINCT r.book_id) as books_read,
                 SUM(b.word_count) as words_read,
@@ -157,14 +157,14 @@ class ReadingAnalytics:
 
 class AuthorAnalytics:
     """Analytics specific to author statistics"""
-    
+
     def __init__(self):
         self.session = SessionLocal()  # Use SessionLocal instead of engine directly
 
     def get_top_authors(self, limit: int = 10) -> pd.DataFrame:
         """Get most read authors by book count and word count"""
         query = """
-            SELECT 
+            SELECT
                 b.author_name_first || ' ' || b.author_name_second as author,
                 COUNT(DISTINCT r.book_id) as books_read,
                 SUM(b.word_count) as total_words,
@@ -179,14 +179,14 @@ class AuthorAnalytics:
 
 class SeriesAnalytics:
     """Analytics specific to book series"""
-    
+
     def __init__(self):
         self.session = SessionLocal()  # Use SessionLocal instead of engine directly
 
     def get_series_completion(self) -> pd.DataFrame:
         """Get completion status of different series"""
         query = """
-            SELECT 
+            SELECT
                 b.series,
                 COUNT(DISTINCT b.id) as total_books,
                 COUNT(DISTINCT r.book_id) as books_read,
@@ -201,16 +201,16 @@ class SeriesAnalytics:
 
 class TimeAnalytics:
     """Analytics for time-based reading patterns"""
-    
+
     def __init__(self):
         self.engine = engine
 
     def get_reading_velocity(self, window: str = 'monthly') -> pd.DataFrame:
         """Get reading velocity (books/words per time period)"""
         group_by = "strftime('%Y-%m', r.date_finished_actual)" if window == 'monthly' else "strftime('%Y', r.date_finished_actual)"
-        
+
         query = f"""
-            SELECT 
+            SELECT
                 {group_by} as period,
                 COUNT(DISTINCT r.book_id) / COUNT(DISTINCT strftime('%Y-%m-%d', r.date_finished_actual)) as books_per_day,
                 SUM(b.word_count) / COUNT(DISTINCT strftime('%Y-%m-%d', r.date_finished_actual)) as words_per_day
@@ -223,7 +223,7 @@ class TimeAnalytics:
 
 class ReportAnalytics:
     """Analytics specifically for generating reading reports"""
-    
+
     def __init__(self):
         self.session = SessionLocal()
         self.month_names = [
@@ -238,9 +238,9 @@ class ReportAnalytics:
             where_clause += " AND r.date_finished_actual IS NOT NULL"
         elif estimated_only:
             where_clause += " AND r.date_finished_actual IS NULL"
-        
+
         query = f"""
-            SELECT 
+            SELECT
                 strftime('%m', COALESCE(r.date_finished_actual, r.date_est_end)) as month,
                 b.id as book_id,
                 b.title,
@@ -250,7 +250,7 @@ class ReportAnalytics:
                 r.media as format,
                 date(r.date_started) as start_date,
                 date(r.date_finished_actual) as end_date,
-                CASE 
+                CASE
                     WHEN r.date_finished_actual IS NOT NULL THEN 'completed'
                     ELSE 'projected'
                 END as status
@@ -259,10 +259,10 @@ class ReportAnalytics:
             {where_clause}
             ORDER BY COALESCE(r.date_finished_actual, r.date_est_end)
         """
-        
+
         result = self.session.execute(text(query), {"year": str(year)})
         readings = []
-        
+
         for row in result.fetchall():  # Use fetchall() to get all rows at once
             reading_dict = {
                 'month': int(row.month) if row.month else 0,
@@ -277,7 +277,7 @@ class ReportAnalytics:
                 'status': row.status
             }
             readings.append(reading_dict)
-        
+
         return readings
 
     def get_projected_readings(self, year: int) -> List[Dict[str, Any]]:
@@ -321,11 +321,11 @@ class ReportAnalytics:
 
         # Track unique books per month to avoid double counting
         seen_books = set()
-        
+
         for reading in readings:
             month = int(reading['month'])
             book_id = reading['book_id']
-            
+
             # Only count each book once per month
             month_key = (month, book_id)
             if month_key not in seen_books:
@@ -342,19 +342,19 @@ class ReportAnalytics:
         cumulative_books = []
         cumulative_words = []
         cumulative_pages = []
-        
+
         running_books = running_words = running_pages = 0
-        
+
         for month in range(1, 13):
             if month in months_data:
                 running_books += months_data[month]['total_books']
                 running_words += months_data[month]['total_words']
                 running_pages += months_data[month]['total_pages']
-            
+
             cumulative_books.append(running_books)
             cumulative_words.append(running_words)
             cumulative_pages.append(running_pages)
-        
+
         return cumulative_books, cumulative_words, cumulative_pages
 
     def get_reading_stats(self, start_date: date, end_date: date) -> ReadingStats:
@@ -362,15 +362,15 @@ class ReportAnalytics:
         Calculate reading statistics for a given date range.
         """
         readings = self._get_readings_in_range(start_date, end_date)
-        
+
         total_books = len(readings)
         total_pages = sum(r['pages'] or 0 for r in readings)
         total_words = sum(r['words'] or 0 for r in readings)
-        
+
         days = (end_date - start_date).days + 1
         avg_pages = total_pages / days if days > 0 else 0
         avg_words = total_words / days if days > 0 else 0
-        
+
         completed_books = len([r for r in readings if r['completed']])
         completion_rate = (completed_books / total_books) if total_books > 0 else 0
 
@@ -437,14 +437,14 @@ class ReportAnalytics:
 
         remaining_pages = book.pages - (reading.pages_read or 0)
         days_remaining = remaining_pages / current_pace
-        
+
         return date.today() + timedelta(days=days_remaining)
 
     def _get_projected_completion_month(self, reading: Dict) -> Optional[int]:
         """Get the month number (1-12) when a reading is projected to complete."""
         if reading['completed']:
             return reading['end_date'].month if reading['end_date'] else None
-        
+
         est_end = reading['est_end']
         return est_end.month if est_end else None
 

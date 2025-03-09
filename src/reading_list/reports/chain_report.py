@@ -32,17 +32,17 @@ def get_current_readings(db) -> List[Reading]:
 def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
     """
     Get the complete reading chain (previous and next books)
-    
+
     Args:
         conn: Database connection
         reading_id: ID of the reading to get chain for
     """
     query = """
-        WITH RECURSIVE 
+        WITH RECURSIVE
         backward AS (
             -- Initial (current) reading for backward chain
             SELECT
-                r.id,  
+                r.id,
                 r.id_previous,
                 r.book_id,
                 r.media,
@@ -85,7 +85,7 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
         forward AS (
             -- Initial (current) reading for forward chain
             SELECT
-                r.id,  
+                r.id,
                 r.id_previous,
                 r.book_id,
                 r.media,
@@ -132,7 +132,7 @@ def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
         )
         ORDER BY position;
     """
-    
+
     results = conn.execute(text(query), {"reading_id": reading_id}).fetchall()
     return results
 
@@ -156,74 +156,69 @@ def get_book_cover_path(book_id: int) -> str:
     return "../../assets/book_covers/0.jpg"
 
 def format_date_with_ordinal(d: Optional[date]) -> str:
-    """Format date as 'MMM DDst' (e.g., 'Mar 1st')"""
+    """
+    Format date as 'MMM DDst' (e.g., 'Mar 1st') or 'MMM DDst, YYYY' if not current year
+    """
     if not d:
         return "Not scheduled"
-    
+
+    current_year = datetime.now().year
+
     day = d.day
     if 10 <= day % 100 <= 20:
         suffix = 'th'
     else:
         suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
-    
-    return d.strftime(f'%b {day}{suffix}')
 
-def format_book_data(reading: Dict[str, Any], is_current: bool = False, is_future: bool = False) -> Dict[str, Any]:
-    """Format book data for template rendering."""
+    if d.year == current_year:
+        return d.strftime(f'%b {day}{suffix}')
+    else:
+        return d.strftime(f'%b {day}{suffix}, %Y')
+
+def process_reading_data(reading):
+    """Process reading data for template rendering"""
     def parse_date(d):
         """Parse date string to date object"""
         return datetime.strptime(d, '%Y-%m-%d').date() if d else None
-
-    def format_date_with_ordinal(d):
-        """Format date with ordinal suffix"""
-        if not d:
-            return "Not scheduled"
-        
-        day = d.day
-        if 10 <= day % 100 <= 20:
-            suffix = 'th'
-        else:
-            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
-        
-        return d.strftime(f'%b {day}{suffix}')
 
     # Parse dates
     start_date = parse_date(reading.get('date_started'))
     finished_date = parse_date(reading.get('date_finished_actual'))
     est_start = parse_date(reading.get('date_est_start'))
     est_end = parse_date(reading.get('date_est_end'))
-    
+
     # A book is "current" if it has a start date but no finish date
     is_current = bool(start_date and not finished_date)
-    
+
     # A book is "future" if it hasn't been started yet
     is_future = not start_date
-    
-    # Format dates with ordinal suffixes
+
+    # Format dates with ordinal suffixes using the module-level function
     formatted_start = format_date_with_ordinal(start_date)
+    formatted_finish = format_date_with_ordinal(finished_date)
     formatted_est_start = format_date_with_ordinal(est_start)
     formatted_est_end = format_date_with_ordinal(est_end)
-    
+
     # Calculate progress for current books using shared calculator
     progress = "0%"
     if is_current and start_date:
-        # Create a simple reading object with required attributes
         reading_obj = type('Reading', (), {
             'date_started': start_date,
             'date_est_end': est_end
         })
         progress = calculate_reading_progress(reading_obj, datetime.now().date())
-    
+
     return {
         'title': reading['title'],
         'author': format_author_name(reading['author_name_first'], reading['author_name_second']),
         'date_started': formatted_start,
+        'date_finished_actual': formatted_finish,
         'date_est_start': formatted_est_start,
         'date_est_end': formatted_est_end,
         'word_count': reading.get('word_count'),
         'page_count': reading.get('page_count'),
-        'is_current': is_current,  # Now properly determined by start/finish dates
-        'is_future': is_future,    # Now properly determined by start date
+        'is_current': is_current,
+        'is_future': is_future,
         'cover_url': get_book_cover_path(reading['book_id']),
         'id': reading['id'],
         'book_id': reading['book_id'],
@@ -235,10 +230,10 @@ def format_book_data(reading: Dict[str, Any], is_current: bool = False, is_futur
 def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
     """
     Organize readings into chains by media type.
-    
+
     Args:
         readings: List of reading records from database
-        
+
     Returns:
         Dictionary of media types containing their reading chains
     """
@@ -248,14 +243,14 @@ def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any
         'hardcover': {'chain': []},
         'audio': {'chain': []}
     }
-    
+
     # Media type colors for consistent styling
     media_colors = {
         'kindle': {'text_color': '#0066CC'},     # Deeper Kindle blue
         'hardcover': {'text_color': '#6B4BA3'},  # Space purple
         'audio': {'text_color': '#FF6600'}       # Warmer Audible orange
     }
-    
+
     # Group readings by media type
     for reading in readings:
         if reading.media in chains:
@@ -268,7 +263,7 @@ def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any
                 'media': reading.media
             }
             chains[reading.media]['chain'].append(reading_data)
-    
+
     return chains
 
 def format_date(date_value):
@@ -299,7 +294,7 @@ def generate_chain_report(args=None):
         with SessionLocal() as session:
             # Get current readings
             current_readings = get_current_readings(session)
-            
+
             # Get chains for each current reading and combine them
             all_books = []
             for reading in current_readings:
@@ -321,9 +316,9 @@ def generate_chain_report(args=None):
                             'media': book.media,
                             'is_reread': book.book_id in reread_book_ids
                         }
-                        
-                        formatted_book = format_book_data(raw_data)
-                        
+
+                        formatted_book = process_reading_data(raw_data)
+
                         # Store raw dates for sorting
                         formatted_book['_sort_key'] = (
                             # Use actual start date if available, otherwise estimated start date
@@ -331,7 +326,7 @@ def generate_chain_report(args=None):
                             # Secondary sort by title
                             book.title.lower()
                         )
-                        
+
                         all_books.append(formatted_book)
 
             # Sort all books by date (actual start date prioritized over estimated start date)

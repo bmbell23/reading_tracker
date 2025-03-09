@@ -788,23 +788,28 @@
                                 <span class="label">Started:</span>
                                 <span class="value">{{ book.date_started }}</span>
                             </p>
-                            {% if book.date_est_end %}
-                            <p class="stat">
-                                <span class="label">Finish:</span>
-                                <span class="value">{{ book.date_est_end }}</span>
-                            </p>
-                            {% endif %}
-                        {% else %}
-                            <p class="stat">
-                                <span class="label">Est. Start:</span>
-                                <span class="value">{{ book.date_est_start }}</span>
-                            </p>
-                            {% if book.date_est_end %}
                             <p class="stat">
                                 <span class="label">Est. Finish:</span>
                                 <span class="value">{{ book.date_est_end }}</span>
                             </p>
-                            {% endif %}
+                        {% elif book.is_future %}
+                            <p class="stat">
+                                <span class="label">Est. Start:</span>
+                                <span class="value">{{ book.date_est_start }}</span>
+                            </p>
+                            <p class="stat">
+                                <span class="label">Est. Finish:</span>
+                                <span class="value">{{ book.date_est_end }}</span>
+                            </p>
+                        {% else %}
+                            <p class="stat">
+                                <span class="label">Started:</span>
+                                <span class="value">{{ book.date_started }}</span>
+                            </p>
+                            <p class="stat">
+                                <span class="label">Finished:</span>
+                                <span class="value">{{ book.date_finished_actual }}</span>
+                            </p>
                         {% endif %}
                     </div>
                     <div class="book-stats">
