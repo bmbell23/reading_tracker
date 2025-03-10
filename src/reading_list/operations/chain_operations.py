@@ -103,36 +103,32 @@ class ChainOperations:
             if not target_reading:
                 return False, f"Target reading {target_id} not found", None
 
-            # Get original chain state
-            chain_info = {'original': self._get_chain_state(reading_to_move, target_reading)}
+            # Get chain states before changes
+            chain_state = self._get_chain_state(reading_to_move, target_reading)
 
-            # Find readings that need to be updated
-            pointing_to_moving = (self.session.query(Reading)
-                                .filter(Reading.id_previous == reading_to_move.id)
-                                .first())
+            # Perform the actual reorder
+            # 1. Update the reading that previously pointed to our moving reading
+            if reading_to_move.id_previous:
+                previous_reading = self.session.get(Reading, reading_to_move.id_previous)
+                next_after_moving = self.session.query(Reading).filter(Reading.id_previous == reading_to_move.id).first()
+                if previous_reading and next_after_moving:
+                    next_after_moving.id_previous = previous_reading.id
 
-            target_next = (self.session.query(Reading)
-                          .filter(Reading.id_previous == target_reading.id)
-                          .first())
+            # 2. Update the reading that was pointing to our target's next reading
+            next_after_target = self.session.query(Reading).filter(Reading.id_previous == target_reading.id).first()
+            if next_after_target:
+                next_after_target.id_previous = reading_to_move.id
 
-            # Store the original previous ID of the reading we're moving
-            original_previous = reading_to_move.id_previous
+            # 3. Update our moving reading to point to target's previous next reading
+            reading_to_move.id_previous = target_reading.id
 
-            # Step 1: Update the reading that was pointing to our moving reading
-            # to point to the original previous of the moving reading
-            if pointing_to_moving:
-                pointing_to_moving.id_previous = original_previous
-
-            # Step 2: Update the reading that was after the target
-            # to point to our moving reading
-            if target_next:
-                target_next.id_previous = reading_id
-
-            # Step 3: Move our reading after the target
-            reading_to_move.id_previous = target_id
-
-            # Get new chain state
-            chain_info['new'] = self._get_chain_state(reading_to_move, target_reading)
+            # Get chain states after changes
+            new_chain_state = self._get_chain_state(reading_to_move, target_reading)
+            
+            chain_info = {
+                'original': chain_state['original'],
+                'new': new_chain_state['new']
+            }
 
             return True, "Chain reorder prepared", chain_info
 
@@ -764,118 +760,81 @@ class ChainOperations:
             raise
 
     def _get_chain_state(self, reading: Reading, target: Reading) -> Dict:
-        """Get the current state of chain segments around a reading and target."""
+        """Get the state of chains before and after reordering"""
+        CONTEXT_SIZE = 2  # Number of books to show before/after the focus point
+        
         try:
-            # For original state, get the chain segments as they currently exist
-            if not hasattr(self, '_original_state'):
-                self._original_state = {
-                    'source': {
-                        'segment': [self._format_reading(r) for r in self.get_chain_window(reading)]
-                    },
-                    'target': {
-                        'segment': [self._format_reading(r) for r in self.get_chain_window(target)]
-                    }
-                }
-                return self._original_state
-
-            # For new state, show both modified chains
-            source_chain = []
-            target_chain = []
-
-            # Build source chain (original chain with reading removed)
-            # First, get 2 books before where the reading was
-            if reading.id_previous:
-                current = self.session.get(Reading, reading.id_previous)
-                for _ in range(2):
-                    if current and current.id_previous:
+            # Helper function to get N previous readings
+            def get_previous_n(start_reading: Reading, n: int) -> List[Reading]:
+                result = []
+                current = start_reading
+                for _ in range(n):
+                    if current.id_previous:
                         prev = self.session.get(Reading, current.id_previous)
                         if prev:
-                            source_chain.insert(0, self._format_reading({
-                                'read_id': prev.id,
-                                'title': prev.book.title,
-                                'media': prev.media,
-                                'chain': {'previous_id': prev.id_previous}
-                            }))
+                            result.append(prev)
                             current = prev
+                return list(reversed(result))  # Return in chronological order
 
-            # Add the book that was immediately before our moved reading
-            if reading.id_previous:
-                prev = self.session.get(Reading, reading.id_previous)
-                if prev:
-                    source_chain.append(self._format_reading({
-                        'read_id': prev.id,
-                        'title': prev.book.title,
-                        'media': prev.media,
-                        'chain': {'previous_id': prev.id_previous}
-                    }))
-
-            # Get the reading that was pointing to our moved reading
-            pointing_to_moving = self.session.query(Reading).filter(Reading.id_previous == reading.id).first()
-            if pointing_to_moving:
-                # Show the chain after the moved reading, now connected to the reading's original previous
-                current = pointing_to_moving
-                source_chain.append(self._format_reading({
-                    'read_id': current.id,
-                    'title': current.book.title,
-                    'media': current.media,
-                    'chain': {'previous_id': reading.id_previous}
-                }))
-
-                # Add two more readings after
-                for _ in range(2):
-                    next_reading = self.session.query(Reading).filter(Reading.id_previous == current.id).first()
-                    if next_reading:
-                        source_chain.append(self._format_reading({
-                            'read_id': next_reading.id,
-                            'title': next_reading.book.title,
-                            'media': next_reading.media,
-                            'chain': {'previous_id': next_reading.id_previous}
-                        }))
+            # Helper function to get N next readings
+            def get_next_n(start_reading: Reading, n: int, exclude_id: int = None) -> List[Reading]:
+                result = []
+                current = start_reading
+                for _ in range(n):
+                    next_reading = self.session.query(Reading).filter(
+                        Reading.id_previous == current.id
+                    ).first()
+                    if next_reading and next_reading.id != exclude_id:
+                        result.append(next_reading)
                         current = next_reading
+                    else:
+                        break
+                return result
 
-            # Build target chain
-            current = target
-            for _ in range(2):  # Get 2 books before
-                if current.id_previous:
-                    prev = self.session.get(Reading, current.id_previous)
-                    if prev:
-                        target_chain.insert(0, self._format_reading({
-                            'read_id': prev.id,
-                            'title': prev.book.title,
-                            'media': prev.media,
-                            'chain': {'previous_id': prev.id_previous}
-                        }))
-                        current = prev
+            # Format reading for display
+            def format_reading(r: Reading) -> Dict:
+                return {
+                    'id': r.id,
+                    'title': r.book.title,
+                    'media': r.media,
+                    'chain': {'previous_id': r.id_previous}
+                }
 
-            # Add target
-            target_chain.append(self._format_reading({
-                'read_id': target.id,
-                'title': target.book.title,
-                'media': target.media,
-                'chain': {'previous_id': target.id_previous}
-            }))
+            # Build chain states
+            original_source = (
+                get_previous_n(reading, CONTEXT_SIZE) +  # 2 books before
+                [reading] +                              # The book being moved
+                get_next_n(reading, CONTEXT_SIZE)        # 2 books after
+            )
+            
+            original_target = (
+                get_previous_n(target, CONTEXT_SIZE) +   # 2 books before
+                [target] +                               # The target book
+                get_next_n(target, CONTEXT_SIZE)         # 2 books after
+            )
 
-            # Add moved reading
-            target_chain.append(self._format_reading({
-                'read_id': reading.id,
-                'title': reading.book.title,
-                'media': reading.media,
-                'chain': {'previous_id': target.id}
-            }))
+            # Build new source chain segment (with reading removed)
+            prev_readings = get_previous_n(reading, CONTEXT_SIZE)
+            next_readings = get_next_n(reading, CONTEXT_SIZE, exclude_id=reading.id)
+            new_source = prev_readings + next_readings
 
-            # Add next reading in target chain
-            next_in_target = self.session.query(Reading).filter(Reading.id_previous == target.id).first()
-            if next_in_target and next_in_target.id != reading.id:
-                target_chain.append(self._format_reading({
-                    'read_id': next_in_target.id,
-                    'title': next_in_target.book.title,
-                    'media': next_in_target.media,
-                    'chain': {'previous_id': reading.id}
-                }))
+            # Build new target chain segment (with reading inserted)
+            new_target = (
+                get_previous_n(target, CONTEXT_SIZE) +   # 2 books before
+                [target] +                               # Target book
+                [reading] +                              # Inserted book
+                get_next_n(target, CONTEXT_SIZE)         # 2 books after
+            )
 
             return {
-                'source': {'segment': source_chain},
-                'target': {'segment': target_chain}
+                'original': {
+                    'source': {'segment': [format_reading(r) for r in original_source]},
+                    'target': {'segment': [format_reading(r) for r in original_target]}
+                },
+                'new': {
+                    'source': {'segment': [format_reading(r) for r in new_source]},
+                    'target': {'segment': [format_reading(r) for r in new_target]}
+                }
             }
 
         except Exception as e:

@@ -12,19 +12,36 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 import subprocess
 from ..operations.chain_operations import ChainOperations
+from ..models.reading import Reading
 from .display_utils import display_chain_changes
 
 console = Console()
 
-def update_chain_data():
+def update_chain_data(reading_id: int):
     """Update all reading calculations and generate new chain report"""
     try:
-        # Update all reading calculations
-        subprocess.run(["reading-list", "update-readings", "--all"], check=True)
+        # Update reading calculations
+        result = subprocess.run(
+            ["reading-list", "update-readings", 
+             "--all",  # Update all calculations
+             "--no-confirm"], 
+            check=False,
+            capture_output=True,
+            text=True
+        )
+        
+        if result.returncode != 0:
+            # Only show error if it's not the "no changes needed" case
+            if "No changes needed" not in result.stdout:
+                console.print(f"[yellow]Warning: Reading updates completed with status: {result.returncode}[/yellow]")
+                if result.stderr:
+                    console.print(f"[dim]{result.stderr}[/dim]")
+
         # Generate new chain report
         subprocess.run(["reading-list", "chain-report"], check=True)
+        
     except subprocess.CalledProcessError as e:
-        console.print(f"[red]Error updating chain data: {str(e)}[/red]")
+        console.print(f"[red]Error generating chain report: {str(e)}[/red]")
 
 def main(args=None):
     """Main function for reordering reading chains."""
@@ -58,7 +75,7 @@ def main(args=None):
         if Confirm.ask("\nDo you want to save these changes?"):
             chain_ops.session.commit()
             console.print("[green]Chains updated successfully![/green]")
-            update_chain_data()  # Replace old TBR generator with new chain updates
+            update_chain_data(reading_id)  # Pass reading_id to update correct chain
         else:
             chain_ops.session.rollback()
             console.print("[yellow]Changes discarded[/yellow]")
