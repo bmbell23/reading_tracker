@@ -691,6 +691,7 @@
             position: relative; /* Ensure this is here for absolute positioning */
         }
 
+        /* Commenting out reread icon styles for now
         .reread-icon {
             position: absolute;
             right: 15px;
@@ -715,6 +716,7 @@
         .reread-icon:hover img {
             transform: scale(1.1);
         }
+        */
 
         /* Add styles for status filter buttons */
         .filter-button[data-active="true"] {
@@ -810,11 +812,13 @@
                     <div><span>Read:</span> <strong>{{ book.id }}</strong></div>
                     <div><span>Book:</span> <strong>{{ book.book_id }}</strong></div>
                 </div>
+                {# Commenting out reread icon for now
                 {% if book.book_id in reread_book_ids %}
                 <div class="reread-icon" onclick="filterRereads(event)">
                     <img src="../../assets/icons/reread.png" alt="↺" title="Click to filter rereads">
                 </div>
                 {% endif %}
+                #}
                 <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" class="book-cover">
                 <div class="book-info">
                     <h3 class="book-title">{{ book.title }}</h3>
