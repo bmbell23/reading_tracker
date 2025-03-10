@@ -110,6 +110,13 @@ class ChainOperations:
             # Get chain states before changes
             chain_state = self._get_chain_state(reading_to_move, target_reading)
 
+            # Store original media type for chain state display
+            original_media = reading_to_move.media
+
+            # Update media type if moving between different media chains
+            if target_reading.media != reading_to_move.media:
+                reading_to_move.media = target_reading.media
+
             # Perform the actual reorder
             # 1. Update the reading that previously pointed to our moving reading
             if reading_to_move.id_previous:
@@ -120,14 +127,22 @@ class ChainOperations:
 
             # 2. Update the reading that was pointing to our target's next reading
             next_after_target = self.session.query(Reading).filter(Reading.id_previous == target_reading.id).first()
-            if next_after_target and next_after_target.id != reading_to_move.id:  # Add this check
+            if next_after_target and next_after_target.id != reading_to_move.id:
                 next_after_target.id_previous = reading_to_move.id
 
             # 3. Update our moving reading to point to target's previous next reading
             reading_to_move.id_previous = target_reading.id
 
-            # Get chain states after changes
+            # Get chain states after changes, but use original media for the "before" state
             new_chain_state = self._get_chain_state(reading_to_move, target_reading)
+            chain_state['original']['source']['segment'] = [
+                {**book, 'media': original_media if book['id'] == reading_id else book['media']}
+                for book in chain_state['original']['source']['segment']
+            ]
+            chain_state['original']['target']['segment'] = [
+                {**book, 'media': original_media if book['id'] == reading_id else book['media']}
+                for book in chain_state['original']['target']['segment']
+            ]
             
             chain_info = {
                 'original': chain_state['original'],
