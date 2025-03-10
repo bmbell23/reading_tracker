@@ -5,7 +5,7 @@ Chain Operations
 Core functionality for manipulating reading chains and managing chain-related operations.
 """
 
-from typing import List, Tuple, Optional, Dict
+from typing import List, Tuple, Optional, Dict, Any
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from sqlalchemy.orm import Session
@@ -88,108 +88,55 @@ class ChainOperations:
             else:
                 reading.id_previous = chain[i-1].id
 
-    def reorder_reading_chain(self, reading_id: int, target_id: int) -> Tuple[bool, str, Optional[dict]]:
-        """Reorder a reading in the chain by moving it after the target reading."""
+    def reorder_reading_chain(self, reading_id: int, target_id: int) -> Tuple[bool, str, Dict]:
+        """
+        Reorder a reading chain by moving a reading after a target reading
+
+        Args:
+            reading_id: ID of the reading to move
+            target_id: ID of the reading to place the moved reading after
+    
+        Returns:
+            Tuple of (success, message, chain_info)
+        """
         try:
-            # First verify both readings exist
+            # Get the reading to move and its subsequent reading
             reading_to_move = self.session.get(Reading, reading_id)
-            target_reading = self.session.get(Reading, target_id)
-            
             if not reading_to_move:
-                return False, f"Reading with ID {reading_id} not found", None
+                return False, f"Reading {reading_id} not found", None
+
+            # Get the target reading
+            target_reading = self.session.get(Reading, target_id)
             if not target_reading:
-                return False, f"Target reading with ID {target_id} not found", None
+                return False, f"Target reading {target_id} not found", None
 
-            def get_media_color(media: str) -> str:
-                """Get color code for media type."""
-                media_lower = media.lower()
-                if media_lower == 'audio':
-                    return 'orange1'
-                elif media_lower == 'hardcover':
-                    return 'purple'
-                elif media_lower == 'kindle':
-                    return 'blue'
-                return 'white'
+            # Store original state for preview
+            original_state = self._get_chain_state(reading_to_move, target_reading)
 
-            def format_chain_entry(reading: Reading) -> str:
-                """Format a single chain entry with ID, media, and title."""
-                media_color = get_media_color(reading.media)
-                return f"ID: {reading.id:3} - [[{media_color}]{reading.media:8}[/{media_color}]] {reading.book.title} (Previous: {reading.id_previous})"
+            # Get the reading that follows the reading being moved
+            next_after_moving = self.session.query(Reading).filter(Reading.id_previous == reading_id).first()
 
-            # Store original media type
-            original_media = reading_to_move.media
-            media_change_msg = ""
+            # Get the reading that currently follows the target
+            next_after_target = self.session.query(Reading).filter(Reading.id_previous == target_id).first()
 
-            # Get readings that point to our reading_to_move
-            next_readings = (self.session.query(Reading)
-                            .filter(Reading.id_previous == reading_id)
-                            .all())
+            # Step 1: Fix the gap where we're removing the reading
+            if next_after_moving:
+                next_after_moving.id_previous = reading_to_move.id_previous
+
+            # Step 2: Insert the reading after the target
+            reading_to_move.id_previous = target_id
             
-            # Get both complete chains
-            chain_1 = self.queries.get_reading_chain(reading_id)
-            chain_2 = self.queries.get_reading_chain(target_id)
+            # Step 3: Update what was after the target to point to our moved reading
+            if next_after_target:
+                next_after_target.id_previous = reading_id
 
-            # Find positions in chains
-            pos_A = next(i for i, r in enumerate(chain_1) if r.id == reading_id)
-            pos_B = next(i for i, r in enumerate(chain_2) if r.id == target_id)
+            # Store new state for preview
+            new_state = self._get_chain_state(reading_to_move, target_reading)
 
-            # Get segments for display with window size 2
-            chain_A_before, chain_A_after = self.get_chain_segment(chain_1, pos_A, window=2)
-            chain_B_before, chain_B_after = self.get_chain_segment(chain_2, pos_B, window=2)
-
-            # Store original state with formatted entries BEFORE changing media type
-            original_state = {
-                'source': {
-                    'segment': [format_chain_entry(r) for r in (chain_A_before + [reading_to_move] + chain_A_after)]
-                },
-                'target': {
-                    'segment': [format_chain_entry(r) for r in (chain_B_before + [target_reading] + chain_B_after)]
-                }
-            }
-
-            # Now check and update media type if needed
-            if reading_to_move.media != target_reading.media:
-                reading_to_move.media = target_reading.media
-                media_change_msg = f"\n[yellow]Note:[/yellow] Media type will change from [[{get_media_color(original_media)}]{original_media}[/{get_media_color(original_media)}]] to [[{get_media_color(target_reading.media)}]{target_reading.media}[/{get_media_color(target_reading.media)}]]"
-
-            original_state['media_change_msg'] = media_change_msg
-
-            # Update chain references
-            if next_readings:
-                # If our reading has next readings, update their previous references
-                for next_reading in next_readings:
-                    next_reading.id_previous = reading_to_move.id_previous
-
-            # Update the moving reading's references
-            reading_to_move.id_previous = target_reading.id
-
-            # Find any reading that was pointing to target_reading
-            next_after_target = (self.session.query(Reading)
-                                .filter(Reading.id_previous == target_reading.id)
-                                .first())
-            if next_after_target and next_after_target.id != reading_id:
-                next_after_target.id_previous = reading_to_move.id
-
-            # Get new chain and segments for display
-            new_chain = self.queries.get_reading_chain(target_id)
-            pos_new = next(i for i, r in enumerate(new_chain) if r.id == target_id)
-            chain_new_before, chain_new_after = self.get_chain_segment(new_chain, pos_new, window=2)
-
-            # Get new state with formatted entries
-            new_state = {
-                'source': {
-                    'segment': [format_chain_entry(r) for r in (chain_A_before + chain_A_after)]
-                },
-                'target': {
-                    'segment': [format_chain_entry(r) for r in (
-                        chain_new_before + [target_reading, reading_to_move] + chain_new_after)]
-                }
-            }
-
-            return True, "Chain reorder prepared successfully", {
+            return True, "Chain reorder completed successfully", {
                 'original': original_state,
                 'new': new_state,
-                'session': self.session
+                'session': self.session  # Include the session in the return value
             }
 
         except Exception as e:
@@ -620,3 +567,95 @@ class ChainOperations:
                 updates_count += 1
 
         return updates_count
+
+    def _get_chain_state(self, reading: Reading, target: Reading, window: int = 2) -> Dict:
+        """
+        Get the current state of chain segments around a reading and target.
+        
+        Args:
+            reading: Reading being moved
+            target: Target reading
+            window: Number of readings to show before/after (default 2)
+        
+        Returns:
+            Dictionary containing chain state information
+        """
+        # Get the full chain for the reading's media type
+        reading_chain = self.queries.get_reading_chain_by_media(reading.media)
+        target_chain = self.queries.get_reading_chain_by_media(target.media)
+        
+        # Find positions in chains
+        reading_pos = next((i for i, r in enumerate(reading_chain) if r['read_id'] == reading.id), -1)
+        target_pos = next((i for i, r in enumerate(target_chain) if r['read_id'] == target.id), -1)
+        
+        # Get chain segments
+        reading_before, reading_after = self.get_chain_segment(reading_chain, reading_pos, window)
+        target_before, target_after = self.get_chain_segment(target_chain, target_pos, window)
+        
+        # Format reading entries for display
+        def format_reading(r: Dict) -> str:
+            media_color = self.queries._get_media_color(r['media'])
+            return f"ID: {r['read_id']} - [bold {media_color}][{r['media']:7}][/bold {media_color}] {r['title']} (Previous: {r['chain']['previous_id']})"
+        
+        # Build state dictionary
+        state = {
+            'source': {
+                'reading': reading,
+                'segment': [format_reading(r) for r in reading_before + [reading_chain[reading_pos]] + reading_after]
+            },
+            'target': {
+                'reading': target,
+                'segment': [format_reading(r) for r in target_before + [target_chain[target_pos]] + target_after]
+            }
+        }
+        
+        # Add media change warning if applicable
+        if reading.media != target.media:
+            state['media_change_msg'] = (
+                f"\n[yellow]Warning:[/yellow] Moving from [{self.queries._get_media_color(reading.media)}]{reading.media}[/{self.queries._get_media_color(reading.media)}] chain to "
+                f"[{self.queries._get_media_color(target.media)}]{target.media}[/{self.queries._get_media_color(target.media)}] chain"
+            )
+        
+        return state
+
+    def update_reading(self, reading_id: int, update_data: Dict[str, Any]) -> Tuple[bool, str]:
+        """
+        Update a reading entry with new data
+        
+        Args:
+            reading_id: ID of the reading to update
+            update_data: Dictionary of fields to update
+        
+        Returns:
+            Tuple of (success, message)
+        """
+        try:
+            reading = self.session.get(Reading, reading_id)
+            if not reading:
+                return False, f"Reading {reading_id} not found"
+
+            print(f"Debug - Update data received: {update_data}")
+
+            # Convert date strings to date objects
+            date_fields = ['date_started', 'date_finished_actual', 'date_est_start', 'date_est_end']
+            for field in date_fields:
+                if field in update_data and update_data[field]:
+                    if isinstance(update_data[field], str):
+                        try:
+                            update_data[field] = datetime.strptime(update_data[field], '%Y-%m-%d').date()
+                            print(f"Debug - Converted {field} to date object: {update_data[field]}")
+                        except ValueError as e:
+                            return False, f"Invalid date format for {field}: {str(e)}"
+
+            # Update the reading object
+            for key, value in update_data.items():
+                print(f"Debug - Setting {key}={value}")
+                setattr(reading, key, value)
+
+            print("Debug - Committing changes...")
+            self.session.commit()
+            return True, "Reading updated successfully"
+
+        except Exception as e:
+            self.session.rollback()
+            return False, f"Failed to update reading: {str(e)}"

@@ -1,22 +1,14 @@
 #!/bin/bash
 
-# Get project root using the .project-root marker file
-PROJECT_ROOT="/home/brandon/projects/reading_tracker"
+# Set up environment
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+cd /home/brandon/projects/reading_tracker
 
-# Change to project root directory
-cd "$PROJECT_ROOT"
-
-# Activate virtual environment
-source "$PROJECT_ROOT/venv/bin/activate"
-
-# Set environment variable
-export PYTHONPATH="$PROJECT_ROOT"
-
-# Ensure the project root marker exists
-touch "$PROJECT_ROOT/.project-root"
+# Activate virtual environment (adjust path if needed)
+source .venv/bin/activate
 
 # Run the chain report command
-reading-list chain-report
+python src/reading_list/cli/generate_reports.py chain
 
 # Deactivate virtual environment
 deactivate

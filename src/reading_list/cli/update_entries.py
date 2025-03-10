@@ -11,6 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.style import Style
 from pathlib import Path
+from datetime import datetime
 
 from reading_list.models.base import engine, SessionLocal
 from reading_list.models.book import Book
@@ -93,7 +94,10 @@ class ModelHandler:
         """Get field configuration based on model columns"""
         # Special handling for different field types
         boolean_fields = {'has_cover', 'completed', 'owned_physical', 'owned_kindle', 'owned_audio'}
-        date_fields = {'date_published', 'date_started', 'date_finished'}
+        date_fields = {
+            'date_published', 'date_started', 'date_finished_actual', 
+            'date_est_start', 'date_est_end'
+        }  # Added date_finished_actual
         # Skip these fields as they're managed by SQLAlchemy or are foreign keys
         skip_fields = {'id', 'book_id', 'created_at', 'updated_at'}
 
@@ -112,7 +116,9 @@ class ModelHandler:
             'page_count': 'Page Count',
             # Reading fields
             'date_started': 'Start Date (YYYY-MM-DD)',
-            'date_finished': 'Finish Date (YYYY-MM-DD)',
+            'date_finished_actual': 'Finish Date (YYYY-MM-DD)',
+            'date_est_start': 'Estimated Start Date (YYYY-MM-DD)',
+            'date_est_end': 'Estimated End Date (YYYY-MM-DD)',
             'pages_read': 'Pages Read',
             'completed': 'Completed',
             # Inventory fields
@@ -154,15 +160,28 @@ class ModelHandler:
                 # Convert empty string to None
                 if value.strip() == '':
                     value = None
-                # Convert numeric strings to integers for appropriate fields
-                elif field_name in {'page_count', 'word_count', 'series_number'}:
-                    try:
-                        value = int(value)
-                    except ValueError:
-                        StyleConfig.console.print(f"Invalid number format for {field_name}: {value}", style=StyleConfig.ERROR)
-                        continue
+                else:
+                    # Handle different field types
+                    if field_type == 'date' and value:
+                        try:
+                            # Convert string to date object
+                            date_obj = datetime.strptime(value, '%Y-%m-%d').date()
+                            value = date_obj
+                            StyleConfig.console.print(f"Debug: Converted date {value} to {type(value)}")
+                        except ValueError:
+                            StyleConfig.console.print(f"Invalid date format for {field_name}. Use YYYY-MM-DD", style=StyleConfig.ERROR)
+                            continue
+                    elif field_name in {'page_count', 'word_count', 'series_number'}:
+                        try:
+                            value = int(value)
+                        except ValueError:
+                            StyleConfig.console.print(f"Invalid number format for {field_name}: {value}", style=StyleConfig.ERROR)
+                            continue
+                    elif field_type == 'boolean':
+                        value = value.lower() in ('true', 'yes', 'y', '1')
+
                 data[field_name] = value
-                StyleConfig.console.print(f"Debug: Added {field_name} = {value} to update data")
+                StyleConfig.console.print(f"Debug: Added {field_name} = {value} (type: {type(value)}) to update data")
 
         StyleConfig.console.print(f"Debug: Final update data: {data}")
 

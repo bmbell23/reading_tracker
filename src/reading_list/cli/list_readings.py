@@ -10,6 +10,9 @@ from rich.console import Console
 from sqlalchemy import text
 from ..operations.chain_operations import ChainOperations
 from ..models.base import SessionLocal
+from ..models.reading import Reading
+from datetime import datetime
+from rich.prompt import Confirm
 
 console = Console()
 
@@ -114,3 +117,83 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def update_reading_entry(reading_id: int, chain_ops: ChainOperations) -> None:
+    """Update a reading entry"""
+    update_data = {}
+    
+    # Get current reading
+    reading = chain_ops.session.get(Reading, reading_id)
+    if not reading:
+        console.print(f"[red]Reading {reading_id} not found[/red]")
+        return
+
+    # Handle id_previous
+    if Confirm.ask(f"Update Id Previous? (current: {reading.id_previous})", default=False):
+        update_data['id_previous'] = input("Id Previous: ").strip() or None
+
+    # Handle media
+    if Confirm.ask(f"Update Media? (current: {reading.media})", default=False):
+        update_data['media'] = input("Media: ").strip()
+
+    # Handle dates with proper conversion
+    if Confirm.ask(f"Update Start Date (YYYY-MM-DD)? (current: {reading.date_started})", default=False):
+        date_str = input("Start Date: ").strip()
+        if date_str:
+            update_data['date_started'] = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+    if Confirm.ask(f"Update Date Finished Actual? (current: None) [y/n]", default=False):
+        date_str = input("Date Finished Actual: ").strip()
+        if date_str:
+            try:
+                # Convert string to date object before adding to update_data
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                update_data['date_finished_actual'] = date_obj
+                print(f"Debug: Added date_finished_actual = {date_obj} (type: {type(date_obj)})")
+            except ValueError as e:
+                console.print(f"[red]Invalid date format. Please use YYYY-MM-DD: {e}[/red]")
+                return
+
+    # Handle ratings
+    rating_fields = ['rating_horror', 'rating_spice', 'rating_world_building', 
+                    'rating_writing', 'rating_characters', 'rating_readability', 
+                    'rating_enjoyment']
+    
+    for field in rating_fields:
+        current_value = getattr(reading, field)
+        if Confirm.ask(f"Update {field.replace('_', ' ').title()}? (current: {current_value})", default=False):
+            update_data[field] = input(f"{field.replace('_', ' ').title()}: ").strip() or None
+
+    # Handle rank
+    if Confirm.ask(f"Update Rank? (current: {reading.rank})", default=False):
+        update_data['rank'] = input("Rank: ").strip() or None
+
+    # Handle estimates and calculations
+    if Confirm.ask(f"Update Days Estimate? (current: {reading.days_estimate})", default=False):
+        update_data['days_estimate'] = input("Days Estimate: ").strip() or None
+
+    if Confirm.ask(f"Update Days Elapsed To Read? (current: {reading.days_elapsed_to_read})", default=False):
+        update_data['days_elapsed_to_read'] = input("Days Elapsed To Read: ").strip() or None
+
+    if Confirm.ask(f"Update Days To Read Delta From Estimate? (current: {reading.days_to_read_delta_from_estimate})", default=False):
+        update_data['days_to_read_delta_from_estimate'] = input("Days To Read Delta From Estimate: ").strip() or None
+
+    # Handle estimated dates
+    if Confirm.ask(f"Update Date Est Start? (current: {reading.date_est_start})", default=False):
+        date_str = input("Date Est Start: ").strip()
+        if date_str:
+            update_data['date_est_start'] = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+    if Confirm.ask(f"Update Date Est End? (current: {reading.date_est_end})", default=False):
+        date_str = input("Date Est End: ").strip()
+        if date_str:
+            update_data['date_est_end'] = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+    print(f"\nDebug - New data received: {update_data}")
+
+    if update_data:
+        success, message = chain_ops.update_reading(reading_id, update_data)
+        if success:
+            console.print(f"[green]{message}[/green]")
+        else:
+            console.print(f"[red]Error updating entry: {message}[/red]")

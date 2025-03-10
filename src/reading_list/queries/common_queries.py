@@ -373,3 +373,70 @@ class CommonQueries:
         except Exception as e:
             self.console.print(f"[red]Error getting {media_type} chain: {str(e)}[/red]")
             return []
+
+    def get_reading_chain_by_media(self, media: str) -> List[Dict]:
+        """
+        Get all readings in a chain for a specific media type.
+        
+        Args:
+            media: Media type to filter by (e.g., 'Audio', 'Kindle', etc.)
+        
+        Returns:
+            List of dictionaries containing reading information
+        """
+        try:
+            query = """
+                WITH RECURSIVE chain AS (
+                    -- Get all readings without a previous reading (chain starts)
+                    SELECT 
+                        r.id as read_id,
+                        r.media,
+                        r.id_previous,
+                        b.title,
+                        b.author_name_first,
+                        b.author_name_second,
+                        r.date_est_start,
+                        1 as chain_order
+                    FROM read r
+                    JOIN books b ON r.book_id = b.id
+                    WHERE r.media = :media 
+                    AND r.id_previous IS NULL
+
+                    UNION ALL
+
+                    -- Get all subsequent readings in the chain
+                    SELECT 
+                        r.id,
+                        r.media,
+                        r.id_previous,
+                        b.title,
+                        b.author_name_first,
+                        b.author_name_second,
+                        r.date_est_start,
+                        c.chain_order + 1
+                    FROM read r
+                    JOIN books b ON r.book_id = b.id
+                    JOIN chain c ON r.id_previous = c.read_id
+                    WHERE r.media = :media
+                )
+                SELECT * FROM chain
+                ORDER BY chain_order;
+            """
+            
+            results = self.session.execute(text(query), {'media': media}).fetchall()
+            
+            return [
+                {
+                    'read_id': row.read_id,
+                    'media': row.media,
+                    'title': row.title,
+                    'author': f"{row.author_name_first or ''} {row.author_name_second or ''}".strip(),
+                    'chain': {
+                        'previous_id': row.id_previous
+                    }
+                }
+                for row in results
+            ]
+        except Exception as e:
+            self.console.print(f"[red]Error getting reading chain: {str(e)}[/red]")
+            return []

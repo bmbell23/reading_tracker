@@ -43,6 +43,7 @@ def main(args=None):
         reading_id = args[0]
         target_id = args[1]
 
+    chain_ops = None
     try:
         chain_ops = ChainOperations()
         success, message, chain_info = chain_ops.reorder_reading_chain(reading_id, target_id)
@@ -55,18 +56,20 @@ def main(args=None):
 
         # Confirm changes
         if Confirm.ask("\nDo you want to save these changes?"):
-            chain_info['session'].commit()
+            chain_ops.session.commit()
             console.print("[green]Chains updated successfully![/green]")
             update_chain_data()  # Replace old TBR generator with new chain updates
         else:
-            chain_info['session'].rollback()
+            chain_ops.session.rollback()
             console.print("[yellow]Changes discarded[/yellow]")
 
     except Exception as e:
         console.print(f"[red]Error during chain reorder: {str(e)}[/red]")
+        if chain_ops and chain_ops.session:
+            chain_ops.session.rollback()
     finally:
-        if chain_info and 'session' in chain_info:
-            chain_info['session'].close()
+        if chain_ops:
+            chain_ops.session.close()
 
 if __name__ == "__main__":
     main()
