@@ -17,15 +17,27 @@ from .display_utils import display_chain_changes
 
 console = Console()
 
-def update_chain_data(reading_id: int):
+def update_chain_data(chain_ops: ChainOperations, reading_id: int):
     """Update all reading calculations and generate new chain report"""
     try:
-        # Update reading calculations
+        # Ensure the session is committed and cleared
+        chain_ops.session.commit()
+        chain_ops.session.expire_all()
+        
+        # First update the chain dates directly using our ChainOperations instance
+        media_type = chain_ops.session.get(Reading, reading_id).media.lower()
+        chain_changes = chain_ops.preview_chain_updates(media_type=media_type)
+        if chain_changes:
+            updates = chain_ops.apply_chain_updates(chain_changes)
+            chain_ops.session.commit()
+            console.print(f"[green]Successfully updated {updates} chain dates![/green]")
+        
+        # Then run the full update command for any other calculations
         result = subprocess.run(
             ["reading-list", "update-readings", 
              "--all",  # Update all calculations
              "--no-confirm"], 
-            check=True,  # Changed to True to raise on non-zero exit
+            check=True,
             capture_output=True,
             text=True
         )
@@ -74,7 +86,7 @@ def main(args=None):
         if Confirm.ask("\nDo you want to save these changes?"):
             chain_ops.session.commit()
             console.print("[green]Chains updated successfully![/green]")
-            update_chain_data(reading_id)  # Pass reading_id to update correct chain
+            update_chain_data(chain_ops, reading_id)  # Pass chain_ops instance
         else:
             chain_ops.session.rollback()
             console.print("[yellow]Changes discarded[/yellow]")
@@ -84,7 +96,7 @@ def main(args=None):
         if chain_ops and chain_ops.session:
             chain_ops.session.rollback()
     finally:
-        if chain_ops:
+        if chain_ops and chain_ops.session:
             chain_ops.session.close()
 
 if __name__ == "__main__":
