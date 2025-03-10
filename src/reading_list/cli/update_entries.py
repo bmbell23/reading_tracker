@@ -11,6 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.style import Style
 from pathlib import Path
+from datetime import datetime
 
 from reading_list.models.base import engine, SessionLocal
 from reading_list.models.book import Book
@@ -144,7 +145,6 @@ class ModelHandler:
     def get_input_data(self, is_new: bool = False, existing: Any = None) -> Dict[str, Any]:
         """Get user input based on model type"""
         data = {}
-
         fields = self.get_field_config(self.model)
 
         for field_name, prompt, field_type in fields:
@@ -154,27 +154,23 @@ class ModelHandler:
                 # Convert empty string to None
                 if value.strip() == '':
                     value = None
-                # Convert numeric strings to integers for appropriate fields
-                elif field_name in {'page_count', 'word_count', 'series_number'}:
+                else:
+                    # Handle type conversions
                     try:
-                        value = int(value)
-                    except ValueError:
-                        StyleConfig.console.print(f"Invalid number format for {field_name}: {value}", style=StyleConfig.ERROR)
+                        if field_name in {'date_finished_actual', 'date_started', 'date_finished', 'date_published'}:
+                            # Convert string date to Python date object
+                            value = datetime.strptime(value, '%Y-%m-%d').date()
+                            StyleConfig.console.print(f"Debug: Converted date {value} to {type(value)}")
+                        elif field_name.startswith('rating_'):
+                            value = float(value)
+                    except ValueError as e:
+                        StyleConfig.console.print(f"Invalid format for {field_name}: {value}", style=StyleConfig.ERROR)
                         continue
+
                 data[field_name] = value
-                StyleConfig.console.print(f"Debug: Added {field_name} = {value} to update data")
+                StyleConfig.console.print(f"Debug: Added {field_name} = {value} ({type(value)}) to update data")
 
         StyleConfig.console.print(f"Debug: Final update data: {data}")
-
-        # Return the raw data directly for Reading model
-        if self.model == Reading:
-            return data
-        # Use editor methods for other models
-        elif self.model == Book:
-            return self.editor.get_book_data(data, existing)
-        elif self.model == Inventory:
-            return self.editor.get_inventory_data(data, existing.book_id, existing)
-
         return data
 
 class DatabaseUpdater:
