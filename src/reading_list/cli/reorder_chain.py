@@ -25,23 +25,22 @@ def update_chain_data(reading_id: int):
             ["reading-list", "update-readings", 
              "--all",  # Update all calculations
              "--no-confirm"], 
-            check=False,
+            check=True,  # Changed to True to raise on non-zero exit
             capture_output=True,
             text=True
         )
         
-        if result.returncode != 0:
-            # Only show error if it's not the "no changes needed" case
-            if "No changes needed" not in result.stdout:
-                console.print(f"[yellow]Warning: Reading updates completed with status: {result.returncode}[/yellow]")
-                if result.stderr:
-                    console.print(f"[dim]{result.stderr}[/dim]")
+        console.print("[green]Reading calculations updated successfully[/green]")
 
         # Generate new chain report
         subprocess.run(["reading-list", "chain-report"], check=True)
         
     except subprocess.CalledProcessError as e:
-        console.print(f"[red]Error generating chain report: {str(e)}[/red]")
+        console.print(f"[red]Error updating chain data: {str(e)}[/red]")
+        if e.stderr:
+            console.print(f"[dim]{e.stderr}[/dim]")
+        if e.stdout:
+            console.print(f"[dim]{e.stdout}[/dim]")
 
 def main(args=None):
     """Main function for reordering reading chains."""
