@@ -123,38 +123,44 @@ class CommonQueries:
         for reading in readings:
             self.print_reading(reading)
 
-    def get_reading_chain(self, reading_id: int) -> list:
+    def get_reading_chain(self, reading_id: int) -> List[Reading]:
         """
-        Get all readings in a chain containing the specified reading ID.
-        Returns the complete chain from start to end.
+        Get a complete reading chain containing the specified reading.
+        Includes readings both before and after the specified reading.
         """
-        try:
-            # Get the initial reading
-            current = self.session.get(Reading, reading_id)
-            if not current:
-                return []
-
-            chain = []
-            
-            # First, go backwards to find the start of the chain
-            while current and current.id_previous:
-                current = self.session.get(Reading, current.id_previous)
-            
-            # Now traverse forward through the chain
-            while current:
-                chain.append(current)
-                next_reading = (self.session.query(Reading)
-                              .filter(Reading.id_previous == current.id)
-                              .first())
-                if not next_reading:
-                    break
-                current = next_reading
-
-            return chain
-
-        except Exception as e:
-            self.console.print(f"\n[red]Error getting reading chain: {e}[/red]")
+        # First get the reading
+        reading = self.session.get(Reading, reading_id)
+        if not reading:
             return []
+
+        chain = []
+        
+        # Get all previous readings
+        current = reading
+        while current.id_previous is not None:
+            prev_reading = self.session.get(Reading, current.id_previous)
+            if prev_reading:
+                chain.insert(0, prev_reading)
+                current = prev_reading
+            else:
+                break
+
+        # Add the current reading
+        chain.append(reading)
+
+        # Get all next readings
+        current = reading
+        while True:
+            next_reading = (self.session.query(Reading)
+                           .filter(Reading.id_previous == current.id)
+                           .first())
+            if next_reading:
+                chain.append(next_reading)
+                current = next_reading
+            else:
+                break
+
+        return chain
 
     def get_reading_details(self, reading_id: int) -> Optional[Dict[str, Any]]:
         """
@@ -284,4 +290,86 @@ class CommonQueries:
             return [dict(row._mapping) for row in results]
         except Exception as e:
             self.console.print(f"\n[red]Error getting readings: {e}[/red]")
+            return []
+
+    def get_book_cover_path(self, book_id: int) -> Optional[str]:
+        """Get the path to a book's cover image"""
+        from reading_list.utils.paths import get_project_paths
+        
+        project_paths = get_project_paths()
+        covers_dir = project_paths['workspace'] / 'data' / 'covers'
+        
+        # Check for cover file with different extensions
+        for ext in ['.jpg', '.jpeg', '.png']:
+            cover_path = covers_dir / f"{book_id}{ext}"
+            if cover_path.exists():
+                return str(cover_path.relative_to(project_paths['workspace']))
+        return None
+
+    def format_date(self, date_value) -> Optional[str]:
+        """Format date value, handling both datetime/date objects and strings"""
+        if not date_value:
+            return None
+        if isinstance(date_value, str):
+            return date_value
+        return date_value.strftime('%Y-%m-%d')
+
+    def get_reading_chain_by_media(self, media_type: str) -> List[Dict[str, Any]]:
+        """
+        Get a reading chain for a specific media type.
+        
+        Args:
+            media_type: Type of media (kindle, hardcover, audio)
+            
+        Returns:
+            List of readings in the chain for that media type
+        """
+        try:
+            # Get all readings for this media type that are either:
+            # 1. Currently being read (started but not finished)
+            # 2. Scheduled for the future (have estimated dates but not started)
+            readings = (
+                self.session.query(Reading)
+                .join(Book)
+                .filter(
+                    Reading.media.ilike(media_type),
+                    Reading.date_finished_actual.is_(None)
+                )
+                .order_by(Reading.date_est_start)
+                .all()
+            )
+            
+            chain_data = []
+            for reading in readings:
+                # Format dates
+                date_started = self.format_date(reading.date_started)
+                date_est_start = self.format_date(reading.date_est_start)
+                date_est_end = self.format_date(reading.date_est_end)
+                
+                # Determine if reading is current or future
+                is_current = reading.date_started is not None and reading.date_finished_actual is None
+                is_future = reading.date_started is None
+                
+                # Get cover path
+                cover_path = self.get_book_cover_path(reading.book.id)
+                
+                chain_data.append({
+                    'id': reading.id,
+                    'title': reading.book.title,
+                    'author_name_first': reading.book.author_name_first,
+                    'author_name_second': reading.book.author_name_second,
+                    'media': reading.media,
+                    'date_started': date_started,
+                    'date_est_start': date_est_start,
+                    'date_est_end': date_est_end,
+                    'cover_path': cover_path,
+                    'is_current': is_current,
+                    'is_future': is_future,
+                    'id_previous': reading.id_previous
+                })
+            
+            return chain_data
+            
+        except Exception as e:
+            self.console.print(f"[red]Error getting {media_type} chain: {str(e)}[/red]")
             return []

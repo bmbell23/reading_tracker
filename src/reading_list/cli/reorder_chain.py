@@ -10,44 +10,28 @@ import sys
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm
-
-from reading_list.operations.chain_operations import ChainOperations
-from reading_list.utils.display import display_reading_group
-from reading_list.utils.chain_report import run_chain_report
+import subprocess
+from ..operations.chain_operations import ChainOperations
+from .display_utils import display_chain_changes
 
 console = Console()
 
-def display_chain_changes(chain_info: dict) -> None:
-    """Display the before and after state of chains"""
-    # Show original state
-    console.print("\n[bold]Current chain orders:[/bold]")
-    
-    console.print("\n[bold cyan]Source Chain (before move):[/bold cyan]")
-    display_reading_group(chain_info['original']['source']['segment'], "Source Chain Segment")
-    
-    console.print("\n[bold cyan]Target Chain (before move):[/bold cyan]")
-    display_reading_group(chain_info['original']['target']['segment'], "Target Chain Segment")
-
-    # Show new state
-    console.print("\n[bold]Proposed new chain orders:[/bold]")
-    
-    if chain_info['new']['source']['segment']:
-        console.print("\n[bold green]Source Chain (after move):[/bold green]")
-        display_reading_group(chain_info['new']['source']['segment'], "Updated Source Chain Segment")
-
-    console.print("\n[bold green]Target Chain (after move):[/bold green]")
-    display_reading_group(chain_info['new']['target']['segment'], "Updated Target Chain Segment")
+def update_chain_data():
+    """Update all reading calculations and generate new chain report"""
+    try:
+        # Update all reading calculations
+        subprocess.run(["reading-list", "update-readings", "--all"], check=True)
+        # Generate new chain report
+        subprocess.run(["reading-list", "chain-report"], check=True)
+    except subprocess.CalledProcessError as e:
+        console.print(f"[red]Error updating chain data: {str(e)}[/red]")
 
 def main(args=None):
-    """Main CLI entry point.
-    
-    Args:
-        args: Optional list of arguments [reading_id, target_id]. If None, uses sys.argv.
-    """
+    """Main function for reordering reading chains."""
     if args is None:
         if len(sys.argv) != 3:
             console.print(Panel(
-                "[red]Usage: python -m reading_list.cli.reorder_chain <reading_id_to_move> <reading_id_to_place_after>[/red]\n" +
+                "Usage: python -m reading_list.cli.reorder_chain <reading_id> <target_id>\n\n"
                 "Example: python -m reading_list.cli.reorder_chain 178 143  # Moves reading 178 to be after reading 143",
                 title="Reading Chain Reorder",
                 border_style="red"
@@ -73,13 +57,13 @@ def main(args=None):
         if Confirm.ask("\nDo you want to save these changes?"):
             chain_info['session'].commit()
             console.print("[green]Chains updated successfully![/green]")
-            run_chain_report()
+            update_chain_data()  # Replace old TBR generator with new chain updates
         else:
             chain_info['session'].rollback()
-            console.print("[yellow]Changes cancelled[/yellow]")
-            
-    except ValueError:
-        console.print("[red]Reading IDs must be numbers[/red]")
+            console.print("[yellow]Changes discarded[/yellow]")
+
+    except Exception as e:
+        console.print(f"[red]Error during chain reorder: {str(e)}[/red]")
     finally:
         if chain_info and 'session' in chain_info:
             chain_info['session'].close()
