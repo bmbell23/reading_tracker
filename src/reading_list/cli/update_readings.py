@@ -48,50 +48,43 @@ def main(args=None):
         with ChainOperations() as chain_ops:
             changes_made = False
             
-            # Days Estimate Updates
-            if args.all or args.estimate:
-                display_section_header("Days Estimate Updates")
-                console.print("[dim]Calculating days estimates based on word count and media type[/dim]\n")
+            # Process each media type separately
+            for media_type in ['kindle', 'hardcover', 'audio']:
+                display_section_header(f"{media_type.upper()} Updates")
                 
-                # Preview days estimate changes
-                estimate_changes = chain_ops.preview_days_estimate_updates()
-                if estimate_changes:
-                    chain_ops.display_days_estimate_preview(estimate_changes)
-                    if args.no_confirm or Confirm.ask(f"\nUpdate {len(estimate_changes)} estimates?"):
-                        updates = chain_ops.apply_days_estimate_updates(estimate_changes)
-                        chain_ops.session.commit()
-                        changes_made = True
-                        console.print(f"[green]Successfully updated {updates} estimates![/green]")
-                else:
-                    console.print("[yellow]No estimate updates needed[/yellow]")
+                # Days Estimate Updates
+                if args.all or args.estimate:
+                    console.print(f"\n[dim]Calculating days estimates for {media_type}[/dim]\n")
+                    estimate_changes = chain_ops.preview_days_estimate_updates(media_type=media_type)
+                    if estimate_changes:
+                        chain_ops.display_days_estimate_preview(estimate_changes)
+                        if args.no_confirm or Confirm.ask(f"\nUpdate {len(estimate_changes)} estimates for {media_type}?"):
+                            updates = chain_ops.apply_days_estimate_updates(estimate_changes)
+                            chain_ops.session.commit()
+                            changes_made = True
+                            console.print(f"[green]Successfully updated {updates} estimates for {media_type}![/green]")
+                    else:
+                        console.print(f"[yellow]No estimate updates needed for {media_type}[/yellow]")
 
-            # Reading Chain Updates
-            if args.all or args.chain:
-                display_section_header("Reading Chain Updates")
-                console.print("[dim]Updating estimated start/end dates for books in reading chains[/dim]\n")
-                
-                # Preview chain date changes
-                chain_changes = chain_ops.preview_chain_updates()
-                if chain_changes:
-                    chain_ops.display_chain_updates_preview(chain_changes)
-                    if args.no_confirm or Confirm.ask(f"\nUpdate {len(chain_changes)} chain dates?"):
-                        updates = chain_ops.apply_chain_updates(chain_changes)
-                        chain_ops.session.commit()
-                        changes_made = True
-                        console.print(f"[green]Successfully updated {updates} chain dates![/green]")
-                else:
-                    console.print("[yellow]No chain date updates needed[/yellow]")
+                # Reading Chain Updates
+                if args.all or args.chain:
+                    console.print(f"\n[dim]Updating chain dates for {media_type}[/dim]\n")
+                    chain_changes = chain_ops.preview_chain_updates(media_type=media_type)
+                    if chain_changes:
+                        chain_ops.display_chain_updates_preview(chain_changes)
+                        if args.no_confirm or Confirm.ask(f"\nUpdate {len(chain_changes)} chain dates for {media_type}?"):
+                            updates = chain_ops.apply_chain_updates(chain_changes)
+                            chain_ops.session.commit()
+                            changes_made = True
+                            console.print(f"[green]Successfully updated {updates} chain dates for {media_type}![/green]")
+                    else:
+                        console.print(f"[yellow]No chain updates needed for {media_type}[/yellow]")
 
-            if changes_made:
-                console.print("\n[green]All updates completed successfully![/green]")
-            else:
-                console.print("\n[yellow]No updates were needed or applied[/yellow]")
+            return 0 if changes_made else 1
 
     except Exception as e:
-        console.print(f"\n[red]Error updating readings: {str(e)}[/red]")
+        console.print(f"[red]Error: {str(e)}[/red]")
         return 1
-
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

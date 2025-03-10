@@ -28,7 +28,7 @@ class ChainOperations:
     def __init__(self, session: Optional[Session] = None):
         """
         Initialize chain operations with optional session.
-        
+
         Args:
             session: SQLAlchemy session. If None, creates new session
         """
@@ -49,36 +49,36 @@ class ChainOperations:
     def get_chain_segment(chain: List[Reading], position: int, window: int = 2) -> Tuple[List[Reading], List[Reading]]:
         """
         Get segments of the chain before and after a position.
-        
+
         Args:
             chain: List of readings
             position: Position in chain to center on
             window: Number of items to include before and after (default 2)
-            
+
         Returns:
             Tuple of (before_segment, after_segment)
         """
         if not chain:
             return [], []
-        
+
         # Ensure position is within bounds
         if position < 0 or position >= len(chain):
             return [], []
-        
+
         # Get before segment
         start = max(0, position - window)
         before = chain[start:position]
-        
+
         # Get after segment
         after = chain[position + 1:position + window + 1]
-        
+
         return before, after
 
     @staticmethod
     def update_chain_references(chain: List[Reading]) -> None:
         """
         Update id_previous references for all readings in a chain.
-        
+
         Args:
             chain: List of readings to update
         """
@@ -89,107 +89,229 @@ class ChainOperations:
                 reading.id_previous = chain[i-1].id
 
     def reorder_reading_chain(self, reading_id: int, target_id: int) -> Tuple[bool, str, Dict]:
-        """
-        Reorder a reading chain by moving a reading after a target reading
-
-        Args:
-            reading_id: ID of the reading to move
-            target_id: ID of the reading to place the moved reading after
-    
-        Returns:
-            Tuple of (success, message, chain_info)
-        """
+        """Reorder a reading chain by moving a reading after a target reading"""
         try:
-            # Get the reading to move and its subsequent reading
+            console.print("[dim]Debug: Starting chain reorder[/dim]")
+            console.print(f"[dim]Debug: Moving reading {reading_id} after {target_id}[/dim]")
+
+            # Get the readings
             reading_to_move = self.session.get(Reading, reading_id)
             if not reading_to_move:
                 return False, f"Reading {reading_id} not found", None
 
-            # Get the target reading
             target_reading = self.session.get(Reading, target_id)
             if not target_reading:
                 return False, f"Target reading {target_id} not found", None
 
-            # Store original state for preview
-            original_state = self._get_chain_state(reading_to_move, target_reading)
+            # Get original chain state
+            chain_info = {'original': self._get_chain_state(reading_to_move, target_reading)}
 
-            # Get the reading that follows the reading being moved
-            next_after_moving = self.session.query(Reading).filter(Reading.id_previous == reading_id).first()
+            # Find readings that need to be updated
+            pointing_to_moving = (self.session.query(Reading)
+                                .filter(Reading.id_previous == reading_to_move.id)
+                                .first())
 
-            # Get the reading that currently follows the target
-            next_after_target = self.session.query(Reading).filter(Reading.id_previous == target_id).first()
+            target_next = (self.session.query(Reading)
+                          .filter(Reading.id_previous == target_reading.id)
+                          .first())
 
-            # Step 1: Fix the gap where we're removing the reading
-            if next_after_moving:
-                next_after_moving.id_previous = reading_to_move.id_previous
+            # Store the original previous ID of the reading we're moving
+            original_previous = reading_to_move.id_previous
 
-            # Step 2: Insert the reading after the target
+            # Step 1: Update the reading that was pointing to our moving reading
+            # to point to the original previous of the moving reading
+            if pointing_to_moving:
+                pointing_to_moving.id_previous = original_previous
+
+            # Step 2: Update the reading that was after the target
+            # to point to our moving reading
+            if target_next:
+                target_next.id_previous = reading_id
+
+            # Step 3: Move our reading after the target
             reading_to_move.id_previous = target_id
-            
-            # Step 3: Update what was after the target to point to our moved reading
-            if next_after_target:
-                next_after_target.id_previous = reading_id
 
-            # Store new state for preview
-            new_state = self._get_chain_state(reading_to_move, target_reading)
+            # Get new chain state
+            chain_info['new'] = self._get_chain_state(reading_to_move, target_reading)
 
-            return True, "Chain reorder completed successfully", {
-                'original': original_state,
-                'new': new_state,
-                'session': self.session  # Include the session in the return value
-            }
+            return True, "Chain reorder prepared", chain_info
 
         except Exception as e:
-            self.session.rollback()
+            console.print(f"[red]Debug: Error in reorder_reading_chain: {str(e)}[/red]")
             return False, f"Error during chain reorder: {str(e)}", None
 
     def update_chain_dates(self, reading: Reading) -> Tuple[int, int]:
-        """Update estimated dates for a reading chain starting from the given reading"""
-        updates_count = 0
-        skipped_count = 0
-
-        # If this reading has a previous reading, we need its end date
-        if reading.id_previous:
-            prev_reading = self.session.get(Reading, reading.id_previous)
-            if prev_reading and prev_reading.date_est_end:
-                # Set estimated start date to day after previous reading's estimated end
-                reading.date_est_start = prev_reading.date_est_end + timedelta(days=1)
+        """Update dates for a single reading in the chain"""
+        updates = 0
+        skipped = 0
+        
+        try:
+            # Get current dates for logging
+            old_start = reading.date_est_start
+            old_end = reading.date_est_end
+            
+            if reading.id_previous:
+                # Get fresh data for previous reading
+                prev_reading = (
+                    self.session.query(Reading)
+                    .filter(Reading.id == reading.id_previous)
+                    .first()
+                )
                 
-                # Calculate estimated end date based on days_estimate
-                if reading.days_estimate:
-                    reading.date_est_end = reading.date_est_start + timedelta(days=reading.days_estimate - 1)
-                    updates_count += 1
-                    print(f"Updated chain dates for: {reading.book.title[:30]:30} "
-                          f"Start: {reading.date_est_start} End: {reading.date_est_end}")
-                else:
-                    skipped_count += 1
-                    print(f"Skipped {reading.book.title[:30]:30} - missing days_estimate")
+                if not prev_reading or not prev_reading.date_est_end:
+                    print(f"  SKIP: Previous reading missing end date")
+                    return 0, 1
+                    
+                new_start = prev_reading.date_est_end + timedelta(days=1)
+                
+                if reading.date_est_start != new_start:
+                    reading.date_est_start = new_start
+                    updates += 1
+                    
+            if reading.date_est_start and reading.days_estimate:
+                new_end = reading.date_est_start + timedelta(days=reading.days_estimate - 1)
+                
+                if reading.date_est_end != new_end:
+                    reading.date_est_end = new_end
+                    updates += 1
             else:
-                skipped_count += 1
-                print(f"Skipped {reading.book.title[:30]:30} - previous reading missing end date")
-
-        return updates_count, skipped_count
+                print(f"  SKIP: Missing start date or days estimate")
+                skipped += 1
+            
+            if updates > 0:
+                print(f"  UPDATED: {reading.book.title[:40]}")
+                print(f"    Start: {old_start} -> {reading.date_est_start}")
+                print(f"    End:   {old_end} -> {reading.date_est_end}")
+            
+        except Exception as e:
+            print(f"ERROR updating reading {reading.id}: {str(e)}")
+            skipped += 1
+        
+        return updates, skipped
 
     def update_all_chain_dates(self) -> Tuple[int, int]:
         """Update estimated dates for all reading chains"""
         total_updates = 0
         total_skipped = 0
-
-        # First, ensure all days_estimate values are up to date
-        self.update_days_estimate()
         
-        # Get all readings that are part of chains (have a previous reading)
-        chain_readings = self.session.query(Reading).filter(Reading.id_previous.isnot(None)).all()
-        
-        for reading in chain_readings:
-            updates, skipped = self.update_chain_dates(reading)
+        # Update each media type separately and allow user to confirm each
+        for media_type in ['kindle', 'hardcover', 'audio']:
+            print(f"\n{'='*50}")
+            print(f"Processing {media_type.upper()} chain")
+            print(f"{'='*50}")
+            
+            updates, skipped = self.update_single_media_chain(media_type)
+            
+            print(f"\nCompleted {media_type.upper()} chain:")
+            print(f"Total updates: {updates}")
+            print(f"Total skipped: {skipped}")
+            
             total_updates += updates
             total_skipped += skipped
-
-        if total_updates > 0:
+            
+            # Commit changes for this media type
             self.session.commit()
+            
+            input(f"\nPress Enter to continue to next media type...")
 
         return total_updates, total_skipped
+
+    def update_single_media_chain(self, media_type: str) -> Tuple[int, int]:
+        """Update chain dates for a single media type"""
+        iteration = 0
+        total_updates = 0
+        total_skipped = 0
+        max_iterations = 50
+        
+        while iteration < max_iterations:
+            iteration += 1
+            print(f"\nIteration {iteration}:")
+            print("-" * 20)
+            
+            # Clear SQLAlchemy session to avoid stale data
+            self.session.expire_all()
+            
+            # Get chain in order
+            chain = self._get_ordered_chain(media_type)
+            if not chain:
+                print(f"No active chain found for {media_type}")
+                break
+                
+            # Track changes in this iteration
+            iteration_updates = 0
+            iteration_skipped = 0
+            
+            # Process each reading in the chain
+            for i, reading in enumerate(chain):
+                print(f"\nProcessing book {i+1}/{len(chain)}: {reading.book.title[:40]}")
+                
+                updates, skipped = self.update_chain_dates(reading)
+                iteration_updates += updates
+                iteration_skipped += skipped
+                
+                # Commit after each book to ensure changes propagate
+                if updates > 0:
+                    self.session.commit()
+            
+            # Add to totals
+            total_updates += iteration_updates
+            total_skipped += iteration_skipped
+            
+            print(f"\nIteration {iteration} results:")
+            print(f"  Updates: {iteration_updates}")
+            print(f"  Skipped: {iteration_skipped}")
+            
+            # If no updates were made in this iteration, we're done
+            if iteration_updates == 0:
+                print(f"\nNo more changes needed for {media_type} chain")
+                break
+                
+            # Commit changes for this iteration
+            self.session.commit()
+        
+        if iteration >= max_iterations:
+            print(f"WARNING: Reached maximum iterations ({max_iterations})")
+        
+        return total_updates, total_skipped
+
+    def _get_ordered_chain(self, media_type: str) -> List[Reading]:
+        """Get readings in correct chain order for a media type"""
+        # First get the chain start
+        chain_start = (
+            self.session.query(Reading)
+            .filter(
+                Reading.id_previous.is_(None),
+                Reading.media.ilike(media_type),
+                Reading.date_finished_actual.is_(None)  # Only include unfinished readings
+            )
+            .first()
+        )
+        
+        if not chain_start:
+            return []
+            
+        # Build the ordered chain
+        ordered_chain = [chain_start]
+        current = chain_start
+        
+        # Follow the chain using subsequent_readings
+        while True:
+            next_reading = (
+                self.session.query(Reading)
+                .filter(
+                    Reading.id_previous == current.id,
+                    Reading.date_finished_actual.is_(None)  # Only include unfinished readings
+                )
+                .first()
+            )
+            
+            if not next_reading:
+                break
+                
+            ordered_chain.append(next_reading)
+            current = next_reading
+        
+        return ordered_chain
 
     def get_all_readings(self) -> List[Reading]:
         """Get all readings joined with their books"""
@@ -249,13 +371,13 @@ class ChainOperations:
                                   update_chain: bool = False) -> Dict[str, Tuple[int, int]]:
         """
         Update various reading calculations based on specified flags.
-        
+
         Args:
             update_all: Update all calculated columns
             update_estimate: Update days_estimate column
             update_elapsed: Update days_elapsed_to_read column
             update_chain: Update chain dates
-            
+
         Returns:
             Dictionary of operation results with updates and skips counts
         """
@@ -275,12 +397,12 @@ class ChainOperations:
     def get_current_readings(self) -> List[Dict]:
         """
         Get all current (in-progress) readings.
-        
+
         Returns:
             List of dictionaries containing reading information
         """
         current_readings = []
-        
+
         # Query for readings that are started but not finished
         readings = (self.session.query(Reading)
                    .join(Book)
@@ -289,14 +411,14 @@ class ChainOperations:
                        Reading.date_finished_actual.is_(None)
                    ))
                    .all())
-        
+
         for reading in readings:
             current_readings.append({
                 'read_id': reading.id,
                 'media': reading.media,
                 'title': reading.book.title
             })
-        
+
         return current_readings
 
     def get_reading_chain(self, reading_id: int, direction: str = 'both', limit: int = 10) -> List[dict]:
@@ -315,7 +437,7 @@ class ChainOperations:
         """Get the path to a book's cover image"""
         project_paths = get_project_paths()
         covers_dir = project_paths['workspace'] / 'data' / 'covers'
-        
+
         # Check for cover file with different extensions
         for ext in ['.jpg', '.jpeg', '.png']:
             cover_path = covers_dir / f"{book_id}{ext}"
@@ -326,7 +448,7 @@ class ChainOperations:
     def format_book_card(self, book: dict) -> dict:
         """Format book information for template display"""
         cover_path = self.get_book_cover_path(book['book_id'])
-        
+
         return {
             'read_id': book['read_id'],
             'book_id': book['book_id'],
@@ -345,38 +467,38 @@ class ChainOperations:
     def generate_chain_report(self) -> Tuple[str, bool]:
         """
         Generate an HTML report of all reading chains.
-        
+
         Returns:
             Tuple of (output_file_path, success)
         """
         try:
             paths = get_project_paths()
-            
+
             # Ensure reports directory exists
             reports_dir = paths['root'] / 'reports'
             reports_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Get template directory
             template_dir = paths['templates'] / 'reports' / 'chain'
-            
+
             # Setup Jinja environment
             env = Environment(loader=FileSystemLoader(str(template_dir)))
             template = env.get_template('reading_chain.html')
-            
+
             # Generate report data
             chains = {
                 'kindle': {'chain': self.queries.get_reading_chain_by_media('kindle')},
                 'hardcover': {'chain': self.queries.get_reading_chain_by_media('hardcover')},
                 'audio': {'chain': self.queries.get_reading_chain_by_media('audio')}
             }
-            
+
             # Media type colors
             media_colors = {
                 'kindle': {'text_color': '#37A0E8'},    # Kindle blue
                 'hardcover': {'text_color': '#6B4BA3'}, # Space purple
                 'audio': {'text_color': '#F6911E'}      # Audible orange
             }
-            
+
             # Render template
             output = template.render(
                 title="Reading Chains",
@@ -385,68 +507,85 @@ class ChainOperations:
                 media_colors=media_colors,
                 generated_date=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             )
-            
+
             # Write output
             output_file = reports_dir / 'reading_chains.html'
             output_file.write_text(output)
-            
+
             return str(output_file), True
-        
+
         except Exception as e:
             return f"Error generating report: {str(e)}", False
 
-    def preview_chain_updates(self) -> List[Dict]:
-        """Preview changes that would be made to chain dates"""
-        preview_changes = []
+    def preview_chain_updates(self, media_type: str = None) -> List[Dict]:
+        """Preview ALL possible changes that would be made to chain dates"""
+        all_changes = {}  # Use dict to track unique changes by reading ID
+        iteration = 0
+        max_iterations = 50
         
-        readings = (self.session.query(Reading)
-                   .filter(Reading.date_finished_actual.is_(None))
-                   .order_by(Reading.id)
-                   .all())
-        
-        for reading in readings:
-            if not reading.days_estimate:
-                continue
+        while iteration < max_iterations:
+            iteration += 1
+            new_changes_found = False
 
-            # Gather additional verification data
-            base_data = {
-                'id': reading.id,
-                'title': reading.book.title,
-                'media': reading.media,
-                'word_count': reading.book.word_count,
-                'days_estimate': reading.days_estimate,
-                'current_start': reading.date_est_start,
-                'current_end': reading.date_est_end,
-            }
+            query = self.session.query(Reading).filter(Reading.date_finished_actual.is_(None))
+            if media_type:
+                query = query.filter(Reading.media.ilike(media_type))
+            readings = query.order_by(Reading.id).all()
 
-            if reading.date_started:
-                estimated_end = reading.date_started + timedelta(days=reading.days_estimate - 1)
-                
-                if estimated_end != reading.date_est_end:
-                    preview_changes.append({
-                        **base_data,
-                        'new_start': reading.date_started,
-                        'new_end': estimated_end,
-                        'has_actual_start': True
-                    })
-            
-            elif reading.id_previous:
-                prev_reading = self.session.get(Reading, reading.id_previous)
-                if prev_reading and prev_reading.date_est_end:
-                    estimated_start = prev_reading.date_est_end + timedelta(days=1)
-                    estimated_end = estimated_start + timedelta(days=reading.days_estimate - 1)
-                    
-                    if (estimated_start != reading.date_est_start or 
-                        estimated_end != reading.date_est_end):
-                        preview_changes.append({
-                            **base_data,
-                            'new_start': estimated_start,
-                            'new_end': estimated_end,
-                            'has_actual_start': False
+            for reading in readings:
+                if not reading.days_estimate:
+                    continue
+
+                reading_id = reading.id
+                current_change = {
+                    'id': reading_id,
+                    'title': reading.book.title,
+                    'media': reading.media,
+                    'word_count': reading.book.word_count,
+                    'days_estimate': reading.days_estimate,
+                    'current_start': reading.date_est_start,
+                    'current_end': reading.date_est_end,
+                }
+
+                new_start = None
+                new_end = None
+
+                if reading.date_started:
+                    new_start = reading.date_started
+                    new_end = reading.date_started + timedelta(days=reading.days_estimate - 1)
+                elif reading.id_previous:
+                    prev_reading = self.session.get(Reading, reading.id_previous)
+                    if prev_reading and prev_reading.date_est_end:
+                        # Use either actual end date from previous changes or current end date
+                        prev_end = all_changes.get(prev_reading.id, {}).get('new_end', prev_reading.date_est_end)
+                        if prev_end:
+                            new_start = prev_end + timedelta(days=1)
+                            new_end = new_start + timedelta(days=reading.days_estimate - 1)
+
+                if new_start and new_end:
+                    if (new_start != reading.date_est_start or new_end != reading.date_est_end):
+                        current_change.update({
+                            'new_start': new_start,
+                            'new_end': new_end,
+                            'has_actual_start': bool(reading.date_started)
                         })
-        
-        preview_changes.sort(key=lambda x: x['new_start'] or date.max)
-        return preview_changes
+                        
+                        # Check if this is a new change or different from previous iteration
+                        prev_change = all_changes.get(reading_id)
+                        if not prev_change or (
+                            prev_change['new_start'] != new_start or 
+                            prev_change['new_end'] != new_end
+                        ):
+                            all_changes[reading_id] = current_change
+                            new_changes_found = True
+
+            if not new_changes_found:
+                break
+
+        # Convert dict to sorted list
+        changes_list = list(all_changes.values())
+        changes_list.sort(key=lambda x: x['new_start'] or date.max)
+        return changes_list
 
     def display_chain_updates_preview(self, changes: List[Dict]) -> None:
         """Display preview of chain date changes"""
@@ -468,7 +607,7 @@ class ChainOperations:
         for change in changes:
             # Format word count with commas
             word_count = f"{change['word_count']:,}" if change['word_count'] else "N/A"
-            
+
             current_start = str(change['current_start'] or '')
             new_start = str(change['new_start'] or '')
             if change.get('has_actual_start'):
@@ -489,19 +628,21 @@ class ChainOperations:
         console.print(table)
         console.print(f"\nTotal changes: {len(changes)}")
 
-    def preview_days_estimate_updates(self) -> List[Dict]:
+    def preview_days_estimate_updates(self, media_type: str = None) -> List[Dict]:
         """Preview changes that would be made to days_estimate values"""
         preview_changes = []
         readings = self.get_all_readings()
 
         for reading in readings:
+            # Skip if no word count or wrong media type
             if not reading.book.word_count or not reading.media:
+                continue
+            if media_type and reading.media.lower() != media_type.lower():
                 continue
 
             media_lower = reading.media.lower()
             words_per_day = READING_SPEEDS.get(media_lower, DEFAULT_WPD)
             old_estimate = reading.days_estimate
-            # Changed from int() to math.ceil()
             new_estimate = math.ceil(reading.book.word_count / words_per_day)
 
             if old_estimate != new_estimate:
@@ -546,7 +687,7 @@ class ChainOperations:
     def apply_days_estimate_updates(self, changes: List[Dict]) -> int:
         """Apply the previewed days estimate updates"""
         updates_count = 0
-        
+
         for change in changes:
             reading = self.session.get(Reading, change['id'])
             if reading:
@@ -558,7 +699,7 @@ class ChainOperations:
     def apply_chain_updates(self, changes: List[Dict]) -> int:
         """Apply the previewed chain date updates"""
         updates_count = 0
-        
+
         for change in changes:
             reading = self.session.get(Reading, change['id'])
             if reading:
@@ -568,64 +709,196 @@ class ChainOperations:
 
         return updates_count
 
-    def _get_chain_state(self, reading: Reading, target: Reading, window: int = 2) -> Dict:
-        """
-        Get the current state of chain segments around a reading and target.
-        
-        Args:
-            reading: Reading being moved
-            target: Target reading
-            window: Number of readings to show before/after (default 2)
-        
-        Returns:
-            Dictionary containing chain state information
-        """
-        # Get the full chain for the reading's media type
-        reading_chain = self.queries.get_reading_chain_by_media(reading.media)
-        target_chain = self.queries.get_reading_chain_by_media(target.media)
-        
-        # Find positions in chains
-        reading_pos = next((i for i, r in enumerate(reading_chain) if r['read_id'] == reading.id), -1)
-        target_pos = next((i for i, r in enumerate(target_chain) if r['read_id'] == target.id), -1)
-        
-        # Get chain segments
-        reading_before, reading_after = self.get_chain_segment(reading_chain, reading_pos, window)
-        target_before, target_after = self.get_chain_segment(target_chain, target_pos, window)
-        
-        # Format reading entries for display
-        def format_reading(r: Dict) -> str:
-            media_color = self.queries._get_media_color(r['media'])
-            return f"ID: {r['read_id']} - [bold {media_color}][{r['media']:7}][/bold {media_color}] {r['title']} (Previous: {r['chain']['previous_id']})"
-        
-        # Build state dictionary
-        state = {
-            'source': {
-                'reading': reading,
-                'segment': [format_reading(r) for r in reading_before + [reading_chain[reading_pos]] + reading_after]
-            },
-            'target': {
-                'reading': target,
-                'segment': [format_reading(r) for r in target_before + [target_chain[target_pos]] + target_after]
+    def get_chain_window(self, reading: Reading, window: int = 2) -> List[Dict]:
+        """Get a window of readings around the given reading"""
+        try:
+            # Get books before
+            before = []
+            current = reading
+            for _ in range(window):
+                if current.id_previous:
+                    prev = self.session.get(Reading, current.id_previous)
+                    if prev:
+                        before.insert(0, {
+                            'read_id': prev.id,
+                            'media': prev.media,
+                            'title': prev.book.title,
+                            'chain': {'previous_id': prev.id_previous}
+                        })
+                        current = prev
+                    else:
+                        break
+                else:
+                    break
+
+            # Current reading
+            current_dict = {
+                'read_id': reading.id,
+                'media': reading.media,
+                'title': reading.book.title,
+                'chain': {'previous_id': reading.id_previous}
             }
+
+            # Get books after
+            after = []
+            current = reading
+            for _ in range(window):
+                next_reading = (self.session.query(Reading)
+                              .filter(Reading.id_previous == current.id)
+                              .first())
+                if next_reading:
+                    after.append({
+                        'read_id': next_reading.id,
+                        'media': next_reading.media,
+                        'title': next_reading.book.title,
+                        'chain': {'previous_id': next_reading.id_previous}
+                    })
+                    current = next_reading
+                else:
+                    break
+
+            return before + [current_dict] + after
+
+        except Exception as e:
+            console.print(f"[red]Error getting chain window: {str(e)}[/red]")
+            raise
+
+    def _get_chain_state(self, reading: Reading, target: Reading) -> Dict:
+        """Get the current state of chain segments around a reading and target."""
+        try:
+            # For original state, get the chain segments as they currently exist
+            if not hasattr(self, '_original_state'):
+                self._original_state = {
+                    'source': {
+                        'segment': [self._format_reading(r) for r in self.get_chain_window(reading)]
+                    },
+                    'target': {
+                        'segment': [self._format_reading(r) for r in self.get_chain_window(target)]
+                    }
+                }
+                return self._original_state
+
+            # For new state, show both modified chains
+            source_chain = []
+            target_chain = []
+
+            # Build source chain (original chain with reading removed)
+            # First, get 2 books before where the reading was
+            if reading.id_previous:
+                current = self.session.get(Reading, reading.id_previous)
+                for _ in range(2):
+                    if current and current.id_previous:
+                        prev = self.session.get(Reading, current.id_previous)
+                        if prev:
+                            source_chain.insert(0, self._format_reading({
+                                'read_id': prev.id,
+                                'title': prev.book.title,
+                                'media': prev.media,
+                                'chain': {'previous_id': prev.id_previous}
+                            }))
+                            current = prev
+
+            # Add the book that was immediately before our moved reading
+            if reading.id_previous:
+                prev = self.session.get(Reading, reading.id_previous)
+                if prev:
+                    source_chain.append(self._format_reading({
+                        'read_id': prev.id,
+                        'title': prev.book.title,
+                        'media': prev.media,
+                        'chain': {'previous_id': prev.id_previous}
+                    }))
+
+            # Get the reading that was pointing to our moved reading
+            pointing_to_moving = self.session.query(Reading).filter(Reading.id_previous == reading.id).first()
+            if pointing_to_moving:
+                # Show the chain after the moved reading, now connected to the reading's original previous
+                current = pointing_to_moving
+                source_chain.append(self._format_reading({
+                    'read_id': current.id,
+                    'title': current.book.title,
+                    'media': current.media,
+                    'chain': {'previous_id': reading.id_previous}
+                }))
+
+                # Add two more readings after
+                for _ in range(2):
+                    next_reading = self.session.query(Reading).filter(Reading.id_previous == current.id).first()
+                    if next_reading:
+                        source_chain.append(self._format_reading({
+                            'read_id': next_reading.id,
+                            'title': next_reading.book.title,
+                            'media': next_reading.media,
+                            'chain': {'previous_id': next_reading.id_previous}
+                        }))
+                        current = next_reading
+
+            # Build target chain
+            current = target
+            for _ in range(2):  # Get 2 books before
+                if current.id_previous:
+                    prev = self.session.get(Reading, current.id_previous)
+                    if prev:
+                        target_chain.insert(0, self._format_reading({
+                            'read_id': prev.id,
+                            'title': prev.book.title,
+                            'media': prev.media,
+                            'chain': {'previous_id': prev.id_previous}
+                        }))
+                        current = prev
+
+            # Add target
+            target_chain.append(self._format_reading({
+                'read_id': target.id,
+                'title': target.book.title,
+                'media': target.media,
+                'chain': {'previous_id': target.id_previous}
+            }))
+
+            # Add moved reading
+            target_chain.append(self._format_reading({
+                'read_id': reading.id,
+                'title': reading.book.title,
+                'media': reading.media,
+                'chain': {'previous_id': target.id}
+            }))
+
+            # Add next reading in target chain
+            next_in_target = self.session.query(Reading).filter(Reading.id_previous == target.id).first()
+            if next_in_target and next_in_target.id != reading.id:
+                target_chain.append(self._format_reading({
+                    'read_id': next_in_target.id,
+                    'title': next_in_target.book.title,
+                    'media': next_in_target.media,
+                    'chain': {'previous_id': reading.id}
+                }))
+
+            return {
+                'source': {'segment': source_chain},
+                'target': {'segment': target_chain}
+            }
+
+        except Exception as e:
+            console.print(f"[red]Error getting chain state: {str(e)}[/red]")
+            raise
+
+    def _format_reading(self, reading_dict: Dict) -> Dict:
+        """Format a reading dictionary for display"""
+        return {
+            'id': reading_dict['read_id'],
+            'title': reading_dict['title'],
+            'media': reading_dict['media'],
+            'chain': reading_dict['chain']
         }
-        
-        # Add media change warning if applicable
-        if reading.media != target.media:
-            state['media_change_msg'] = (
-                f"\n[yellow]Warning:[/yellow] Moving from [{self.queries._get_media_color(reading.media)}]{reading.media}[/{self.queries._get_media_color(reading.media)}] chain to "
-                f"[{self.queries._get_media_color(target.media)}]{target.media}[/{self.queries._get_media_color(target.media)}] chain"
-            )
-        
-        return state
 
     def update_reading(self, reading_id: int, update_data: Dict[str, Any]) -> Tuple[bool, str]:
         """
         Update a reading entry with new data
-        
+
         Args:
             reading_id: ID of the reading to update
             update_data: Dictionary of fields to update
-        
+
         Returns:
             Tuple of (success, message)
         """
