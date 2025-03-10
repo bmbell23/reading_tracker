@@ -103,6 +103,10 @@ class ChainOperations:
             if not target_reading:
                 return False, f"Target reading {target_id} not found", None
 
+            # Check if we're trying to move a book to where it already is
+            if reading_to_move.id_previous == target_reading.id:
+                return False, "Book is already in the requested position", None
+
             # Get chain states before changes
             chain_state = self._get_chain_state(reading_to_move, target_reading)
 
@@ -116,7 +120,7 @@ class ChainOperations:
 
             # 2. Update the reading that was pointing to our target's next reading
             next_after_target = self.session.query(Reading).filter(Reading.id_previous == target_reading.id).first()
-            if next_after_target:
+            if next_after_target and next_after_target.id != reading_to_move.id:  # Add this check
                 next_after_target.id_previous = reading_to_move.id
 
             # 3. Update our moving reading to point to target's previous next reading
@@ -780,27 +784,35 @@ class ChainOperations:
             def get_next_n(start_reading: Reading, n: int, exclude_id: int = None) -> List[Reading]:
                 result = []
                 current = start_reading
+                seen_ids = set()  # Track seen reading IDs
                 for _ in range(n):
                     next_reading = self.session.query(Reading).filter(
                         Reading.id_previous == current.id
                     ).first()
-                    if next_reading and next_reading.id != exclude_id:
+                    if next_reading and next_reading.id not in seen_ids and next_reading.id != exclude_id:
                         result.append(next_reading)
                         current = next_reading
+                        seen_ids.add(next_reading.id)
                     else:
                         break
                 return result
 
-            # Format reading for display
+            # Format reading into dictionary
             def format_reading(r: Reading) -> Dict:
+                next_reading = self.session.query(Reading).filter(
+                    Reading.id_previous == r.id
+                ).first()
                 return {
                     'id': r.id,
-                    'title': r.book.title,
                     'media': r.media,
-                    'chain': {'previous_id': r.id_previous}
+                    'title': r.book.title,
+                    'chain': {
+                        'previous_id': r.id_previous,
+                        'next_id': next_reading.id if next_reading else None
+                    }
                 }
 
-            # Build chain states
+            # Build original chain segments
             original_source = (
                 get_previous_n(reading, CONTEXT_SIZE) +  # 2 books before
                 [reading] +                              # The book being moved
@@ -823,7 +835,7 @@ class ChainOperations:
                 get_previous_n(target, CONTEXT_SIZE) +   # 2 books before
                 [target] +                               # Target book
                 [reading] +                              # Inserted book
-                get_next_n(target, CONTEXT_SIZE)         # 2 books after
+                get_next_n(target, CONTEXT_SIZE, exclude_id=reading.id)  # 2 books after, excluding the moved book
             )
 
             return {
