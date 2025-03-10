@@ -18,6 +18,7 @@ from . import chain_report
 from . import generate_tbr
 from . import generate_dashboard
 from . import list_readings
+from . import excel_template_cli
 
 def main():
     """Main CLI entry point."""
@@ -25,39 +26,42 @@ def main():
         description="Reading List Management CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    
+
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
+
+    # Register all subparsers
+    excel_template_cli.add_excel_subcommand(subparsers)  # Make sure this is registered
+
     # Register all subparsers
     dashboard_parser = subparsers.add_parser(
         "generate-dashboard",
         help="Generate the reading dashboard and chain report"
     )
-    
+
     # Add generate-tbr command
     tbr_parser = subparsers.add_parser(
         "generate-tbr",
         help="Generate TBR (To Be Read) report"
     )
-    
+
     # Add chain-report command
     chain_report_parser = subparsers.add_parser(
         "chain-report",
         help="Generate reading chain report"
     )
-    
+
     # Add update-entries command
     update_entries_parser = subparsers.add_parser(
         "update-entries",
         help="Update database entries interactively"
     )
-    
+
     # Add update-readings command
     update_readings_parser = subparsers.add_parser(
         "update-readings",
         help="Update reading calculations"
     )
-    update_readings_parser.add_argument('--all', action='store_true', 
+    update_readings_parser.add_argument('--all', action='store_true',
                                       help='Update all calculated columns')
     update_readings_parser.add_argument('--estimate', action='store_true',
                                       help='Update days_estimate column')
@@ -67,27 +71,27 @@ def main():
                                       help='Update chain dates')
     update_readings_parser.add_argument('--no-confirm', action='store_true',
                                       help='Skip confirmation prompt')
-    
+
     # Add reorder command
     reorder_parser = subparsers.add_parser("reorder", help="Reorder readings in chains")
     reorder_parser.add_argument("reading_id", type=int, help="ID of the reading to move")
     reorder_parser.add_argument("target_id", type=int, help="ID of the reading to place after")
-    
+
     # Register commands
     covers_parser = subparsers.add_parser("covers", help="Manage book covers")
     covers_subparsers = covers_parser.add_subparsers(dest="covers_command")
     update_parser = covers_subparsers.add_parser("update", help="Update cover status for all books")
-    
+
     # Chain inspection parser
     chain_parser = subparsers.add_parser("chain", help="Inspect reading chains")
     chain_parser.add_argument("title_fragment", help="Part of the book title to search for")
-    
+
     # Version management parser
     version_parser = subparsers.add_parser("version", help="Version management")
     version_group = version_parser.add_mutually_exclusive_group(required=True)
     version_group.add_argument('--check', action='store_true', help='Check current version')
     version_group.add_argument('--update', help='Update to specified version')
-    
+
     yearly_parser = yearly.add_subparser(subparsers)
     status_parser = status.add_subparser(subparsers)
     media_stats_parser = media_stats.add_subparser(subparsers)
@@ -102,7 +106,9 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "list-readings":
+    if args.command == "excel":
+        return excel_template_cli.handle_excel_command(args)
+    elif args.command == "list-readings":
         return list_readings.handle_command(args)
     elif args.command == "generate-dashboard":
         return generate_dashboard.main()
