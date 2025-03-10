@@ -730,6 +730,39 @@
         .filter-button[data-active="true"].tbr {
             background: #dbeafe; /* Light blue background */
         }
+
+        .book-card {
+            position: relative; /* Ensure this is set for tooltip positioning */
+        }
+
+        .read-id-tooltip {
+            visibility: hidden;
+            position: absolute;
+            top: -30px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            display: flex;
+            gap: 8px;
+        }
+
+        .read-id-tooltip span {
+            color: #94a3b8;
+        }
+
+        .read-id-tooltip strong {
+            color: white;
+        }
+
+        .book-card:hover .read-id-tooltip {
+            visibility: visible;
+        }
     </style>
 </head>
 <body>
@@ -773,6 +806,10 @@
         <div class="book-chain">
             {% for book in books %}
             <div class="book-card {{ book.media.lower() }} {% if book.is_current %}current-book{% endif %} {% if book.is_future %}future-book{% endif %}">
+                <div class="read-id-tooltip">
+                    <div><span>Read:</span> <strong>{{ book.id }}</strong></div>
+                    <div><span>Book:</span> <strong>{{ book.book_id }}</strong></div>
+                </div>
                 {% if book.book_id in reread_book_ids %}
                 <div class="reread-icon" onclick="filterRereads(event)">
                     <img src="../../assets/icons/reread.png" alt="↺" title="Click to filter rereads">
