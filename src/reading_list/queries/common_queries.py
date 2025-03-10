@@ -226,18 +226,21 @@ class CommonQueries:
         """
         try:
             if reread_type == 'upcoming':
-                # Books that have been read before and are in current chain
+                # Create subquery first
+                finished_books = (
+                    self.session.query(Reading.book_id)
+                    .filter(Reading.date_finished_actual.isnot(None))
+                    .subquery()
+                )
+                
+                # Main query
                 query = (
                     self.session.query(Reading)
                     .join(Book)
                     .filter(
                         Reading.date_est_end.isnot(None),
                         Reading.date_finished_actual.is_(None),
-                        Book.id.in_(
-                            self.session.query(Reading.book_id)
-                            .filter(Reading.date_finished_actual.isnot(None))
-                            .subquery()
-                        )
+                        Book.id.in_(finished_books)
                     )
                 )
             elif reread_type == 'finished':
