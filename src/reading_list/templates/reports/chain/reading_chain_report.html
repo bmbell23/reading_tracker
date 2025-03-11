@@ -153,7 +153,7 @@
             margin-top: 40px;
         }
 
-        /* Filter button base styles */
+        /* Base filter button styles */
         .filter-button {
             display: inline-block;
             padding: 8px 16px;
@@ -162,10 +162,10 @@
             font-weight: 700;
             font-size: 0.9rem;
             transition: all 0.2s ease;
-            background-color: white;
-            position: relative;
-            z-index: 101;
-            opacity: 0.7;
+            background-color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
         }
 
         /* Media-specific colors */
@@ -181,36 +181,54 @@
             color: #FF6600;
         }
 
-        /* Checked states for media filters */
+        /* Active states for media filters */
         .filter-button[data-active="true"].kindle {
-            background: #EFF6FF;
-            opacity: 1;
+            background-color: #EFF6FF;
         }
 
         .filter-button[data-active="true"].hardcover {
-            background: #F8F5FF;
-            opacity: 1;
+            background-color: #F8F5FF;
         }
 
         .filter-button[data-active="true"].audio {
-            background: #FFF7ED;
-            opacity: 1;
+            background-color: #FFF7ED;
         }
 
-        /* General checked state */
-        .filter-button[data-active="true"] {
-            opacity: 1;
+        /* Status filter active states */
+        .filter-button[data-active="true"].read {
+            background-color: #dcfce7;
         }
 
-        /* Hover states */
-        .filter-button:hover {
-            opacity: 1;
-            background: #f3f4f6;
+        .filter-button[data-active="true"].tbr {
+            background-color: #dbeafe;
         }
 
         /* Hide radio inputs */
         .filter-option input[type="radio"] {
             display: none;
+        }
+
+        @media (max-width: 600px) {
+            .filter-button {
+                background-color: #ffffff;
+            }
+
+            .filter-button[data-active="false"] {
+                background-color: #ffffff !important;
+            }
+
+            /* Ensure active states are visible on mobile */
+            .filter-button[data-active="true"].kindle {
+                background-color: #EFF6FF !important;
+            }
+
+            .filter-button[data-active="true"].hardcover {
+                background-color: #F8F5FF !important;
+            }
+
+            .filter-button[data-active="true"].audio {
+                background-color: #FFF7ED !important;
+            }
         }
 
         /* Ensure proper stacking for book cards */
@@ -715,21 +733,6 @@
         .reread-icon:hover img {
             transform: scale(1.1);
         }
- Add styles for status filter buttons */
-        .filter-button[data-active="true"] {
-            background: #f3f4f6;
-            opacity: 1;
-        }
-
-        /* You might want specific colors for TBR/Read buttons when active */
-        .filter-button[data-active="true"].read {
-            background: #dcfce7; /* Light green background */
-        }
-
-        .filter-button[data-active="true"].tbr {
-            background: #dbeafe; /* Light blue background */
-        }
-
         .book-card {
             position: relative; /* Ensure this is set for tooltip positioning */
         }
@@ -890,7 +893,6 @@
             const mediaFilters = document.querySelectorAll('input[name="media-filter"]');
             const bookCards = document.querySelectorAll('.book-card');
 
-            // Add scroll to top function
             function scrollToTop() {
                 window.scrollTo({
                     top: 0,
@@ -901,30 +903,67 @@
             // Handle media filters
             mediaFilters.forEach(radio => {
                 radio._wasChecked = false;
+                const filterButton = radio.nextElementSibling;
 
-                radio.addEventListener('click', function(e) {
-                    if (this._wasChecked) {
-                        e.preventDefault();
-                        this.checked = false;
-                        this._wasChecked = false;
-                        this.nextElementSibling.dataset.active = "false";
-                    } else {
-                        mediaFilters.forEach(r => {
+                // Prevent default touch behavior
+                filterButton.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                }, { passive: false });
+
+                // Combined handler for both click and touch
+                function handleFilterInteraction(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Reset all other filters
+                    mediaFilters.forEach(r => {
+                        if (r !== radio) {
                             r._wasChecked = false;
+                            r.checked = false;
                             r.nextElementSibling.dataset.active = "false";
-                        });
-                        this._wasChecked = true;
-                        this.nextElementSibling.dataset.active = "true";
+                        }
+                    });
+
+                    // Toggle current filter
+                    if (radio._wasChecked) {
+                        radio.checked = false;
+                        radio._wasChecked = false;
+                        filterButton.dataset.active = "false";
+                    } else {
+                        radio.checked = true;
+                        radio._wasChecked = true;
+                        filterButton.dataset.active = "true";
                     }
+
+                    // Force a repaint to handle mobile rendering
+                    filterButton.style.display = 'none';
+                    filterButton.offsetHeight; // Trigger reflow
+                    filterButton.style.display = '';
+
                     applyFilters();
                     scrollToTop();
+                }
+
+                // Add both click and touch handlers
+                filterButton.addEventListener('click', handleFilterInteraction);
+                filterButton.addEventListener('touchend', handleFilterInteraction);
+
+                // Prevent ghost clicks
+                let lastTouchTime = 0;
+                filterButton.addEventListener('touchend', function() {
+                    lastTouchTime = Date.now();
+                });
+
+                filterButton.addEventListener('click', function(e) {
+                    if (Date.now() - lastTouchTime < 500) {
+                        e.preventDefault();
+                    }
                 });
             });
 
             // Handle status filters (TBR/Read)
             statusFilters.forEach(radio => {
                 radio.addEventListener('change', function() {
-                    // Update visual state for all status filters
                     statusFilters.forEach(r => {
                         r.nextElementSibling.dataset.active = r.checked ? "true" : "false";
                     });
