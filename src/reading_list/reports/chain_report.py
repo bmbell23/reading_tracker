@@ -262,12 +262,6 @@ def generate_chain_report(args=None):
             # Get all readings, no chain logic
             all_readings = get_all_readings(session)
             
-            # Debug: Print raw readings with reread status
-            console.print("\nDebug: Raw readings with reread status:")
-            for reading in all_readings:
-                if reading['reread']:
-                    console.print(f"Book ID: {reading['book_id']}, Title: {reading['title']}, Reread: {reading['reread']}")
-            
             # Process each reading
             all_books = []
             for reading in all_readings:
@@ -284,22 +278,11 @@ def generate_chain_report(args=None):
                     'book_id': reading['book_id'],
                     'id': reading['id'],
                     'media': reading['media'],
-                    'reread': bool(reading['reread'])  # Explicitly convert to boolean
+                    'reread': bool(reading['reread'])
                 }
 
                 formatted_book = process_reading_data(raw_data)
-                
-                # Debug: Print processed books with reread status
-                if formatted_book['reread']:
-                    console.print(f"Processed - Book ID: {formatted_book['book_id']}, Title: {formatted_book['title']}, Reread: {formatted_book['reread']}")
-                
                 all_books.append(formatted_book)
-
-            # Debug: Print final books with reread status
-            console.print("\nDebug: Final books with reread status:")
-            for book in all_books:
-                if book['reread']:
-                    console.print(f"Final - Book ID: {book['book_id']}, Title: {book['title']}, Reread: {book['reread']}")
 
             # Set up Jinja2 environment
             template_dir = project_paths['templates'] / 'reports' / 'chain'
