@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -24,5 +24,6 @@ class Reading(Base):
     days_to_read_delta_from_estimate = Column(Integer)
     date_est_start = Column(Date)
     date_est_end = Column(Date)
+    reread = Column(Boolean, default=False)
 
     book = relationship("Book", back_populates="readings")

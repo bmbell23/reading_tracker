@@ -70,6 +70,8 @@ def main():
                                       help='Update days_elapsed_to_read column')
     update_readings_parser.add_argument('--chain', action='store_true',
                                       help='Update chain dates')
+    update_readings_parser.add_argument('--reread', action='store_true',
+                                      help='Update reread flags')
     update_readings_parser.add_argument('--no-confirm', action='store_true',
                                       help='Skip confirmation prompt')
 
@@ -127,6 +129,7 @@ def main():
             '--estimate' if args.estimate else None,
             '--elapsed' if args.elapsed else None,
             '--chain' if args.chain else None,
+            '--reread' if args.reread else None,
             '--no-confirm' if args.no_confirm else None
         ])
     elif args.command == "reorder":
