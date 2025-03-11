@@ -15,7 +15,6 @@ from . import reorder_chain
 from . import update_entries
 from . import update_readings
 from . import chain_report
-from . import generate_tbr
 from . import generate_dashboard
 from . import list_readings
 from . import excel_template_cli
@@ -37,12 +36,6 @@ def main():
     dashboard_parser = subparsers.add_parser(
         "generate-dashboard",
         help="Generate the reading dashboard and chain report"
-    )
-
-    # Add generate-tbr command
-    tbr_parser = subparsers.add_parser(
-        "generate-tbr",
-        help="Generate TBR (To Be Read) report"
     )
 
     # Add chain-report command
@@ -117,8 +110,6 @@ def main():
         return list_readings.handle_command(args)
     elif args.command == "generate-dashboard":
         return generate_dashboard.main()
-    elif args.command == "generate-tbr":
-        return generate_tbr.handle_command(args)
     elif args.command == "chain-report":
         return chain_report.handle_command(args)
     elif args.command == "update-entries":
