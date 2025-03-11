@@ -43,3 +43,5 @@ alias ver='reading-list version --check'
 
 alias tbr='reading-list chain-report'
 
+alias shelves='reading-list shelf && reading-list shelf --shelve'
+

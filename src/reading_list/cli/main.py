@@ -19,6 +19,7 @@ from . import generate_tbr
 from . import generate_dashboard
 from . import list_readings
 from . import excel_template_cli
+from . import shelf
 
 def main():
     """Main CLI entry point."""
@@ -104,6 +105,8 @@ def main():
     # Register list-readings command
     list_readings_parser = list_readings.add_subparser(subparsers)
 
+    shelf_parser = shelf.add_subparser(subparsers)
+
     args = parser.parse_args()
 
     if args.command == "excel":
@@ -153,6 +156,8 @@ def main():
         return sync_covers.handle_command(args)
     elif args.command == "email-report":
         return email_report.handle_command(args)
+    elif args.command == "shelf":
+        return shelf.handle_command(args)
     else:
         parser.print_help()
         return 1
