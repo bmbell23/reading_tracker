@@ -85,6 +85,7 @@ def get_all_readings(session) -> List[Dict[str, Any]]:
             r.date_finished_actual,
             r.date_est_start,
             r.date_est_end,
+            r.reread,
             b.title,
             b.author_name_first,
             b.author_name_second,
@@ -93,12 +94,9 @@ def get_all_readings(session) -> List[Dict[str, Any]]:
         FROM read r
         JOIN books b ON r.book_id = b.id
         ORDER BY 
-            -- Show finished books newest to oldest
             CASE WHEN r.date_finished_actual IS NOT NULL 
                 THEN 1 ELSE 0 END DESC,
-            -- For finished books, show newest first
             r.date_finished_actual DESC,
-            -- For unfinished books (TBR), show oldest first
             COALESCE(r.date_started, r.date_est_start) ASC
     """
     
@@ -193,7 +191,7 @@ def process_reading_data(reading):
         'book_id': reading['book_id'],
         'media': reading['media'],
         'progress': progress,
-        'is_reread': reading.get('is_reread', False)
+        'reread': reading.get('reread', False)
     }
 
 def organize_chains_by_media(readings) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
@@ -264,6 +262,12 @@ def generate_chain_report(args=None):
             # Get all readings, no chain logic
             all_readings = get_all_readings(session)
             
+            # Debug: Print raw readings with reread status
+            console.print("\nDebug: Raw readings with reread status:")
+            for reading in all_readings:
+                if reading['reread']:
+                    console.print(f"Book ID: {reading['book_id']}, Title: {reading['title']}, Reread: {reading['reread']}")
+            
             # Process each reading
             all_books = []
             for reading in all_readings:
@@ -280,11 +284,22 @@ def generate_chain_report(args=None):
                     'book_id': reading['book_id'],
                     'id': reading['id'],
                     'media': reading['media'],
-                    'is_reread': reading['book_id'] in reread_book_ids
+                    'reread': bool(reading['reread'])  # Explicitly convert to boolean
                 }
 
                 formatted_book = process_reading_data(raw_data)
+                
+                # Debug: Print processed books with reread status
+                if formatted_book['reread']:
+                    console.print(f"Processed - Book ID: {formatted_book['book_id']}, Title: {formatted_book['title']}, Reread: {formatted_book['reread']}")
+                
                 all_books.append(formatted_book)
+
+            # Debug: Print final books with reread status
+            console.print("\nDebug: Final books with reread status:")
+            for book in all_books:
+                if book['reread']:
+                    console.print(f"Final - Book ID: {book['book_id']}, Title: {book['title']}, Reread: {book['reread']}")
 
             # Set up Jinja2 environment
             template_dir = project_paths['templates'] / 'reports' / 'chain'
