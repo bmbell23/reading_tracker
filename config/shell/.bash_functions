@@ -30,3 +30,12 @@ function show_table()
 {
         sqlite3 -header -column data/db/reading_list.db "SELECT * FROM $1"
 }
+
+
+function cover()
+{
+        sudo curl -L "$1" -o "$WORKSPACE/assets/book_covers/$2.jpg"
+        reading-list chain-report
+        echo "Cover added for book ID $2"
+        ls -alh "$WORKSPACE/assets/book_covers/$2.jpg"
+}

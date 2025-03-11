@@ -256,8 +256,11 @@ class DatabaseUpdater:
             if action == 'new':
                 if table_choice == 'read':
                     self._create_new_reading()
-                else:
-                    StyleConfig.console.print("New entry creation not yet implemented for this table", style=StyleConfig.ERROR)
+                elif table_choice == 'books':
+                    self._create_new_book()
+                elif table_choice == 'inv':
+                    book_id = Prompt.ask("Enter book ID for new inventory entry")
+                    self._create_new_inventory(int(book_id))
                 continue
 
             # Handle updating existing entry
@@ -271,8 +274,28 @@ class DatabaseUpdater:
                 continue
 
             handler.display_results(entries)
-            if len(entries) == 1 and Prompt.ask("Update this entry?", choices=['y', 'n'], default='n') == 'y':
-                self._update_entry(entries[0], handler)
+            
+            # New code for selecting entry by ID
+            if len(entries) > 0:
+                entry_id = Prompt.ask(
+                    "\nEnter ID of entry to update (or 'back' to return)",
+                    default="back"
+                )
+                
+                if entry_id.lower() == 'back':
+                    continue
+                    
+                try:
+                    entry_id = int(entry_id)
+                    selected_entry = next((e for e in entries if e.id == entry_id), None)
+                    
+                    if selected_entry:
+                        if Prompt.ask(f"Update entry with ID {entry_id}?", choices=['y', 'n'], default='n') == 'y':
+                            self._update_entry(selected_entry, handler)
+                    else:
+                        StyleConfig.console.print(f"[red]No entry found with ID {entry_id} in search results[/red]")
+                except ValueError:
+                    StyleConfig.console.print("[red]Please enter a valid number[/red]")
 
     def _update_entry(self, entry: Any, handler: ModelHandler):
         """Update a single entry"""
@@ -323,22 +346,26 @@ class DatabaseUpdater:
             self.session.rollback()
             StyleConfig.console.print(f"Error updating entry: {str(e)}", style=StyleConfig.ERROR)
 
-    def _create_new_reading(self):
+    def _create_new_reading(self, book_id: int = None):
         """Create a new reading entry"""
         StyleConfig.console.print("\n[bold cyan]Creating New Reading Entry[/bold cyan]")
         
-        # Get and validate book ID
-        while True:
-            try:
-                book_id = int(Prompt.ask("Enter book ID"))
-                book = self.session.get(Book, book_id)
-                if book:
-                    StyleConfig.console.print(f"Selected book: [green]{book.title}[/green]")
-                    break
-                else:
-                    StyleConfig.console.print(f"[red]Book ID {book_id} not found[/red]")
-            except ValueError:
-                StyleConfig.console.print("[red]Please enter a valid number[/red]")
+        # Get and validate book ID if not provided
+        if book_id is None:
+            while True:
+                try:
+                    book_id = int(Prompt.ask("Enter book ID"))
+                    book = self.session.get(Book, book_id)
+                    if book:
+                        StyleConfig.console.print(f"Selected book: [green]{book.title}[/green]")
+                        break
+                    else:
+                        StyleConfig.console.print(f"[red]Book ID {book_id} not found[/red]")
+                except ValueError:
+                    StyleConfig.console.print("[red]Please enter a valid number[/red]")
+        else:
+            book = self.session.get(Book, book_id)
+            StyleConfig.console.print(f"Selected book: [green]{book.title}[/green]")
         
         # Get media type
         media = Prompt.ask("Enter media type", choices=["kindle", "hardcover", "audio"])
@@ -383,6 +410,167 @@ class DatabaseUpdater:
         else:
             self.session.rollback()
             StyleConfig.console.print("[yellow]New reading entry discarded[/yellow]")
+
+    def _create_new_book(self):
+        """Create a new book entry"""
+        StyleConfig.console.print("\n[bold cyan]Creating New Book Entry[/bold cyan]")
+        
+        # Get the next available book ID
+        next_id = self.session.execute(text("SELECT MAX(id) FROM books")).scalar()
+        next_id = (next_id or 0) + 1
+        
+        # Get required fields
+        title = Prompt.ask("Enter book title")
+        author_first = Prompt.ask("Enter author's first name")
+        author_last = Prompt.ask("Enter author's last name")
+        author_gender = Prompt.ask("Enter author's gender", choices=['M', 'F', 'O', ''], default='')
+        
+        # Optional numeric fields
+        word_count = Prompt.ask("Enter word count (optional)", default="")
+        if word_count and word_count.strip():
+            try:
+                word_count = int(word_count)
+            except ValueError:
+                word_count = None
+        else:
+            word_count = None
+        
+        page_count = Prompt.ask("Enter page count (optional)", default="")
+        if page_count and page_count.strip():
+            try:
+                page_count = int(page_count)
+            except ValueError:
+                page_count = None
+        else:
+            page_count = None
+        
+        # Date field
+        date_published = Prompt.ask("Enter publication date (YYYY-MM-DD) (optional)", default="")
+        if date_published and date_published.strip():
+            try:
+                date_published = datetime.strptime(date_published, "%Y-%m-%d").date()
+            except ValueError:
+                date_published = None
+        else:
+            date_published = None
+        
+        # Series information
+        series = Prompt.ask("Enter series name (optional)", default="")
+        series_number = Prompt.ask("Enter series number (optional)", default="")
+        if series_number and series_number.strip():
+            try:
+                series_number = int(series_number)
+            except ValueError:
+                series_number = None
+        else:
+            series_number = None
+        
+        # Other fields
+        genre = Prompt.ask("Enter genre (optional)", default="")
+        isbn = Prompt.ask("Enter ISBN (optional)", default="")
+        if isbn and isbn.strip():
+            try:
+                isbn = int(isbn)
+            except ValueError:
+                isbn = None
+        else:
+            isbn = None
+        
+        # Create new book entry
+        new_book = Book(
+            id=next_id,
+            title=title,
+            author_name_first=author_first,
+            author_name_second=author_last,
+            author_gender=author_gender if author_gender else None,
+            word_count=word_count,
+            page_count=page_count,
+            date_published=date_published,
+            series=series if series else None,
+            series_number=series_number,
+            genre=genre if genre else None,
+            cover=False,  # Default to False for new books
+            isbn_id=isbn
+        )
+        
+        # Display preview
+        StyleConfig.console.print("\n[bold cyan]New Book Entry Preview:[/bold cyan]")
+        StyleConfig.console.print(f"Book ID: [green]{next_id}[/green]")
+        StyleConfig.console.print(f"Title: [green]{title}[/green]")
+        StyleConfig.console.print(f"Author: [green]{author_first} {author_last}[/green]")
+        if author_gender:
+            StyleConfig.console.print(f"Author Gender: [green]{author_gender}[/green]")
+        if word_count:
+            StyleConfig.console.print(f"Word Count: [green]{word_count:,}[/green]")
+        if page_count:
+            StyleConfig.console.print(f"Page Count: [green]{page_count:,}[/green]")
+        if date_published:
+            StyleConfig.console.print(f"Published: [green]{date_published}[/green]")
+        if series:
+            StyleConfig.console.print(f"Series: [green]{series} #{series_number}[/green]")
+        if genre:
+            StyleConfig.console.print(f"Genre: [green]{genre}[/green]")
+        if isbn:
+            StyleConfig.console.print(f"ISBN: [green]{isbn}[/green]")
+        
+        if Prompt.ask("\nSave this new book entry?", choices=['y', 'n'], default='n') == 'y':
+            self.session.add(new_book)
+            self.session.commit()
+            StyleConfig.console.print("[green]New book entry created successfully![/green]")
+            
+            # Ask if user wants to create related entries
+            if Prompt.ask("Create inventory entry for this book?", choices=['y', 'n'], default='n') == 'y':
+                self._create_new_inventory(new_book.id)
+            
+            if Prompt.ask("Create reading entry for this book?", choices=['y', 'n'], default='n') == 'y':
+                self._create_new_reading(new_book.id)
+        else:
+            self.session.rollback()
+            StyleConfig.console.print("[yellow]New book entry discarded[/yellow]")
+
+    def _create_new_inventory(self, book_id: int):
+        """Create a new inventory entry for a given book ID"""
+        StyleConfig.console.print(f"\n[bold cyan]Creating New Inventory Entry for Book ID {book_id}[/bold cyan]")
+        
+        # Get the next available inventory ID - Changed 'inventory' to 'inv'
+        next_id = self.session.execute(text("SELECT MAX(id) FROM inv")).scalar()
+        next_id = (next_id or 0) + 1
+        
+        # Get required fields
+        owned_physical = Confirm.ask("Do you own the physical copy?")
+        owned_kindle = Confirm.ask("Do you own the Kindle copy?")
+        owned_audio = Confirm.ask("Do you own the audio copy?")
+        
+        # Optional fields
+        location = Prompt.ask("Enter location (optional)", default="")
+        
+        # Create new inventory entry
+        new_inventory = Inventory(
+            id=next_id,
+            book_id=book_id,
+            owned_physical=owned_physical,
+            owned_kindle=owned_kindle,
+            owned_audio=owned_audio,
+            location=location if location else None
+        )
+        
+        # Display preview
+        StyleConfig.console.print("\n[bold cyan]New Inventory Entry Preview:[/bold cyan]")
+        StyleConfig.console.print(f"Inventory ID: [green]{next_id}[/green]")
+        StyleConfig.console.print(f"Book ID: [green]{book_id}[/green]")
+        StyleConfig.console.print(f"Physical Copy: [green]{'Yes' if owned_physical else 'No'}[/green]")
+        StyleConfig.console.print(f"Kindle Copy: [green]{'Yes' if owned_kindle else 'No'}[/green]")
+        StyleConfig.console.print(f"Audio Copy: [green]{'Yes' if owned_audio else 'No'}[/green]")
+        if location:
+            StyleConfig.console.print(f"Location: [green]{location}[/green]")
+        
+        if Prompt.ask("\nSave this new inventory entry?", choices=['y', 'n'], default='n') == 'y':
+            self.session.add(new_inventory)
+            self.session.commit()
+            StyleConfig.console.print("[green]New inventory entry created successfully![/green]")
+        else:
+            self.session.rollback()
+            StyleConfig.console.print("[yellow]New inventory entry discarded[/yellow]")
 
     def _prompt_related_updates(self, book_id: int):
         """Prompt for updating related entries"""
