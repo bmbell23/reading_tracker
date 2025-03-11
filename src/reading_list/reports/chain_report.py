@@ -22,119 +22,88 @@ from ..queries.common_queries import CommonQueries  # Fixed import path
 
 console = Console()
 
-def get_current_readings(db) -> List[Reading]:
-    """Get all readings from the database."""
-    return db.query(Reading).filter(
-        Reading.date_started.isnot(None),
-        Reading.date_finished_actual.is_(None)
-    ).all()
-
-def get_reading_chain(conn, reading_id: int) -> List[Dict[str, Any]]:
-    """
-    Get the complete reading chain (previous and next books)
-
-    Args:
-        conn: Database connection
-        reading_id: ID of the reading to get chain for
-    """
+def get_reading_chain(session, media_type: str = None) -> List[Dict[str, Any]]:
+    """Get readings for a specific media type."""
     query = """
-        WITH RECURSIVE
-        backward AS (
-            -- Initial (current) reading for backward chain
-            SELECT
-                r.id,
-                r.id_previous,
-                r.book_id,
-                r.media,
-                r.date_started,
-                r.date_finished_actual,
-                r.date_est_start,
-                r.date_est_end,
-                b.title,
-                b.author_name_first,
-                b.author_name_second,
-                b.word_count,
-                b.page_count,
-                0 as position
-            FROM read r
-            JOIN books b ON r.book_id = b.id
-            WHERE r.id = :reading_id
-
-            UNION ALL
-
-            -- Previous books in chain
-            SELECT
-                r.id,
-                r.id_previous,
-                r.book_id,
-                r.media,  -- Using each reading's own media value
-                r.date_started,
-                r.date_finished_actual,
-                r.date_est_start,
-                r.date_est_end,
-                b.title,
-                b.author_name_first,
-                b.author_name_second,
-                b.word_count,
-                b.page_count,
-                bw.position - 1
-            FROM read r
-            JOIN books b ON r.book_id = b.id
-            JOIN backward bw ON r.id = bw.id_previous
-        ),
-        forward AS (
-            -- Initial (current) reading for forward chain
-            SELECT
-                r.id,
-                r.id_previous,
-                r.book_id,
-                r.media,
-                r.date_started,
-                r.date_finished_actual,
-                r.date_est_start,
-                r.date_est_end,
-                b.title,
-                b.author_name_first,
-                b.author_name_second,
-                b.word_count,
-                b.page_count,
-                0 as position
-            FROM read r
-            JOIN books b ON r.book_id = b.id
-            WHERE r.id = :reading_id
-
-            UNION ALL
-
-            -- Next books in chain
-            SELECT
-                r.id,
-                r.id_previous,
-                r.book_id,
-                r.media,  -- Using each reading's own media value
-                r.date_started,
-                r.date_finished_actual,
-                r.date_est_start,
-                r.date_est_end,
-                b.title,
-                b.author_name_first,
-                b.author_name_second,
-                b.word_count,
-                b.page_count,
-                fw.position + 1
-            FROM read r
-            JOIN books b ON r.book_id = b.id
-            JOIN forward fw ON r.id_previous = fw.id
-        )
-        SELECT * FROM (
-            SELECT * FROM backward WHERE position < 0
-            UNION ALL
-            SELECT * FROM forward
-        )
-        ORDER BY position;
+        SELECT 
+            r.id,
+            r.book_id,
+            r.media,
+            r.date_started,
+            r.date_finished_actual,
+            r.date_est_start,
+            r.date_est_end,
+            b.title,
+            b.author_name_first,
+            b.author_name_second,
+            b.word_count,
+            b.page_count
+        FROM read r
+        JOIN books b ON r.book_id = b.id
+        WHERE (:media_type IS NULL OR r.media = :media_type)
+        ORDER BY 
+            COALESCE(r.date_finished_actual, r.date_started, r.date_est_start) DESC
     """
+    
+    result = session.execute(text(query), {"media_type": media_type})
+    return [dict(zip(result.keys(), row)) for row in result]
 
-    results = conn.execute(text(query), {"reading_id": reading_id}).fetchall()
-    return results
+def get_current_readings(session) -> List[Dict[str, Any]]:
+    """Get all current (in-progress) readings."""
+    query = """
+        SELECT 
+            r.id,
+            r.book_id,
+            r.media,
+            r.date_started,
+            r.date_finished_actual,
+            r.date_est_start,
+            r.date_est_end,
+            b.title,
+            b.author_name_first,
+            b.author_name_second,
+            b.word_count,
+            b.page_count
+        FROM read r
+        JOIN books b ON r.book_id = b.id
+        WHERE r.date_started <= CURRENT_DATE
+        AND r.date_finished_actual IS NULL
+        ORDER BY r.date_started DESC
+    """
+    
+    result = session.execute(text(query))
+    return [dict(zip(result.keys(), row)) for row in result]
+
+def get_all_readings(session) -> List[Dict[str, Any]]:
+    """Get all readings from the database, no chains, just readings."""
+    query = """
+        SELECT 
+            r.id,
+            r.book_id,
+            r.media,
+            r.date_started,
+            r.date_finished_actual,
+            r.date_est_start,
+            r.date_est_end,
+            b.title,
+            b.author_name_first,
+            b.author_name_second,
+            b.word_count,
+            b.page_count
+        FROM read r
+        JOIN books b ON r.book_id = b.id
+        ORDER BY 
+            -- Show finished books newest to oldest
+            CASE WHEN r.date_finished_actual IS NOT NULL 
+                THEN 1 ELSE 0 END DESC,
+            -- For finished books, show newest first
+            r.date_finished_actual DESC,
+            -- For unfinished books (TBR), show oldest first
+            COALESCE(r.date_started, r.date_est_start) ASC
+    """
+    
+    result = session.execute(text(query))
+    return [dict(zip(result.keys(), row)) for row in result]
 
 def format_author_name(first: str, second: str) -> str:
     """Format author's full name"""
@@ -278,7 +247,7 @@ def format_date(date_value):
     return date_value.strftime('%Y-%m-%d')
 
 def generate_chain_report(args=None):
-    """Generate the reading chain report"""
+    """Generate the reading report"""
     try:
         # Get reread books
         common_queries = CommonQueries()
@@ -292,61 +261,46 @@ def generate_chain_report(args=None):
         ensure_directory(reports_dir)
 
         with SessionLocal() as session:
-            # Get current readings
-            current_readings = get_current_readings(session)
-
-            # Get chains for each current reading and combine them
+            # Get all readings, no chain logic
+            all_readings = get_all_readings(session)
+            
+            # Process each reading
             all_books = []
-            for reading in current_readings:
-                chain = get_reading_chain(session, reading.id)
-                if chain:
-                    for book in chain:
-                        raw_data = {
-                            'title': book.title,
-                            'author_name_first': book.author_name_first,
-                            'author_name_second': book.author_name_second,
-                            'date_started': book.date_started,
-                            'date_finished_actual': book.date_finished_actual,
-                            'date_est_start': book.date_est_start,
-                            'date_est_end': book.date_est_end,
-                            'word_count': book.word_count,
-                            'page_count': book.page_count,
-                            'book_id': book.book_id,
-                            'id': book.id,
-                            'media': book.media,
-                            'is_reread': book.book_id in reread_book_ids
-                        }
+            for reading in all_readings:
+                raw_data = {
+                    'title': reading['title'],
+                    'author_name_first': reading['author_name_first'],
+                    'author_name_second': reading['author_name_second'],
+                    'date_started': reading['date_started'],
+                    'date_finished_actual': reading['date_finished_actual'],
+                    'date_est_start': reading['date_est_start'],
+                    'date_est_end': reading['date_est_end'],
+                    'word_count': reading['word_count'],
+                    'page_count': reading['page_count'],
+                    'book_id': reading['book_id'],
+                    'id': reading['id'],
+                    'media': reading['media'],
+                    'is_reread': reading['book_id'] in reread_book_ids
+                }
 
-                        formatted_book = process_reading_data(raw_data)
-
-                        # Store raw dates for sorting
-                        formatted_book['_sort_key'] = (
-                            # Use actual start date if available, otherwise estimated start date
-                            book.date_started or book.date_est_start or datetime.max.date(),
-                            # Secondary sort by title
-                            book.title.lower()
-                        )
-
-                        all_books.append(formatted_book)
-
-            # Sort all books by date (actual start date prioritized over estimated start date)
-            sorted_books = sorted(all_books, key=lambda x: x['_sort_key'])
+                formatted_book = process_reading_data(raw_data)
+                all_books.append(formatted_book)
 
             # Set up Jinja2 environment
             template_dir = project_paths['templates'] / 'reports' / 'chain'
             env = Environment(loader=FileSystemLoader(str(template_dir)))
             template = env.get_template('reading_chain_report.html')
 
-            # Generate HTML with current date
+            # Generate HTML
             html = template.render(
-                books=sorted_books,
+                books=all_books,
                 generated_date=datetime.now().strftime('%b %d, %Y'),
                 media_colors={
-                    'kindle': {'text_color': '#0066CC'},     # Deeper Kindle blue
-                    'hardcover': {'text_color': '#6B4BA3'},  # Space purple
-                    'audio': {'text_color': '#FF6600'}       # Warmer Audible orange
+                    'kindle': {'text_color': '#0066CC'},
+                    'hardcover': {'text_color': '#6B4BA3'},
+                    'audio': {'text_color': '#FF6600'}
                 },
-                reread_book_ids=reread_book_ids  # Add reread book IDs to context
+                reread_book_ids=reread_book_ids
             )
 
             # Write the report
