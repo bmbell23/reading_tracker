@@ -33,25 +33,51 @@ def update_chain_data(chain_ops: ChainOperations, reading_id: int):
             console.print(f"[green]Successfully updated {updates} chain dates![/green]")
         
         # Then run the full update command for any other calculations
-        result = subprocess.run(
-            ["reading-list", "update-readings", 
-             "--all",  # Update all calculations
-             "--no-confirm"], 
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        
-        console.print("[green]Reading calculations updated successfully[/green]")
+        try:
+            result = subprocess.run(
+                ["reading-list", "update-readings", 
+                 "--all",  # Update all calculations
+                 "--no-confirm"], 
+                check=False,  # Changed to False to handle errors manually
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode != 0:
+                console.print("[red]Error during reading calculations update:[/red]")
+                if result.stderr:
+                    console.print(f"[red]Error output:[/red]\n{result.stderr}")
+                if result.stdout:
+                    console.print(f"[yellow]Standard output:[/yellow]\n{result.stdout}")
+                return
+            
+            console.print("[green]Reading calculations updated successfully[/green]")
 
-        # Generate new chain report
-        subprocess.run(["reading-list", "chain-report"], check=True)
-        
-    except subprocess.CalledProcessError as e:
+            # Generate new chain report
+            report_result = subprocess.run(
+                ["reading-list", "chain-report"], 
+                check=False,
+                capture_output=True,
+                text=True
+            )
+            
+            if report_result.returncode != 0:
+                console.print("[red]Error generating chain report:[/red]")
+                if report_result.stderr:
+                    console.print(f"[red]Error output:[/red]\n{report_result.stderr}")
+                return
+            
+            console.print("[green]Chain report generated successfully[/green]")
+            
+        except subprocess.SubprocessError as e:
+            console.print(f"[red]Error executing update command: {str(e)}[/red]")
+            return
+
+    except Exception as e:
         console.print(f"[red]Error updating chain data: {str(e)}[/red]")
-        if e.stderr:
+        if hasattr(e, 'stderr'):
             console.print(f"[dim]{e.stderr}[/dim]")
-        if e.stdout:
+        if hasattr(e, 'stdout'):
             console.print(f"[dim]{e.stdout}[/dim]")
 
 def main(args=None):

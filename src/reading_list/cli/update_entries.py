@@ -12,6 +12,7 @@ from rich.table import Table
 from rich.style import Style
 from pathlib import Path
 from datetime import datetime
+from sqlalchemy import text
 
 from reading_list.models.base import engine, SessionLocal
 from reading_list.models.book import Book
@@ -243,9 +244,26 @@ class DatabaseUpdater:
         handler = self.handlers[table_choice]
 
         while True:
+            action = Prompt.ask(
+                "\nWhat would you like to do?",
+                choices=["update", "new", "back"],
+                default="back"
+            )
+
+            if action == 'back':
+                break
+
+            if action == 'new':
+                if table_choice == 'read':
+                    self._create_new_reading()
+                else:
+                    StyleConfig.console.print("New entry creation not yet implemented for this table", style=StyleConfig.ERROR)
+                continue
+
+            # Handle updating existing entry
             search_term = Prompt.ask("Enter ID or title to search (or 'back' to return)")
             if search_term.lower() == 'back':
-                break
+                continue
 
             entries = handler.search(search_term)
             if not entries:
@@ -305,6 +323,67 @@ class DatabaseUpdater:
             self.session.rollback()
             StyleConfig.console.print(f"Error updating entry: {str(e)}", style=StyleConfig.ERROR)
 
+    def _create_new_reading(self):
+        """Create a new reading entry"""
+        StyleConfig.console.print("\n[bold cyan]Creating New Reading Entry[/bold cyan]")
+        
+        # Get and validate book ID
+        while True:
+            try:
+                book_id = int(Prompt.ask("Enter book ID"))
+                book = self.session.get(Book, book_id)
+                if book:
+                    StyleConfig.console.print(f"Selected book: [green]{book.title}[/green]")
+                    break
+                else:
+                    StyleConfig.console.print(f"[red]Book ID {book_id} not found[/red]")
+            except ValueError:
+                StyleConfig.console.print("[red]Please enter a valid number[/red]")
+        
+        # Get media type
+        media = Prompt.ask("Enter media type", choices=["kindle", "hardcover", "audio"])
+        
+        # Get the next available read ID
+        next_id = self.session.execute(text("SELECT MAX(id) FROM read")).scalar()
+        next_id = (next_id or 0) + 1
+        
+        # Get the latest chain ID for this media type
+        prev_id = self.session.execute(
+            text("""
+                SELECT id 
+                FROM read 
+                WHERE LOWER(media) = LOWER(:media)
+                AND date_finished_actual IS NULL 
+                ORDER BY date_est_end DESC, id DESC 
+                LIMIT 1
+            """),
+            {"media": media}
+        ).scalar()
+        
+        # Create new reading entry
+        new_reading = Reading(
+            id=next_id,
+            book_id=book_id,
+            media=media,
+            id_previous=prev_id
+        )
+        
+        self.session.add(new_reading)
+        
+        # Display preview
+        StyleConfig.console.print("\n[bold cyan]New Reading Entry Preview:[/bold cyan]")
+        StyleConfig.console.print(f"Read ID: [green]{next_id}[/green]")
+        StyleConfig.console.print(f"Book: [green]{book.title}[/green]")
+        StyleConfig.console.print(f"Media: [green]{media}[/green]")
+        StyleConfig.console.print(f"Previous Read ID: [green]{prev_id or 'None'}[/green]")
+        
+        if Prompt.ask("\nSave this new reading entry?", choices=['y', 'n'], default='n') == 'y':
+            self.session.commit()
+            StyleConfig.console.print("[green]New reading entry created successfully![/green]")
+        else:
+            self.session.rollback()
+            StyleConfig.console.print("[yellow]New reading entry discarded[/yellow]")
+
     def _prompt_related_updates(self, book_id: int):
         """Prompt for updating related entries"""
         related = self.editor.get_related_entries(book_id)
@@ -315,6 +394,96 @@ class DatabaseUpdater:
                     handler.display_results(entries)
                     if entries and Prompt.ask(f"Update {entry_type}?", choices=['y', 'n'], default='n') == 'y':
                         self._update_entry(entries[0], handler)
+
+def handle_read_table(session):
+    """Handle operations on the read table"""
+    while True:
+        action = Prompt.ask(
+            "\nWhat would you like to do?",
+            choices=["update", "new", "back"],
+            default="back"
+        )
+        
+        if action == 'back':
+            return
+            
+        if action == 'new':
+            create_new_reading(session)
+            continue
+            
+        # Handle updating existing entry
+        if action == 'update':
+            search_input = Prompt.ask("Enter ID or title to search (or 'back' to return)")
+            if search_input.lower() == 'back':
+                continue
+                
+            total_entries = session.query(Reading).count()
+            console.print(f"Total entries in Reading table: {total_entries}")
+            
+            console.print(f"Searching for term: {search_input}")
+            readings = find_readings(session, search_input)
+            display_readings(readings)
+
+def create_new_reading(session):
+    """Create a new reading entry"""
+    console.print("\n[bold cyan]Creating New Reading Entry[/bold cyan]")
+    
+    # Get and validate book ID
+    while True:
+        try:
+            book_id = int(Prompt.ask("Enter book ID"))
+            book = session.get(Book, book_id)
+            if book:
+                console.print(f"Selected book: [green]{book.title}[/green]")
+                break
+            else:
+                console.print(f"[red]Book ID {book_id} not found[/red]")
+        except ValueError:
+            console.print("[red]Please enter a valid number[/red]")
+    
+    # Get media type
+    media = Prompt.ask("Enter media type", choices=["kindle", "hardcover", "audio"])
+    
+    # Get the next available read ID
+    next_id = session.execute(text("SELECT MAX(id) FROM read")).scalar()
+    next_id = (next_id or 0) + 1
+    
+    # Get the latest chain ID for this media type
+    prev_id = session.execute(
+        text("""
+            SELECT id 
+            FROM read 
+            WHERE media = :media 
+            AND date_est_end IS NOT NULL
+            ORDER BY date_est_end DESC 
+            LIMIT 1
+        """),
+        {"media": media}
+    ).scalar()
+    
+    # Create new reading entry
+    new_reading = Reading(
+        id=next_id,
+        book_id=book_id,
+        media=media,
+        id_previous=prev_id
+    )
+    
+    session.add(new_reading)
+    
+    # Display preview
+    console.print("\n[bold cyan]New Reading Entry Preview:[/bold cyan]")
+    console.print(f"Read ID: [green]{next_id}[/green]")
+    console.print(f"Book: [green]{book.title}[/green]")
+    console.print(f"Media: [green]{media}[/green]")
+    console.print(f"Previous Read ID: [green]{prev_id}[/green]")
+    
+    if Confirm.ask("\nSave this new reading entry?"):
+        session.commit()
+        console.print("[green]New reading entry created successfully![/green]")
+    else:
+        session.rollback()
+        console.print("[yellow]New reading entry discarded[/yellow]")
 
 def main():
     """Main entry point"""
