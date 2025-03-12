@@ -89,14 +89,25 @@
             border-color: #FF6600;
         }
 
-        /* Status filter styles */
-        .filter-button.status {
-            color: #0066CC;
-            border-color: #0066CC;
+        /* Status filter styles - Read (Green) */
+        .filter-button.status[data-status="read"] {
+            color: #22c55e;
+            border-color: #22c55e;
         }
 
-        .filter-button[data-active="true"].status {
-            background-color: #0066CC;
+        .filter-button[data-active="true"].status[data-status="read"] {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        /* Status filter styles - Unread (Gray) */
+        .filter-button.status[data-status="unread"] {
+            color: #64748b;
+            border-color: #64748b;
+        }
+
+        .filter-button[data-active="true"].status[data-status="unread"] {
+            background-color: #64748b;
             color: white;
         }
 
