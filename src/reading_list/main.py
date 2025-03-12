@@ -71,7 +71,7 @@ async def reports_index(request: Request):
             {
                 "request": request,
                 "reports": reports,
-                "title": "Reading Tracker Reports"
+                "title": "GreatReads" 
             }
         )
     except Exception as e:

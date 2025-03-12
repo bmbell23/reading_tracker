@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>{{ title }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -17,6 +20,9 @@
             --color-border: #e2e8f0;
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --gradient-library: linear-gradient(135deg, #0066CC, #3b82f6);
+            --gradient-tbr: linear-gradient(135deg, #6B4BA3, #9333ea);
+            --gradient-yearly: linear-gradient(135deg, #FF6600, #f97316);
         }
 
         body {
@@ -38,103 +44,193 @@
             text-align: center;
             margin-bottom: 3rem;
         }
-
         h1 {
-            font-size: 2.5rem;
+            text-align: center;
+            margin: 20px 0 30px 0;
+            font-size: 3.5rem;  /* Increased from 2rem to 3.5rem */
             font-weight: 800;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            background: linear-gradient(
+                to right,
+                #0066CC,
+                #6B4BA3,
+                #FF6600
+            );
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
+            background-clip: text;
+            color: transparent;
+            transition: opacity 0.2s ease;
         }
 
-        .reports-grid {
-            display: grid;
-            gap: 1rem;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        .reports-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
-        .report-card {
+        .section {
+            margin-bottom: 3rem;
             background: var(--color-card);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            border-radius: 1rem;
+            padding: 2rem;
             box-shadow: var(--shadow-md);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin: 0;
+        }
+
+        .feature-card {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--color-bg);
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
             transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid var(--color-border);
-        }
-
-        .report-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        }
-
-        .report-link {
             text-decoration: none;
             color: var(--color-text);
         }
 
-        .report-name {
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+        }
+
+        .library-icon { background: var(--gradient-library); }
+        .tbr-icon { background: var(--gradient-tbr); }
+        .yearly-icon { background: var(--gradient-yearly); }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-title {
             font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
-        .report-type {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
+        .feature-description {
+            color: var(--color-secondary);
+            font-size: 0.875rem;
+        }
+
+        .yearly-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 1rem;
             background-color: var(--color-bg);
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            color: var(--color-secondary);
-            font-weight: 500;
-        }
-
-        .report-date {
-            font-size: 0.875rem;
-            color: var(--color-secondary);
-            margin-top: 0.5rem;
         }
 
         @media (max-width: 640px) {
-            .container {
+            .reports-container {
                 padding: 1rem;
             }
 
-            .reports-grid {
-                grid-template-columns: 1fr;
+            .section {
+                padding: 1.5rem;
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>{{ title }}</h1>
+            <h1>GreatReads</h1>
         </div>
         
-        {% if reports %}
-        <div class="reports-grid">
-            {% for report in reports %}
-            <a href="{{ report.url }}" class="report-link">
-                <div class="report-card">
-                    <div class="report-name">{{ report.name }}</div>
-                    <span class="report-type">{{ report.type }}</span>
-                    <div class="report-date">
-                        {% if report.date_modified %}
-                            Updated {{ report.date_modified|datetime }}
-                        {% else %}
-                            Date unknown
-                        {% endif %}
-                    </div>
+        <div class="reports-container">
+            <!-- Library Section -->
+            <section class="section">
+                <div class="section-header">
+                    <i class="fas fa-books section-icon"></i>
+                    <h2 class="section-title">My Library</h2>
                 </div>
-            </a>
-            {% endfor %}
+                <a href="/reports/owned/owned_books_report.html" class="feature-card">
+                    <div class="feature-icon library-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-title">Browse My Collection</div>
+                        <div class="feature-description">View and manage your entire book collection across all formats</div>
+                    </div>
+                </a>
+            </section>
+
+            <!-- TBR Section -->
+            <section class="section">
+                <div class="section-header">
+                    <i class="fas fa-list-check section-icon"></i>
+                    <h2 class="section-title">Read & To Be Read</h2>
+                </div>
+                <a href="/tbr" class="feature-card">
+                    <div class="feature-icon tbr-icon">
+                        <i class="fas fa-bookmark"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-title">Reading Progress</div>
+                        <div class="feature-description">Track your reading chains and upcoming books</div>
+                    </div>
+                </a>
+            </section>
+
+            <!-- Yearly Reports Section -->
+            <section class="section">
+                <div class="section-header">
+                    <i class="fas fa-chart-line section-icon"></i>
+                    <h2 class="section-title">Reading Journey</h2>
+                </div>
+                <select class="yearly-select" id="yearSelect">
+                    <option value="">Select a Year...</option>
+                    {% for report in reports %}
+                        {% if report.type == 'yearly' %}
+                            <option value="{{ report.url }}">{{ report.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </section>
         </div>
-        {% else %}
-        <div class="report-card">
-            <p>No reports available.</p>
-        </div>
-        {% endif %}
     </div>
+
+    <script>
+        document.getElementById('yearSelect').addEventListener('change', function() {
+            const selectedUrl = this.value;
+            if (selectedUrl) {
+                window.location.href = selectedUrl;
+            }
+        });
+    </script>
 </body>
 </html>
