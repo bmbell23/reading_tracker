@@ -153,7 +153,13 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
             ensure_directory(reports_dir)
             reports_dir.chmod(0o755)  # Make directory traversable
             
-            output_file = reports_dir / f'reading_report_{year}.html'
+            # Determine the appropriate filename based on flags
+            if actual_only:
+                filename = f'{year}_reading_journey.html'
+            else:
+                filename = f'{year}_reading_goals.html'
+            
+            output_file = reports_dir / filename
             
             # First try to remove the file if it exists (to handle permission issues)
             if output_file.exists():
@@ -165,10 +171,9 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
                     output_file.unlink()
             
             # Write the new file
-            console.print(f"[blue]Writing report to: {output_file}[/blue]")
             output_file.write_text(output)
             
-            # Fix permissions after writing
+            # Make sure to fix permissions
             fix_report_permissions(output_file)
             
             return str(output_file)

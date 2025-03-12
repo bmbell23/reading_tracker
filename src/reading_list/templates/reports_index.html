@@ -30,68 +30,55 @@
             background-color: var(--color-bg);
             color: var(--color-text);
             margin: 0;
-            padding: 2rem;
+            padding: 1rem;
             line-height: 1.6;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 2rem;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
         h1 {
             text-align: center;
             margin: 20px 0 30px 0;
-            font-size: 3.5rem;  /* Increased from 2rem to 3.5rem */
+            font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(
-                to right,
-                #0066CC,
-                #6B4BA3,
-                #FF6600
-            );
+            background: linear-gradient(to right, #0066CC, #6B4BA3, #FF6600);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             color: transparent;
-            transition: opacity 0.2s ease;
-        }
-
-        .reports-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
         }
 
         .section {
-            margin-bottom: 3rem;
             background: var(--color-card);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .section-header {
             display: flex;
             align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--color-border);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--color-border);
         }
 
         .section-icon {
-            font-size: 1.5rem;
-            margin-right: 1rem;
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
         }
 
         .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.25rem;
+            font-weight: 600;
             color: var(--color-text);
             margin: 0;
         }
@@ -99,29 +86,28 @@
         .feature-card {
             display: flex;
             align-items: center;
-            padding: 1.5rem;
+            padding: 1rem;
             background: var(--color-bg);
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 0.5rem;
             text-decoration: none;
             color: var(--color-text);
+            transition: transform 0.2s;
         }
 
         .feature-card:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
         }
 
         .feature-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 1rem;
+            margin-right: 0.75rem;
             color: white;
+            flex-shrink: 0;
         }
 
         .library-icon { background: var(--gradient-library); }
@@ -130,10 +116,11 @@
 
         .feature-content {
             flex: 1;
+            min-width: 0;
         }
 
         .feature-title {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 0.25rem;
         }
@@ -141,25 +128,87 @@
         .feature-description {
             color: var(--color-secondary);
             font-size: 0.875rem;
+            display: none;
+        }
+
+        .select-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
         }
 
         .yearly-select {
-            width: 100%;
+            flex: 1;
             padding: 0.75rem;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 1rem;
             border: 1px solid var(--color-border);
             border-radius: 0.5rem;
-            font-size: 1rem;
-            margin-bottom: 1rem;
             background-color: var(--color-bg);
+            color: var(--color-text);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
         }
 
-        @media (max-width: 640px) {
-            .reports-container {
-                padding: 1rem;
+        .yearly-select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+        }
+
+        .go-button {
+            background: var(--gradient-yearly);
+            border: none;
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .go-button:hover {
+            transform: translateX(2px);
+        }
+
+        .go-button i {
+            font-size: 1rem;
+        }
+
+        /* Override the feature-card hover effect for the yearly section */
+        .feature-card[style*="cursor: default"]:hover {
+            transform: none;
+        }
+
+        @media (min-width: 640px) {
+            body {
+                padding: 2rem;
             }
 
             .section {
                 padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .feature-description {
+                display: block;
+            }
+
+            .feature-card {
+                padding: 1.25rem;
+            }
+
+            .feature-icon {
+                width: 48px;
+                height: 48px;
             }
         }
     </style>
@@ -178,13 +227,13 @@
                     <i class="fas fa-books section-icon"></i>
                     <h2 class="section-title">My Library</h2>
                 </div>
-                <a href="/reports/owned/owned_books_report.html" class="feature-card">
+                <a href="/reports/chain/owned_books.html" class="feature-card">
                     <div class="feature-icon library-icon">
                         <i class="fas fa-book-open"></i>
                     </div>
                     <div class="feature-content">
                         <div class="feature-title">Browse My Collection</div>
-                        <div class="feature-description">View and manage your entire book collection across all formats</div>
+                        <div class="feature-description">View and manage your entire book collection</div>
                     </div>
                 </a>
             </section>
@@ -195,7 +244,7 @@
                     <i class="fas fa-list-check section-icon"></i>
                     <h2 class="section-title">Read & To Be Read</h2>
                 </div>
-                <a href="/tbr" class="feature-card">
+                <a href="/reports/tbr/to_be_read.html" class="feature-card">
                     <div class="feature-icon tbr-icon">
                         <i class="fas fa-bookmark"></i>
                     </div>
@@ -212,24 +261,61 @@
                     <i class="fas fa-chart-line section-icon"></i>
                     <h2 class="section-title">Reading Journey</h2>
                 </div>
-                <select class="yearly-select" id="yearSelect">
-                    <option value="">Select a Year...</option>
-                    {% for report in reports %}
-                        {% if report.type == 'yearly' %}
-                            <option value="{{ report.url }}">{{ report.name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
+                <div class="feature-card" style="cursor: default;">
+                    <div class="feature-icon yearly-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="select-group">
+                            <select class="yearly-select" id="yearSelect">
+                                <option value="">Select a Year...</option>
+                                {% set journey_reports = [] %}
+                                {% for report in reports %}
+                                    {% if report.type == 'yearly' and report.name.endswith('Reading Journey') %}
+                                        {% set _ = journey_reports.append(report) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for report in journey_reports|sort(attribute='name', reverse=True) %}
+                                    <option value="{{ report.url }}">{{ report.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="go-button" id="goButton">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </section>
         </div>
     </div>
 
     <script>
-        document.getElementById('yearSelect').addEventListener('change', function() {
-            const selectedUrl = this.value;
-            if (selectedUrl) {
-                window.location.href = selectedUrl;
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearSelect = document.getElementById('yearSelect');
+            const goButton = document.getElementById('goButton');
+            
+            // Just pre-select the most recent year without redirecting
+            if (yearSelect.options.length > 1) {
+                yearSelect.selectedIndex = 1;  // Index 1 is first year (0 is "Select a Year...")
             }
+
+            // Handle go button click
+            goButton.addEventListener('click', function() {
+                const selectedUrl = yearSelect.value;
+                if (selectedUrl) {
+                    window.location.href = selectedUrl;
+                }
+            });
+
+            // Optional: Also allow selection via Enter key
+            yearSelect.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const selectedUrl = this.value;
+                    if (selectedUrl) {
+                        window.location.href = selectedUrl;
+                    }
+                }
+            });
         });
     </script>
 </body>

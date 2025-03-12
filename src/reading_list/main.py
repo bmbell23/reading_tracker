@@ -36,35 +36,29 @@ async def reports_index(request: Request):
     reports = []
 
     try:
-        # Create reports directory if it doesn't exist
         reports_dir.mkdir(parents=True, exist_ok=True)
 
-        # Debug: Print directory being searched
-        print(f"\nSearching reports directory: {reports_dir}")
-
-        # Recursively collect all HTML reports
         for report in reports_dir.rglob('*.html'):
-            # Get report type from parent directory name, or 'general' if in root
             report_type = report.parent.name if report.parent != reports_dir else 'general'
-            
-            # Create relative URL path from reports_dir
             url_path = report.relative_to(reports_dir)
             
-            print(f"Processing report: {report}")
+            # Parse the filename to determine the appropriate display name
+            name = report.stem
+            if name.endswith('_reading_journey'):
+                year = name.split('_')[0]
+                display_name = f"{year} Reading Journey"
+            elif name.endswith('_reading_goals'):
+                year = name.split('_')[0]
+                display_name = f"{year} Reading Goals"
+            else:
+                display_name = name.replace('_', ' ').title()
+
             reports.append({
-                'name': report.stem.replace('_', ' ').title(),
+                'name': display_name,
                 'type': report_type,
                 'url': f"/reports/{url_path}",
                 'date_modified': report.stat().st_mtime
             })
-
-        # Debug: Print final report list
-        print("\nFinal reports list:")
-        for report in reports:
-            print(f"- {report['name']} ({report['type']}) at {report['url']}")
-
-        # Sort reports by modification date, newest first
-        reports.sort(key=lambda x: x['date_modified'], reverse=True)
 
         return templates.TemplateResponse(
             "reports_index.html",
@@ -74,67 +68,3 @@ async def reports_index(request: Request):
                 "title": "GreatReads" 
             }
         )
-    except Exception as e:
-        print(f"Error in reports_index: {str(e)}")
-        raise
-
-@app.get("/reports/{report_type}/{report_name}")
-async def serve_report(report_type: str, report_name: str):
-    """Serve a specific report file."""
-    report_path = reports_dir / report_type / report_name
-    if not report_path.exists():
-        raise HTTPException(status_code=404, detail="Report not found")
-    return FileResponse(str(report_path))
-
-@app.exception_handler(500)
-async def internal_error_handler(request, exc):
-    """Handle internal server errors"""
-    print(f"Internal Server Error: {exc}")
-    return HTMLResponse(
-        content="<h1>Internal Server Error</h1><p>The server encountered an error. Please check the logs for details.</p>",
-        status_code=500
-    )
-
-@app.get("/tbr", response_class=HTMLResponse)
-async def tbr_manager(request: Request):
-    """Display the TBR manager interface."""
-    try:
-        # Initialize the ReadingChainService
-        chain_service = ReadingChainService()
-        
-        # Get all chains with their books
-        all_chains = chain_service.get_all_chains_with_books()
-        
-        # Debug print to see the structure
-        print("\nChains structure:")
-        for chain in all_chains:
-            print(f"Media type: {chain['media']}")
-            print(f"Total books: {chain['total_books']}")
-            print("First book:", chain['books'][0] if chain['books'] else "No books")
-            print("-" * 50)
-        
-        # Reformat the data structure to match template expectations
-        chains = {
-            chain['media'].lower(): {
-                'total_books': chain['total_books'],
-                'total_pages': chain['total_pages'],
-                'completion_rate': chain['completion_rate'],
-                'books': chain['books']
-            }
-            for chain in all_chains
-        }
-        
-        # Debug print the final structure
-        print("\nFinal chains structure:", chains.keys())
-        
-        return templates.TemplateResponse(
-            "tbr/tbr_manager.html",
-            {
-                "request": request,
-                "chains": chains,
-                "title": "TBR Manager"
-            }
-        )
-    except Exception as e:
-        print(f"Error in tbr_manager: {str(e)}")
-        raise

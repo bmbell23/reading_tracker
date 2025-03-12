@@ -40,8 +40,11 @@ def add_subparser(subparsers):
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Generate report for any year (shows both actual and estimated readings)
+  # Generate report for a single year
   reading-list yearly 2024
+
+  # Generate reports for multiple years
+  reading-list yearly 2021 2022 2023 2024 2025
 
   # Generate report for actual readings only
   reading-list yearly 2024 --actual-only
@@ -52,9 +55,10 @@ Examples:
     )
     
     parser.add_argument(
-        "year",
+        "years",
         type=int,
-        help="Year to generate report for"
+        nargs='+',
+        help="Year(s) to generate report for"
     )
     
     parser.add_argument(
@@ -89,17 +93,19 @@ Examples:
 def handle_command(args):
     """Handle the yearly command."""
     try:
-        console.print("[blue]Generating yearly reading report...[/blue]")
-        output_file = generate_report(
-            args.year,
-            args.format,
-            actual_only=args.actual_only,
-            estimated_only=args.estimated_only
-        )
-        if output_file and args.format in ['html', 'both']:
-            console.print(f"\n[green]Report generated: {output_file}[/green]")
-            fix_report_permissions(Path(output_file))
-        return 0
+        exit_code = 0
+        for year in args.years:
+            console.print(f"[blue]Generating yearly reading report for {year}...[/blue]")
+            output_file = generate_report(
+                year,
+                args.format,
+                actual_only=args.actual_only,
+                estimated_only=args.estimated_only
+            )
+            if output_file and args.format in ['html', 'both']:
+                console.print(f"\n[green]Report generated: {output_file}[/green]")
+                fix_report_permissions(Path(output_file))
+        return exit_code
     except Exception as e:
         console.print(f"[red]Error generating report: {str(e)}[/red]")
         if args.verbose:
