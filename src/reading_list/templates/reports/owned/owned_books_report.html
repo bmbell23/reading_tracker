@@ -297,7 +297,6 @@
     <div class="filters">
         <!-- Reading status filters -->
         <div class="filter-group">
-            <button class="filter-button status active" data-status="all">All</button>
             <button class="filter-button status" data-status="read">Read</button>
             <button class="filter-button status" data-status="unread">Unread</button>
         </div>
@@ -359,19 +358,27 @@
 
             statusFilters.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    // Update active state
-                    statusFilters.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-
-                    // Filter books
-                    const selectedStatus = btn.dataset.status;
-                    books.forEach(book => {
-                        if (selectedStatus === 'all' || book.dataset.status === selectedStatus) {
+                    if (btn.classList.contains('active')) {
+                        // If clicking active button, deactivate it and show all books
+                        btn.classList.remove('active');
+                        books.forEach(book => {
                             book.style.display = '';
-                        } else {
-                            book.style.display = 'none';
-                        }
-                    });
+                        });
+                    } else {
+                        // If clicking inactive button, deactivate other button and activate this one
+                        statusFilters.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+
+                        // Filter books
+                        const selectedStatus = btn.dataset.status;
+                        books.forEach(book => {
+                            if (book.dataset.status === selectedStatus) {
+                                book.style.display = '';
+                            } else {
+                                book.style.display = 'none';
+                            }
+                        });
+                    }
                 });
             });
         });
