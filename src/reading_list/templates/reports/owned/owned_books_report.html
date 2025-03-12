@@ -276,11 +276,31 @@
             color: #F6911E;
         }
 
+        /* Base grid layout */
         .books-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
             padding: 20px;
+        }
+
+        /* Mobile adjustments */
+        @media screen and (max-width: 768px) {
+            .books-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr) !important; /* Force 3 columns */
+                gap: 12px;
+                padding: 12px;
+            }
+        }
+
+        /* Extra small screens */
+        @media screen and (max-width: 375px) {
+            .books-grid {
+                grid-template-columns: repeat(2, 1fr) !important; /* Force 2 columns */
+                gap: 8px;
+                padding: 8px;
+            }
         }
 
         .book-card {
@@ -357,15 +377,15 @@
             bottom: 10px;
             right: 10px;
             display: flex;
-            flex-direction: column;  /* Changed to column for vertical stacking */
-            gap: 5px;
+            flex-direction: column;
+            gap: 3px;  /* Reduced from 5px */
             z-index: 2;
         }
 
         .format-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
+            padding: 3px 6px;  /* Reduced from 4px 8px */
+            border-radius: 8px;  /* Reduced from 12px */
+            font-size: 0.65rem;  /* Reduced from 0.7rem */
             font-weight: 600;
             color: white;
             text-transform: uppercase;
@@ -388,9 +408,9 @@
             position: absolute;
             bottom: 10px;
             left: 10px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            padding: 3px 6px;  /* Reduced from 4px 8px */
+            border-radius: 8px;  /* Reduced from 12px */
+            font-size: 0.65rem;  /* Reduced from 0.75rem */
             font-weight: 600;
             color: white;
             text-transform: uppercase;
@@ -404,6 +424,16 @@
 
         .reading-status-badge.unread {
             background-color: #64748b;
+        }
+
+        /* Update mobile styles */
+        @media (max-width: 768px) {
+            .reading-status-badge {
+                font-size: 0.55rem;  /* Reduced from 0.7rem */
+                padding: 2px 4px;  /* Reduced from 3px 6px */
+                left: 5px;
+                bottom: 8px;
+            }
         }
 
         /* Filter buttons */
@@ -479,15 +509,25 @@
 
         @media (max-width: 768px) {
             .books-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* Reduced from 150px */
+                gap: 10px; /* Reduced gap for tighter layout */
+                padding: 10px; /* Reduced padding */
             }
 
             .book-title {
-                font-size: 0.9rem;
+                font-size: 0.8rem; /* Slightly smaller */
             }
 
             .book-author {
-                font-size: 0.8rem;
+                font-size: 0.7rem; /* Slightly smaller */
+            }
+
+            .book-series {
+                font-size: 0.65rem; /* Slightly smaller */
+            }
+
+            .book-info {
+                padding: 10px; /* Reduced padding */
             }
 
             .format-badge {
@@ -501,13 +541,14 @@
             }
 
             .format-badges {
-                bottom: 10px;
+                bottom: 8px;
                 right: 5px;
+                gap: 2px;  /* Reduced from original */
             }
 
             .format-badge {
-                font-size: 0.6rem;
-                padding: 3px 6px;
+                font-size: 0.55rem;  /* Reduced from 0.6rem */
+                padding: 2px 4px;  /* Reduced from 3px 6px */
             }
 
             .reading-status-badge {
@@ -526,9 +567,11 @@
     <div class="filter-container">
         <!-- Add search box -->
         <div class="search-container">
-            <form onsubmit="return false;">
-                <input type="text" id="bookSearch" class="search-input" placeholder="Search titles, authors, series...">
-            </form>
+            <input type="search" 
+                   id="bookSearch" 
+                   class="search-input" 
+                   placeholder="Search titles, authors, series..."
+                   enterkeyhint="search">
         </div>
         
         <div class="filters">
@@ -646,14 +689,25 @@
             const books = document.querySelectorAll('.book-card');
             const searchInput = document.getElementById('bookSearch');
 
+            function clearSearch() {
+                searchInput.value = '';
+            }
+
+            function scrollToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
             function updateVisibility() {
                 const activeStatus = document.querySelector('.filter-button.status[data-active="true"]')?.dataset.status;
                 const activeFormat = document.querySelector('.filter-button.media[data-active="true"]')?.dataset.format;
                 const searchTerm = searchInput.value.toLowerCase().trim();
 
                 books.forEach(book => {
-                    const matchesStatus = !activeStatus || book.dataset.status === activeStatus;
-                    const matchesFormat = !activeFormat || book.dataset.formats.includes(activeFormat);
+                    const bookStatus = book.dataset.status;  // 'read' or 'unread'
+                    const bookFormats = book.dataset.formats.split(' ');  // Array of formats
+                    
+                    const matchesStatus = !activeStatus || bookStatus === activeStatus;
+                    const matchesFormat = !activeFormat || bookFormats.includes(activeFormat);
                     
                     const title = book.querySelector('.book-title').textContent.toLowerCase();
                     const author = book.querySelector('.book-author').textContent.toLowerCase();
@@ -677,7 +731,7 @@
                     const wasActive = btn.dataset.active === "true";
                     
                     // First, remove active state from all status filters
-                    statusFilters.forEach(b => b.dataset.active = "false");
+                    statusFilters.forEach(b => delete b.dataset.active);
                     
                     // Then set this button's state (only if it wasn't already active)
                     if (!wasActive) {
@@ -698,7 +752,7 @@
                     const wasActive = btn.dataset.active === "true";
                     
                     // First, remove active state from all media filters
-                    mediaFilters.forEach(b => b.dataset.active = "false");
+                    mediaFilters.forEach(b => delete b.dataset.active);
                     
                     // Then set this button's state (only if it wasn't already active)
                     if (!wasActive) {
@@ -714,6 +768,20 @@
             searchInput.addEventListener('input', debounce(function(e) {
                 updateVisibility();
             }, 250));
+
+            // Handle Enter key and search button on mobile keyboards
+            searchInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    this.blur();
+                }
+            });
+
+            // Handle search submission
+            searchInput.addEventListener('search', function(event) {
+                event.preventDefault();
+                this.blur();
+            });
         });
     </script>
 </body>
