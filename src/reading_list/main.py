@@ -35,33 +35,28 @@ async def reports_index(request: Request):
     """Display an index of all available reports."""
     reports = []
 
-    # Define report types to look for
-    report_types = ['yearly', 'monthly', 'tbr', 'chain', 'owned', 'cover_gallery']
-
     try:
         # Create reports directory if it doesn't exist
         reports_dir.mkdir(parents=True, exist_ok=True)
 
         # Debug: Print directory being searched
         print(f"\nSearching reports directory: {reports_dir}")
-        print(f"Looking for report types: {report_types}")
 
-        # Collect all HTML reports
-        for report_type in report_types:
-            type_dir = reports_dir / report_type
-            print(f"\nChecking directory: {type_dir}")
-            print(f"Directory exists: {type_dir.exists()}")
-            if type_dir.exists():
-                html_files = list(type_dir.glob('*.html'))
-                print(f"Found HTML files: {[f.name for f in html_files]}")
-                for report in html_files:
-                    print(f"Processing report: {report}")
-                    reports.append({
-                        'name': report.stem.replace('_', ' ').title(),
-                        'type': report_type,
-                        'url': f"/reports/{report_type}/{report.name}",
-                        'date_modified': report.stat().st_mtime
-                    })
+        # Recursively collect all HTML reports
+        for report in reports_dir.rglob('*.html'):
+            # Get report type from parent directory name, or 'general' if in root
+            report_type = report.parent.name if report.parent != reports_dir else 'general'
+            
+            # Create relative URL path from reports_dir
+            url_path = report.relative_to(reports_dir)
+            
+            print(f"Processing report: {report}")
+            reports.append({
+                'name': report.stem.replace('_', ' ').title(),
+                'type': report_type,
+                'url': f"/reports/{url_path}",
+                'date_modified': report.stat().st_mtime
+            })
 
         # Debug: Print final report list
         print("\nFinal reports list:")

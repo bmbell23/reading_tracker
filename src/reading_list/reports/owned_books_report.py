@@ -22,49 +22,65 @@ class OwnedBooksReport:
         return None
 
     def generate_report(self) -> tuple[str, bool]:
-        """Generate the owned books report.
-        
-        Returns:
-            Tuple of (output_path, success)
-        """
+        """Generate the owned books report."""
         try:
             # Get all books
             all_books = self.queries.get_all_owned_books()
             
             # Process books
-            processed_books = []
+            books_by_id = {}  # Dictionary to track unique books
             total_books = 0
             total_read = 0
             total_pages = 0
             total_words = 0
 
+            # Process all formats
             for format_type in ['physical', 'kindle', 'audio']:
                 for book in all_books.get(format_type, []):
-                    total_books += 1
-                    if book['reading_status'] == 'completed':
-                        total_read += 1
-                    total_pages += book['pages'] or 0
-                    total_words += book['words'] or 0
+                    book_id = book['book_id']
+                    
+                    if book_id not in books_by_id:
+                        total_books += 1
+                        total_pages += book['pages'] or 0
+                        total_words += book['words'] or 0
+                        
+                        books_by_id[book_id] = {
+                            'title': book['title'],
+                            'author': book['author'],
+                            'series': book['series'],
+                            'series_number': float(book['series_index'] or 0),  # Convert to float for proper sorting
+                            'formats': [],
+                            'cover_url': self.get_book_cover_path(book_id) or '/assets/images/no-cover.jpg',
+                            'book_id': book_id,
+                            'is_read': False
+                        }
 
-                    processed_books.append({
-                        'title': book['title'],
-                        'author': book['author'],
-                        'format': format_type,
+                    books_by_id[book_id]['formats'].append({
+                        'type': format_type,
                         'status': book['reading_status'],
-                        'cover_url': self.get_book_cover_path(book['book_id']) or '/assets/images/no-cover.jpg',
-                        'book_id': book['book_id'],
                         'reading_id': book['reading_id']
                     })
+                    
+                    if book['reading_status'] == 'completed' and not books_by_id[book_id]['is_read']:
+                        books_by_id[book_id]['is_read'] = True
+                        total_read += 1
 
-            # Sort books by author, then title
-            processed_books.sort(key=lambda x: (x['author'], x['title']))
+            # Convert dictionary to list and sort
+            processed_books = list(books_by_id.values())
+            
+            # Sort books: first by author, then by series, then by series number, then by title
+            processed_books.sort(key=lambda x: (
+                x['author'],
+                x['series'] or 'zzzz',  # Put non-series books last
+                x['series_number'],
+                x['title']
+            ))
 
-            # Set up Jinja2 environment
+            # Set up Jinja2 environment and render
             template_dir = self.project_paths['templates'] / 'reports' / 'owned'
             env = Environment(loader=FileSystemLoader(str(template_dir)))
             template = env.get_template('owned_books_report.html')
 
-            # Generate HTML
             html = template.render(
                 books=processed_books,
                 total_books=total_books,
@@ -74,7 +90,7 @@ class OwnedBooksReport:
             )
 
             # Write the report
-            reports_dir = self.project_paths['reports'] / 'owned'
+            reports_dir = self.project_paths['reports'] / 'chain'
             reports_dir.mkdir(parents=True, exist_ok=True)
             output_path = reports_dir / 'owned_books.html'
             output_path.write_text(html)

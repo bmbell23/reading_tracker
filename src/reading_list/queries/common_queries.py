@@ -444,21 +444,8 @@ class CommonQueries:
             self.console.print(f"[red]Error getting reading chain: {str(e)}[/red]")
             return []
 
-    def get_owned_books_by_format(self, media_format: str) -> List[Dict[str, Any]]:
-        """
-        Get all owned books for a specific format (physical, kindle, or audio)
-        
-        Args:
-            media_format: Format to query for ('physical', 'kindle', or 'audio')
-        
-        Returns:
-            List of dictionaries containing book information
-        """
+    def get_books_by_format(self, media_format: str) -> List[Dict[str, Any]]:
         try:
-            # Validate format
-            if media_format.lower() not in ['physical', 'kindle', 'audio']:
-                raise ValueError("media_format must be one of: physical, kindle, audio")
-            
             query = """
                 WITH FirstRead AS (
                     SELECT 
@@ -480,6 +467,8 @@ class CommonQueries:
                     b.page_count,
                     b.word_count,
                     b.date_published,
+                    b.series,
+                    b.series_number as series_index,
                     i.location,
                     fr.date_started,
                     fr.date_finished_actual
@@ -487,11 +476,6 @@ class CommonQueries:
                 JOIN inv i ON b.id = i.book_id
                 LEFT JOIN FirstRead fr ON b.id = fr.book_id
                 WHERE i.owned_{} = TRUE
-                ORDER BY 
-                    COALESCE(b.author_name_second, b.author_name_first) COLLATE NOCASE,
-                    b.author_name_first COLLATE NOCASE,
-                    b.date_published,
-                    b.title COLLATE NOCASE
             """.format(media_format.lower())
             
             results = self.session.execute(text(query))
@@ -503,9 +487,13 @@ class CommonQueries:
                     'reading_id': row.reading_id,
                     'title': row.title,
                     'author': f"{row.author_name_first or ''} {row.author_name_second or ''}".strip(),
+                    'author_sort': f"{row.author_name_second or ''}, {row.author_name_first or ''}".strip(),
                     'pages': row.page_count,
                     'words': row.word_count,
                     'location': row.location,
+                    'series': row.series,
+                    'series_index': row.series_index,
+                    'date_published': row.date_published,
                     'reading_status': 'reading' if row.date_started and not row.date_finished_actual
                                    else 'completed' if row.date_finished_actual
                                    else 'unread',
@@ -527,7 +515,7 @@ class CommonQueries:
             a list of books in that format
         """
         return {
-            'physical': self.get_owned_books_by_format('physical'),
-            'kindle': self.get_owned_books_by_format('kindle'),
-            'audio': self.get_owned_books_by_format('audio')
+            'physical': self.get_books_by_format('physical'),
+            'kindle': self.get_books_by_format('kindle'),
+            'audio': self.get_books_by_format('audio')
         }

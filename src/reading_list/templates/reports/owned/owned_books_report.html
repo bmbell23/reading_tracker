@@ -172,27 +172,44 @@
             color: #2e7d32;
         }
 
-        .format-badge {
+        .format-badges {
             position: absolute;
-            top: 10px;
+            bottom: 10px;
             right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: flex-end;
+        }
+
+        .format-badge {
             padding: 4px 8px;
-            border-radius: 12px;
+            border-radius: 4px;
             color: white;
             font-size: 0.8em;
             font-weight: 500;
+            opacity: 0.7;
         }
 
+        .format-badge.status-reading {
+            opacity: 0.85;
+        }
+
+        .format-badge.status-completed {
+            opacity: 1;
+        }
+
+        /* Format-specific colors */
         .format-kindle {
-            background: var(--kindle-color);
+            background-color: #0066CC;
         }
 
         .format-physical {
-            background: var(--physical-color);
+            background-color: #6B4BA3;
         }
 
         .format-audio {
-            background: var(--audio-color);
+            background-color: #FF6600;
         }
     </style>
 </head>
@@ -231,19 +248,20 @@
 
     <div class="gallery">
         {% for book in books %}
-        <div class="book-card" data-format="{{ book.format }}">
+        <div class="book-card" data-formats="{{ book.formats|map(attribute='type')|join(' ') }}">
             <div class="cover-container">
                 <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" class="cover-img">
-                <div class="format-badge format-{{ book.format }}">
-                    {{ book.format|title }}
+                <div class="format-badges">
+                    {% for format in book.formats %}
+                    <div class="format-badge format-{{ format.type }} status-{{ format.status }}">
+                        {{ format.type|title }}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
             <div class="book-info">
                 <div class="book-title">{{ book.title }}</div>
                 <div class="book-author">{{ book.author }}</div>
-                <div class="book-status status-{{ book.status }}">
-                    {{ book.status|title }}
-                </div>
             </div>
         </div>
         {% endfor %}
@@ -260,17 +278,20 @@
                     .map(btn => btn.dataset.format);
 
                 books.forEach(book => {
-                    const format = book.dataset.format;
-                    book.style.display = activeFormats.includes(format) ? 'block' : 'none';
+                    const bookFormats = book.dataset.formats.split(' ');
+                    const visible = bookFormats.some(format => activeFormats.includes(format));
+                    book.style.display = visible ? '' : 'none';
                 });
             }
 
-            filters.forEach(filter => {
-                filter.addEventListener('click', () => {
-                    filter.classList.toggle('active');
+            filters.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.classList.toggle('active');
                     updateVisibility();
                 });
             });
+
+            updateVisibility();
         });
     </script>
 </body>
