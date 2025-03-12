@@ -6,7 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Owned Books Gallery</title>
+    <title>My GreatReads Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --kindle-color: #0066CC;
@@ -15,11 +16,37 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
-            padding: 20px;
-            background: #f5f5f7;
-            color: #1d1d1f;
+            padding: 10px;
+            background: white;
+        }
+
+        .title-link {
+            text-decoration: none;
+            display: block;
+        }
+
+        .page-title {
+            text-align: center;
+            margin: 20px 0 30px 0;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(
+                to right,
+                #0066CC,  /* Kindle blue */
+                #6B4BA3,  /* Hardcover purple */
+                #FF6600   /* Audio orange */
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            transition: opacity 0.2s ease;
+        }
+
+        .title-link:hover .page-title {
+            opacity: 0.8;
         }
 
         .header {
@@ -165,63 +192,87 @@
             gap: 10px;
         }
 
-        .stats {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .stats-container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+        .total-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #edf2f7;
         }
 
-        .stat-item {
-            padding: 10px;
+        .stat-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
         }
 
         .stat-label {
-            color: #666;
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 0.25rem;
         }
 
-        .format-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
+        .format-stats-table {
+            width: 100%;
+            border-spacing: 0 0.5rem;
         }
 
-        .format-stat-item {
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 1rem;
+        .format-row {
+            transition: transform 0.2s;
         }
 
-        .format-stat-item h4 {
-            margin: 0 0 0.5rem 0;
-            color: #333;
+        .format-row:hover {
+            transform: translateX(4px);
         }
 
-        .format-stat-details {
-            display: grid;
-            gap: 0.25rem;
+        .format-row td {
+            padding: 0.75rem;
         }
 
-        .completion-rate {
-            margin-top: 0.5rem;
-            font-weight: bold;
-            color: #2c5282;
+        .format-name {
+            font-weight: 500;
+            padding-left: 1rem !important;
+        }
+
+        .format-stat {
+            text-align: center;
+        }
+
+        /* Format-specific styling using the colors from media_stats.py */
+        .format-row.physical {
+            background: rgba(107, 75, 163, 0.1);  /* Space purple */
+        }
+        .format-row.physical .format-name {
+            color: #6B4BA3;
+        }
+
+        .format-row.kindle {
+            background: rgba(55, 160, 232, 0.1);  /* Kindle blue */
+        }
+        .format-row.kindle .format-name {
+            color: #37A0E8;
+        }
+
+        .format-row.audio {
+            background: rgba(246, 145, 30, 0.1);  /* Audible orange */
+        }
+        .format-row.audio .format-name {
+            color: #F6911E;
         }
 
         .books-grid {
@@ -320,15 +371,15 @@
         }
 
         .format-badge.physical {
-            background-color: #3b82f6;
+            background-color: #6B4BA3;  /* Space purple */
         }
 
         .format-badge.kindle {
-            background-color: #10b981;
+            background-color: #0066CC;  /* Deeper Kindle blue */
         }
 
         .format-badge.audio {
-            background-color: #8b5cf6;
+            background-color: #FF6600;  /* Warmer Audible orange */
         }
 
         /* Reading status badge */
@@ -431,9 +482,9 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Owned Books Gallery</h1>
-    </div>
+    <a href="/" class="title-link">
+        <h1 class="page-title">My GreatReads Library</h1>
+    </a>
 
     <div class="filter-container">
         <div class="filters">
@@ -449,63 +500,49 @@
         </div>
     </div>
 
-    <div class="stats">
-        <h2>Library Statistics</h2>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-value">{{ total_books }}</div>
-                <div class="stat-label">Total Books</div>
+    <div class="stats-container">
+        <div class="total-stats">
+            <div class="stat-box">
+                <span class="stat-value">{{ total_books }}</span>
+                <span class="stat-label">Books</span>
             </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ total_read }}</div>
-                <div class="stat-label">Books Read</div>
+            <div class="stat-box">
+                <span class="stat-value">{{ total_read }}</span>
+                <span class="stat-label">Read</span>
             </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ "{:,}".format(total_pages) }}</div>
-                <div class="stat-label">Total Pages</div>
+            <div class="stat-box">
+                <span class="stat-value">{{ total_books - total_read }}</span>
+                <span class="stat-label">Unread</span>
             </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ "{:,}".format(total_words) }}</div>
-                <div class="stat-label">Total Words</div>
+            <div class="stat-box">
+                <span class="stat-value">{{ "%.1f"|format(total_read / total_books * 100 if total_books > 0 else 0) }}%</span>
+                <span class="stat-label">Complete</span>
             </div>
         </div>
 
-        <h3>Format Breakdown</h3>
-        <div class="format-stats-grid">
-            <div class="format-stat-item">
-                <h4>Physical Books</h4>
-                <div class="format-stat-details">
-                    <div>Total: {{ format_stats.physical.total }}</div>
-                    <div>Read: {{ format_stats.physical.read }}</div>
-                    <div>Unread: {{ format_stats.physical.total - format_stats.physical.read }}</div>
-                    <div class="completion-rate">
-                        {{ "%.1f"|format(format_stats.physical.read / format_stats.physical.total * 100 if format_stats.physical.total > 0 else 0) }}% Complete
-                    </div>
-                </div>
-            </div>
-            <div class="format-stat-item">
-                <h4>Kindle Books</h4>
-                <div class="format-stat-details">
-                    <div>Total: {{ format_stats.kindle.total }}</div>
-                    <div>Read: {{ format_stats.kindle.read }}</div>
-                    <div>Unread: {{ format_stats.kindle.total - format_stats.kindle.read }}</div>
-                    <div class="completion-rate">
-                        {{ "%.1f"|format(format_stats.kindle.read / format_stats.kindle.total * 100 if format_stats.kindle.total > 0 else 0) }}% Complete
-                    </div>
-                </div>
-            </div>
-            <div class="format-stat-item">
-                <h4>Audiobooks</h4>
-                <div class="format-stat-details">
-                    <div>Total: {{ format_stats.audio.total }}</div>
-                    <div>Read: {{ format_stats.audio.read }}</div>
-                    <div>Unread: {{ format_stats.audio.total - format_stats.audio.read }}</div>
-                    <div class="completion-rate">
-                        {{ "%.1f"|format(format_stats.audio.read / format_stats.audio.total * 100 if format_stats.audio.total > 0 else 0) }}% Complete
-                    </div>
-                </div>
-            </div>
-        </div>
+        <table class="format-stats-table">
+            <tr class="format-row physical">
+                <td class="format-name">Physical</td>
+                <td class="format-stat">{{ format_stats.physical.total }}</td>
+                <td class="format-stat">{{ format_stats.physical.read }}</td>
+                <td class="format-stat">{{ format_stats.physical.total - format_stats.physical.read }}</td>
+                <td class="format-stat">{{ "%.1f"|format(format_stats.physical.read / format_stats.physical.total * 100 if format_stats.physical.total > 0 else 0) }}%</td>
+            </tr>
+            <tr class="format-row kindle">
+                <td class="format-name">Kindle</td>
+                <td class="format-stat">{{ format_stats.kindle.total }}</td>
+                <td class="format-stat">{{ format_stats.kindle.read }}</td>
+                <td class="format-stat">{{ format_stats.kindle.total - format_stats.kindle.read }}</td>
+                <td class="format-stat">{{ "%.1f"|format(format_stats.kindle.read / format_stats.kindle.total * 100 if format_stats.kindle.total > 0 else 0) }}%</td>
+            </tr>
+            <tr class="format-row audio">
+                <td class="format-name">Audio</td>
+                <td class="format-stat">{{ format_stats.audio.total }}</td>
+                <td class="format-stat">{{ format_stats.audio.read }}</td>
+                <td class="format-stat">{{ format_stats.audio.total - format_stats.audio.read }}</td>
+                <td class="format-stat">{{ "%.1f"|format(format_stats.audio.read / format_stats.audio.total * 100 if format_stats.audio.total > 0 else 0) }}%</td>
+            </tr>
+        </table>
     </div>
 
     <div class="books-grid">
