@@ -22,7 +22,6 @@
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
             --gradient-library: linear-gradient(135deg, #6B4BA3, #9333ea);  /* Purple */
             --gradient-tbr: linear-gradient(135deg, #0066CC, #3b82f6);     /* Blue */
-            --gradient-yearly: linear-gradient(135deg, #FF6600, #f97316);
             --gradient-journey: linear-gradient(135deg, #FF6600, #f97316);  /* Orange */
             --gradient-goals: linear-gradient(135deg, #10b981, #059669);    /* Green */
         }
@@ -61,7 +60,7 @@
             background: var(--color-card);
             border-radius: 0.75rem;
             padding: 1.25rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;  /* Reduced from 1rem to 0.75rem */
             box-shadow: var(--shadow-sm);
         }
 
@@ -185,30 +184,22 @@
             font-size: 1rem;
         }
 
-        /* Reading Journey specific styles */
-        .section:nth-child(1) .go-button {
+        /* Reading Journey specific styles (section 3) */
+        .section:nth-child(3) .yearly-icon {
             background: var(--gradient-journey);
         }
 
-        .section:nth-child(1) .feature-icon {
-            background: var(--gradient-library);
+        .section:nth-child(3) .go-button {
+            background: var(--gradient-journey);
         }
 
-        .section:nth-child(1) .go-button:hover {
-            transform: translateX(2px);
-        }
-
-        /* Reading Goals specific styles */
-        .section:nth-child(2) .go-button {
+        /* Reading Goals specific styles (section 4) */
+        .section:nth-child(4) .yearly-icon {
             background: var(--gradient-goals);
         }
 
-        .section:nth-child(2) .feature-icon {
-            background: var(--gradient-tbr);
-        }
-
-        .section:nth-child(2) .go-button:hover {
-            transform: translateX(2px);
+        .section:nth-child(4) .go-button {
+            background: var(--gradient-goals);
         }
 
         .section:nth-child(2) .section-icon {
@@ -263,7 +254,7 @@
             <!-- Library Section -->
             <section class="section">
                 <div class="section-header">
-                    <i class="fas fa-books section-icon"></i>
+                    <i class="fas fa-book-spines section-icon"></i>
                     <h2 class="section-title">My Library</h2>
                 </div>
                 <a href="/reports/chain/owned_books.html" class="feature-card">
@@ -329,12 +320,12 @@
             <!-- Reading Goals Section -->
             <section class="section">
                 <div class="section-header">
-                    <i class="fas fa-bullseye section-icon"></i>
+                    <i class="fas fa-chart-line section-icon"></i>
                     <h2 class="section-title">Reading Goals</h2>
                 </div>
                 <div class="feature-card" style="cursor: default;">
                     <div class="feature-icon yearly-icon">
-                        <i class="fas fa-target"></i>
+                        <i class="fas fa-bullseye"></i>
                     </div>
                     <div class="feature-content">
                         <div class="select-group">
