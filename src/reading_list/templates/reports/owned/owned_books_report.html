@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -440,6 +440,42 @@
             color: white;
         }
 
+        .search-container {
+            padding: 15px 20px 5px 20px;
+            width: calc(100% - 40px); /* Account for padding */
+            max-width: 400px; /* Reduced from 600px */
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px; /* Add font-size of at least 16px to prevent iOS zoom */
+            transition: all 0.2s ease;
+            background-color: white;
+            box-sizing: border-box; /* Ensure padding doesn't affect width */
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #0066CC;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #94a3b8;
+        }
+
+        /* Add responsive adjustments */
+        @media (max-width: 768px) {
+            .search-container {
+                max-width: 100%;
+                padding: 15px 10px 5px 10px;
+            }
+        }
+
         @media (max-width: 768px) {
             .books-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -487,6 +523,13 @@
     </a>
 
     <div class="filter-container">
+        <!-- Add search box -->
+        <div class="search-container">
+            <form onsubmit="return false;">
+                <input type="text" id="bookSearch" class="search-input" placeholder="Search titles, authors, series...">
+            </form>
+        </div>
+        
         <div class="filters">
             <div class="filter-group">
                 <button class="filter-button status" data-status="read">Read</button>
@@ -578,6 +621,13 @@
             const statusFilters = document.querySelectorAll('.filter-button.status');
             const mediaFilters = document.querySelectorAll('.filter-button.media');
             const books = document.querySelectorAll('.book-card');
+            const searchInput = document.getElementById('bookSearch');
+
+            // Function to clear search
+            function clearSearch() {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
 
             function scrollToTop() {
                 window.scrollTo({
@@ -618,6 +668,7 @@
 
             statusFilters.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    clearSearch(); // Clear search when filter is clicked
                     if (btn.dataset.active === "true") {
                         btn.dataset.active = "false";
                     } else {
@@ -631,6 +682,7 @@
 
             mediaFilters.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    clearSearch(); // Clear search when filter is clicked
                     if (btn.dataset.active === "true") {
                         btn.dataset.active = "false";
                     } else {
@@ -644,6 +696,85 @@
 
             // Add reload listener
             window.addEventListener('load', refreshBookCovers);
+
+            // Handle enter key press
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent any default form submission
+                    this.blur(); // Remove focus from input, which hides keyboard on mobile
+                }
+            });
+
+            // Clear search box on focus
+            searchInput.addEventListener('focus', function() {
+                if (this.value) {
+                    this.value = '';
+                    // Trigger the search update to show all books
+                    this.dispatchEvent(new Event('input'));
+                }
+            });
+
+            // Add search functionality
+            function searchBooks(searchTerm) {
+                searchTerm = searchTerm.toLowerCase();
+                
+                books.forEach(book => {
+                    const title = book.querySelector('.book-title').textContent.toLowerCase();
+                    const author = book.querySelector('.book-author').textContent.toLowerCase();
+                    const series = book.querySelector('.book-series')?.textContent.toLowerCase() || '';
+                    
+                    const matchesSearch = !searchTerm || 
+                        title.includes(searchTerm) || 
+                        author.includes(searchTerm) || 
+                        series.includes(searchTerm);
+                    
+                    // Only show if it matches both search and current filters
+                    const currentDisplay = book.style.display;
+                    if (currentDisplay !== 'none' || !searchTerm) {
+                        book.style.display = matchesSearch ? '' : 'none';
+                    }
+                });
+            }
+
+            // Debounce function to limit search frequency
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // Add search event listener with debounce
+            searchInput.addEventListener('input', debounce(function(e) {
+                searchBooks(e.target.value);
+            }, 250));
+
+            // Modify existing updateVisibility function to work with search
+            const originalUpdateVisibility = window.updateVisibility;
+            window.updateVisibility = function() {
+                const activeStatus = document.querySelector('.filter-button.status[data-active="true"]')?.dataset.status;
+                const activeFormat = document.querySelector('.filter-button.media[data-active="true"]')?.dataset.format;
+                const searchTerm = searchInput.value.toLowerCase();
+
+                books.forEach(book => {
+                    const matchesStatus = !activeStatus || book.dataset.status === activeStatus;
+                    const matchesFormat = !activeFormat || book.dataset.formats.includes(activeFormat);
+                    const matchesSearch = !searchTerm || 
+                        book.querySelector('.book-title').textContent.toLowerCase().includes(searchTerm) ||
+                        book.querySelector('.book-author').textContent.toLowerCase().includes(searchTerm) ||
+                        (book.querySelector('.book-series')?.textContent.toLowerCase() || '').includes(searchTerm);
+
+                    book.style.display = (matchesStatus && matchesFormat && matchesSearch) ? '' : 'none';
+                });
+
+                // Refresh covers after filtering
+                setTimeout(refreshBookCovers, 100); // Small delay to ensure DOM updates are complete
+            };
         });
     </script>
 </body>
