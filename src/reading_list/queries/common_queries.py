@@ -445,37 +445,34 @@ class CommonQueries:
             return []
 
     def get_books_by_format(self, media_format: str) -> List[Dict[str, Any]]:
+        """Get all books of a specific format"""
         try:
             query = """
-                WITH FirstRead AS (
-                    SELECT 
-                        r1.*
-                    FROM read r1
-                    LEFT JOIN read r2 ON r1.book_id = r2.book_id 
-                        AND (r2.date_started < r1.date_started 
-                            OR (r2.date_started = r1.date_started AND r2.id < r1.id))
-                        AND r2.reread IS NOT TRUE
-                    WHERE r2.id IS NULL
-                        AND r1.reread IS NOT TRUE
-                )
-                SELECT
+                SELECT DISTINCT
                     b.id as book_id,
-                    fr.id as reading_id,
                     b.title,
                     b.author_name_first,
                     b.author_name_second,
                     b.page_count,
                     b.word_count,
-                    b.date_published,
                     b.series,
-                    b.series_number as series_index,
+                    b.series_number,
+                    b.date_published,
                     i.location,
-                    fr.date_started,
-                    fr.date_finished_actual
+                    r.id as reading_id,
+                    r.date_started,
+                    r.date_finished_actual,
+                    (
+                        SELECT MIN(r2.date_started)
+                        FROM read r2
+                        WHERE r2.book_id = b.id
+                        AND r2.date_finished_actual IS NOT NULL
+                    ) as first_read_date
                 FROM books b
                 JOIN inv i ON b.id = i.book_id
-                LEFT JOIN FirstRead fr ON b.id = fr.book_id
+                LEFT JOIN read r ON b.id = r.book_id
                 WHERE i.owned_{} = TRUE
+                GROUP BY b.id
             """.format(media_format.lower())
             
             results = self.session.execute(text(query))
@@ -490,8 +487,9 @@ class CommonQueries:
                 'words': row.word_count,
                 'location': row.location,
                 'series': row.series,
-                'series_index': row.series_index,
+                'series_index': row.series_number,  # Map series_number to series_index for compatibility
                 'date_published': row.date_published,
+                'first_read_date': row.first_read_date,
                 'reading_status': 'reading' if row.date_started and not row.date_finished_actual
                                else 'completed' if row.date_finished_actual
                                else 'unread',

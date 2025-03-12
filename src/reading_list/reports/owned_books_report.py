@@ -77,6 +77,7 @@ class OwnedBooksReport:
                         books_by_id[book_id] = {
                             'title': book['title'],
                             'author': book['author'],
+                            'author_sort': book['author_sort'],  # Use author_sort from the query
                             'series': series,
                             'series_number': float(book['series_index'] or 0),
                             'publication_date': pub_date,
@@ -101,14 +102,14 @@ class OwnedBooksReport:
             processed_books = list(books_by_id.values())
             
             # Sort books: 
-            # 1. by author
+            # 1. by author's last name (using author_sort)
             # 2. by effective publication date (latest series date for series books)
             # 3. by series name
             # 4. by series number
             # 5. by title
             processed_books.sort(key=lambda x: (
-                x['author'],
-                x['effective_pub_date'] or date.max,  # Handle None dates
+                x['author_sort'],
+                x['effective_pub_date'] or datetime.max,  # Handle None dates
                 x['series'] or 'zzzz',  # Put non-series books last within their publication date group
                 x['series_number'],
                 x['title']
