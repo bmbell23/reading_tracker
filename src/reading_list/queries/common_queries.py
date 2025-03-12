@@ -480,27 +480,23 @@ class CommonQueries:
             
             results = self.session.execute(text(query))
             
-            books = []
-            for row in results:
-                books.append({
-                    'book_id': row.book_id,
-                    'reading_id': row.reading_id,
-                    'title': row.title,
-                    'author': f"{row.author_name_first or ''} {row.author_name_second or ''}".strip(),
-                    'author_sort': f"{row.author_name_second or ''}, {row.author_name_first or ''}".strip(),
-                    'pages': row.page_count,
-                    'words': row.word_count,
-                    'location': row.location,
-                    'series': row.series,
-                    'series_index': row.series_index,
-                    'date_published': row.date_published,
-                    'reading_status': 'reading' if row.date_started and not row.date_finished_actual
-                                   else 'completed' if row.date_finished_actual
-                                   else 'unread',
-                    'reading_id': row.reading_id
-                })
-            
-            return books
+            return [{
+                'book_id': row.book_id,
+                'reading_id': row.reading_id,
+                'title': row.title,
+                'author': f"{row.author_name_first or ''} {row.author_name_second or ''}".strip(),
+                'author_sort': f"{row.author_name_second or ''}, {row.author_name_first or ''}".strip(),
+                'pages': row.page_count,
+                'words': row.word_count,
+                'location': row.location,
+                'series': row.series,
+                'series_index': row.series_index,
+                'date_published': row.date_published,
+                'reading_status': 'reading' if row.date_started and not row.date_finished_actual
+                               else 'completed' if row.date_finished_actual
+                               else 'unread',
+                'reading_id': row.reading_id
+            } for row in results]
         
         except Exception as e:
             self.console.print(f"[red]Error getting {media_format} books: {str(e)}[/red]")

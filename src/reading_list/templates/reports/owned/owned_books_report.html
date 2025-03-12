@@ -102,7 +102,7 @@
             color: #666;
         }
 
-        .gallery {
+        .books-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
@@ -111,7 +111,7 @@
 
         .book-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: transform 0.2s;
@@ -123,7 +123,8 @@
 
         .cover-container {
             position: relative;
-            padding-top: 150%;
+            padding-top: 150%; /* 2:3 aspect ratio */
+            width: 100%;
         }
 
         .cover-img {
@@ -140,76 +141,133 @@
         }
 
         .book-title {
+            margin: 0;
+            font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 5px;
         }
 
         .book-author {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-
-        .book-status {
-            font-size: 0.8em;
-            padding: 3px 8px;
-            border-radius: 12px;
-            display: inline-block;
-        }
-
-        .status-unread {
-            background: #f0f0f0;
+            margin: 5px 0;
+            font-size: 0.9rem;
             color: #666;
         }
 
-        .status-reading {
-            background: #e3f2fd;
-            color: #1976d2;
+        .book-series {
+            margin: 5px 0;
+            font-size: 0.8rem;
+            color: #888;
         }
 
-        .status-completed {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
+        /* Format badges */
         .format-badges {
             position: absolute;
-            bottom: 10px;
+            top: 10px;
             right: 10px;
             display: flex;
             flex-direction: column;
             gap: 5px;
-            align-items: flex-end;
         }
 
         .format-badge {
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
             color: white;
-            font-size: 0.8em;
-            font-weight: 500;
-            opacity: 0.7;
+            text-transform: uppercase;
         }
 
-        .format-badge.status-reading {
-            opacity: 0.85;
+        .format-badge.physical {
+            background-color: #3b82f6;
         }
 
-        .format-badge.status-completed {
-            opacity: 1;
+        .format-badge.kindle {
+            background-color: #10b981;
         }
 
-        /* Format-specific colors */
-        .format-kindle {
-            background-color: #0066CC;
+        .format-badge.audio {
+            background-color: #8b5cf6;
         }
 
-        .format-physical {
-            background-color: #6B4BA3;
+        /* Reading status badge */
+        .reading-status-badge {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            z-index: 2;
         }
 
-        .format-audio {
-            background-color: #FF6600;
+        .reading-status-badge.read {
+            background-color: #22c55e;
+        }
+
+        .reading-status-badge.unread {
+            background-color: #64748b;
+        }
+
+        /* Filter buttons */
+        .filters {
+            padding: 20px 20px 0 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .filter-button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-button:hover {
+            opacity: 0.8;
+        }
+
+        .filter-button.status {
+            border-color: #64748b;
+            color: #64748b;
+        }
+
+        .filter-button.status.active {
+            background-color: #64748b;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .book-title {
+                font-size: 0.9rem;
+            }
+
+            .book-author {
+                font-size: 0.8rem;
+            }
+
+            .format-badge {
+                font-size: 0.6rem;
+                padding: 3px 6px;
+            }
+
+            .reading-status-badge {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+            }
         }
     </style>
 </head>
@@ -219,9 +277,12 @@
     </div>
 
     <div class="filters">
-        <button class="filter-button physical active" data-format="physical">Physical</button>
-        <button class="filter-button kindle active" data-format="kindle">Kindle</button>
-        <button class="filter-button audio active" data-format="audio">Audio</button>
+        <!-- Reading status filters -->
+        <div class="filter-group">
+            <button class="filter-button status active" data-status="all">All</button>
+            <button class="filter-button status" data-status="read">Read</button>
+            <button class="filter-button status" data-status="unread">Unread</button>
+        </div>
     </div>
 
     <div class="stats">
@@ -246,22 +307,28 @@
         </div>
     </div>
 
-    <div class="gallery">
+    <div class="books-grid">
         {% for book in books %}
-        <div class="book-card" data-formats="{{ book.formats|map(attribute='type')|join(' ') }}">
+        <div class="book-card" 
+             data-formats="{{ book.formats|map(attribute='type')|join(' ') }}"
+             data-status="{{ 'read' if book.is_read else 'unread' }}">
             <div class="cover-container">
-                <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" class="cover-img">
+                <img class="cover-img" src="{{ book.cover_url }}" alt="{{ book.title }} cover">
+                <div class="reading-status-badge {{ 'read' if book.is_read else 'unread' }}">
+                    {{ 'Read' if book.is_read else 'Unread' }}
+                </div>
                 <div class="format-badges">
                     {% for format in book.formats %}
-                    <div class="format-badge format-{{ format.type }} status-{{ format.status }}">
-                        {{ format.type|title }}
-                    </div>
+                        <span class="format-badge {{ format.type }}">{{ format.type|title }}</span>
                     {% endfor %}
                 </div>
             </div>
             <div class="book-info">
-                <div class="book-title">{{ book.title }}</div>
-                <div class="book-author">{{ book.author }}</div>
+                <h3 class="book-title">{{ book.title }}</h3>
+                <p class="book-author">{{ book.author }}</p>
+                {% if book.series %}
+                <p class="book-series">{{ book.series }} #{{ "%.1f"|format(book.series_number) }}</p>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -269,29 +336,26 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const filters = document.querySelectorAll('.filter-button');
+            const statusFilters = document.querySelectorAll('.filter-button.status');
             const books = document.querySelectorAll('.book-card');
 
-            function updateVisibility() {
-                const activeFormats = Array.from(filters)
-                    .filter(btn => btn.classList.contains('active'))
-                    .map(btn => btn.dataset.format);
+            statusFilters.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active state
+                    statusFilters.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
 
-                books.forEach(book => {
-                    const bookFormats = book.dataset.formats.split(' ');
-                    const visible = bookFormats.some(format => activeFormats.includes(format));
-                    book.style.display = visible ? '' : 'none';
-                });
-            }
-
-            filters.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.classList.toggle('active');
-                    updateVisibility();
+                    // Filter books
+                    const selectedStatus = btn.dataset.status;
+                    books.forEach(book => {
+                        if (selectedStatus === 'all' || book.dataset.status === selectedStatus) {
+                            book.style.display = '';
+                        } else {
+                            book.style.display = 'none';
+                        }
+                    });
                 });
             });
-
-            updateVisibility();
         });
     </script>
 </body>

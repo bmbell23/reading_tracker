@@ -27,6 +27,18 @@ class OwnedBooksReport:
             # Get all books
             all_books = self.queries.get_all_owned_books()
             
+            # First, collect series publication dates
+            series_latest_dates = {}  # Dictionary to store latest publication date for each series
+            for format_type in ['physical', 'kindle', 'audio']:
+                for book in all_books.get(format_type, []):
+                    series = book.get('series')
+                    pub_date = book.get('date_published')
+                    
+                    if series and pub_date:
+                        current_latest = series_latest_dates.get(series)
+                        if not current_latest or pub_date > current_latest:
+                            series_latest_dates[series] = pub_date
+
             # Process books
             books_by_id = {}  # Dictionary to track unique books
             total_books = 0
@@ -44,11 +56,18 @@ class OwnedBooksReport:
                         total_pages += book['pages'] or 0
                         total_words += book['words'] or 0
                         
+                        # Get the effective publication date
+                        pub_date = book['date_published']
+                        series = book['series']
+                        effective_pub_date = series_latest_dates.get(series, pub_date) if series else pub_date
+                        
                         books_by_id[book_id] = {
                             'title': book['title'],
                             'author': book['author'],
-                            'series': book['series'],
-                            'series_number': float(book['series_index'] or 0),  # Convert to float for proper sorting
+                            'series': series,
+                            'series_number': float(book['series_index'] or 0),
+                            'publication_date': pub_date,
+                            'effective_pub_date': effective_pub_date,  # For sorting
                             'formats': [],
                             'cover_url': self.get_book_cover_path(book_id) or '/assets/images/no-cover.jpg',
                             'book_id': book_id,
@@ -68,10 +87,16 @@ class OwnedBooksReport:
             # Convert dictionary to list and sort
             processed_books = list(books_by_id.values())
             
-            # Sort books: first by author, then by series, then by series number, then by title
+            # Sort books: 
+            # 1. by author
+            # 2. by effective publication date (latest series date for series books)
+            # 3. by series name
+            # 4. by series number
+            # 5. by title
             processed_books.sort(key=lambda x: (
                 x['author'],
-                x['series'] or 'zzzz',  # Put non-series books last
+                x['effective_pub_date'] or date.max,  # Handle None dates
+                x['series'] or 'zzzz',  # Put non-series books last within their publication date group
                 x['series_number'],
                 x['title']
             ))
