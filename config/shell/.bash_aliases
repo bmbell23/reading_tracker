@@ -48,3 +48,5 @@ alias shelves='reading-list shelf && reading-list shelf --shelve'
 alias entry='reading-list update-entries'
 
 alias unread='reading-list unread-inventory'
+
+alias owned='reading-list owned-report'
