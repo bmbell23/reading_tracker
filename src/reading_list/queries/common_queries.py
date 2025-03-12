@@ -14,7 +14,7 @@ class CommonQueries:
     def __init__(self, session: Optional[Session] = None):
         """
         Initialize common queries
-        
+
         Args:
             session: SQLAlchemy session. If None, creates new session
         """
@@ -45,30 +45,30 @@ class CommonQueries:
             show_actual_dates: If True, shows actual dates instead of estimated dates
         """
         # For start date, use actual if available, otherwise use estimated
-        start_date = (reading.date_started.strftime('%Y-%m-%d') if reading.date_started 
-                     else (reading.date_est_start.strftime('%Y-%m-%d') if reading.date_est_start 
+        start_date = (reading.date_started.strftime('%Y-%m-%d') if reading.date_started
+                     else (reading.date_est_start.strftime('%Y-%m-%d') if reading.date_est_start
                            else 'Not scheduled'))
-        
+
         # For end date, use actual if available, otherwise use estimated
-        end_date = (reading.date_finished_actual.strftime('%Y-%m-%d') if reading.date_finished_actual 
-                    else (reading.date_est_end.strftime('%Y-%m-%d') if reading.date_est_end 
+        end_date = (reading.date_finished_actual.strftime('%Y-%m-%d') if reading.date_finished_actual
+                    else (reading.date_est_end.strftime('%Y-%m-%d') if reading.date_est_end
                           else 'Not scheduled'))
-        
+
         # Construct author name from first and second name fields
         author_parts = [
             reading.book.author_name_first,
             reading.book.author_name_second
         ]
         author = " ".join(filter(None, author_parts)) or 'Unknown Author'
-        
+
         # Get media color
         media_color = self._get_media_color(reading.media)
-        
+
         self.console.print(
             f"[bold]{reading.book.title}[/bold] by {author}\n"
             f"Start: {start_date} | End: {end_date}\n"
             f"Media: [{media_color}]{reading.media}[/{media_color}] | "
-            f"Reading ID: {reading.id} | Previous ID: {reading.id_previous or 'None'}"
+            f"Reading ID: {reading.id} | Book ID: {reading.book.id} | Previous ID: {reading.id_previous or 'None'}"
         )
 
     def get_readings_by_title(self, title: str, exact_match: bool = True) -> list:
@@ -134,7 +134,7 @@ class CommonQueries:
             return []
 
         chain = []
-        
+
         # Get all previous readings
         current = reading
         while current.id_previous is not None:
@@ -165,10 +165,10 @@ class CommonQueries:
     def get_reading_details(self, reading_id: int) -> Optional[Dict[str, Any]]:
         """
         Get detailed information about a specific reading session.
-        
+
         Args:
             reading_id: ID of the reading to inspect
-        
+
         Returns:
             Dictionary containing reading details or None if not found
         """
@@ -176,12 +176,12 @@ class CommonQueries:
             reading = self.session.get(Reading, reading_id)
             if not reading:
                 return None
-            
+
             # Get next reading (if any points to this one)
             next_reading = (self.session.query(Reading)
                            .filter(Reading.id_previous == reading_id)
                            .first())
-            
+
             return {
                 'reading_id': reading.id,
                 'book': {
@@ -215,12 +215,12 @@ class CommonQueries:
     def get_reread_books(self, reread_type: str = 'upcoming') -> list:
         """
         Get list of books that are rereads.
-        
+
         Args:
             reread_type: Either 'upcoming' or 'finished'
                 - 'upcoming': Books that have been read before and are in the current chain
                 - 'finished': Books that have been completely read multiple times
-        
+
         Returns:
             List of Reading objects that are rereads
         """
@@ -232,7 +232,7 @@ class CommonQueries:
                     .filter(Reading.date_finished_actual.isnot(None))
                     .distinct()
                 )
-                
+
                 # Main query to get upcoming readings of previously read books
                 query = (
                     self.session.query(Reading)
@@ -257,13 +257,13 @@ class CommonQueries:
                 )
             else:
                 raise ValueError("reread_type must be either 'upcoming' or 'finished'")
-            
+
             results = query.all()
-            
+
             if not results:
                 self.console.print(f"\n[yellow]No {reread_type} rereads found[/yellow]")
                 return []
-                
+
             return results
 
         except Exception as e:
@@ -276,7 +276,7 @@ class CommonQueries:
         Returns a list of readings with basic book info, ordered by start date
         """
         query = """
-            SELECT 
+            SELECT
                 r.id,
                 r.date_started,
                 r.date_est_start,
@@ -287,7 +287,7 @@ class CommonQueries:
             JOIN books b ON r.book_id = b.id
             ORDER BY COALESCE(date_started, date_est_start)
         """
-        
+
         try:
             results = self.session.execute(text(query)).fetchall()
             return [dict(row._mapping) for row in results]
@@ -298,10 +298,10 @@ class CommonQueries:
     def get_book_cover_path(self, book_id: int) -> Optional[str]:
         """Get the path to a book's cover image"""
         from reading_list.utils.paths import get_project_paths
-        
+
         project_paths = get_project_paths()
         covers_dir = project_paths['workspace'] / 'data' / 'covers'
-        
+
         # Check for cover file with different extensions
         for ext in ['.jpg', '.jpeg', '.png']:
             cover_path = covers_dir / f"{book_id}{ext}"
@@ -320,10 +320,10 @@ class CommonQueries:
     def get_reading_chain_by_media(self, media_type: str) -> List[Dict[str, Any]]:
         """
         Get a reading chain for a specific media type.
-        
+
         Args:
             media_type: Type of media (kindle, hardcover, audio)
-            
+
         Returns:
             List of readings in the chain for that media type
         """
@@ -341,21 +341,21 @@ class CommonQueries:
                 .order_by(Reading.date_est_start)
                 .all()
             )
-            
+
             chain_data = []
             for reading in readings:
                 # Format dates
                 date_started = self.format_date(reading.date_started)
                 date_est_start = self.format_date(reading.date_est_start)
                 date_est_end = self.format_date(reading.date_est_end)
-                
+
                 # Determine if reading is current or future
                 is_current = reading.date_started is not None and reading.date_finished_actual is None
                 is_future = reading.date_started is None
-                
+
                 # Get cover path
                 cover_path = self.get_book_cover_path(reading.book.id)
-                
+
                 chain_data.append({
                     'id': reading.id,
                     'title': reading.book.title,
@@ -370,9 +370,9 @@ class CommonQueries:
                     'is_future': is_future,
                     'id_previous': reading.id_previous
                 })
-            
+
             return chain_data
-            
+
         except Exception as e:
             self.console.print(f"[red]Error getting {media_type} chain: {str(e)}[/red]")
             return []
@@ -380,10 +380,10 @@ class CommonQueries:
     def get_reading_chain_by_media(self, media: str) -> List[Dict]:
         """
         Get all readings in a chain for a specific media type.
-        
+
         Args:
             media: Media type to filter by (e.g., 'Audio', 'Kindle', etc.)
-        
+
         Returns:
             List of dictionaries containing reading information
         """
@@ -391,7 +391,7 @@ class CommonQueries:
             query = """
                 WITH RECURSIVE chain AS (
                     -- Get all readings without a previous reading (chain starts)
-                    SELECT 
+                    SELECT
                         r.id as read_id,
                         r.media,
                         r.id_previous,
@@ -402,13 +402,13 @@ class CommonQueries:
                         1 as chain_order
                     FROM read r
                     JOIN books b ON r.book_id = b.id
-                    WHERE r.media = :media 
+                    WHERE r.media = :media
                     AND r.id_previous IS NULL
 
                     UNION ALL
 
                     -- Get all subsequent readings in the chain
-                    SELECT 
+                    SELECT
                         r.id,
                         r.media,
                         r.id_previous,
@@ -425,9 +425,9 @@ class CommonQueries:
                 SELECT * FROM chain
                 ORDER BY chain_order;
             """
-            
+
             results = self.session.execute(text(query), {'media': media}).fetchall()
-            
+
             return [
                 {
                     'read_id': row.read_id,

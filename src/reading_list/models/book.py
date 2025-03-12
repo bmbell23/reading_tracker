@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Boolean, VARCHAR, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, VARCHAR
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -16,9 +16,12 @@ class Book(Base):
     series = Column(VARCHAR)
     series_number = Column(Integer)
     genre = Column(VARCHAR)
-    cover = Column(Boolean, default=False, nullable=False)
-    isbn_id = Column(Integer, ForeignKey('isbn.id'), nullable=True)
+    cover = Column(Boolean, nullable=False, default=False)
+    isbn_id = Column(Integer)
 
     # Define relationships without circular references
     readings = relationship("Reading", back_populates="book")
     inventory = relationship("Inventory", back_populates="book")
+
+    def __repr__(self):
+        return f"<Book(id={self.id}, title='{self.title}')>"

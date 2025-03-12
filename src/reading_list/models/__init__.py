@@ -5,10 +5,6 @@ from .book import Book
 from .reading import Reading
 from .inventory import Inventory
 
-# Initialize relationships after all models are defined
-Book.isbn = relationship("ISBN", back_populates="book", uselist=False)
-ISBN.book = relationship("Book", back_populates="isbn", uselist=False)
-
 # Create all tables
 Base.metadata.create_all(bind=engine)
 

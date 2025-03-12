@@ -14,7 +14,7 @@ class ShelfDisplayService:
         """Get all physically owned books with their shelf information."""
         with SessionLocal() as session:
             query = text("""
-                SELECT 
+                SELECT
                     b.id as book_id,
                     b.title,
                     b.author_name_first,
@@ -25,8 +25,11 @@ class ShelfDisplayService:
                 FROM books b
                 JOIN inv i ON b.id = i.book_id
                 WHERE i.owned_physical = TRUE
-                ORDER BY 
+                ORDER BY
                     COALESCE(i.location, 'Unshelved') ASC,
+                    COALESCE(b.author_name_first, b.author_name_second) ASC,
+                    b.author_name_second ASC,
+                    b.date_published ASC,
                     b.title ASC
             """)
             results = session.execute(query).mappings().all()
@@ -36,8 +39,8 @@ class ShelfDisplayService:
         """Update the location for a book in the inventory."""
         with SessionLocal() as session:
             query = text("""
-                UPDATE inv 
-                SET location = :location 
+                UPDATE inv
+                SET location = :location
                 WHERE id = :inv_id
             """)
             session.execute(query, {"location": location, "inv_id": inv_id})
@@ -47,9 +50,9 @@ class ShelfDisplayService:
         """Get list of existing shelf locations."""
         with SessionLocal() as session:
             query = text("""
-                SELECT DISTINCT location 
-                FROM inv 
-                WHERE location IS NOT NULL 
+                SELECT DISTINCT location
+                FROM inv
+                WHERE location IS NOT NULL
                 ORDER BY location
             """)
             results = session.execute(query)
@@ -72,10 +75,10 @@ class ShelfDisplayService:
             return
 
         self.console.print("\n[bold yellow]Found unshelved books:[/bold yellow]")
-        
+
         # Get existing shelves for suggestions
         existing_shelves = self.get_existing_shelves()
-        
+
         for book in unshelved_books:
             self.console.print(f"\n[cyan]Book:[/cyan] {book['title']}")
             if book['author_name_first'] or book['author_name_second']:
@@ -94,7 +97,7 @@ class ShelfDisplayService:
                 if location.strip():
                     self.update_book_location(book['inv_id'], location.strip())
                     self.console.print(f"[green]Updated location to: {location}[/green]")
-                    
+
                     # Add new location to existing shelves if it's not there
                     if location not in existing_shelves:
                         existing_shelves.append(location)
@@ -103,7 +106,7 @@ class ShelfDisplayService:
     def display_books(self, show_count_only: bool = False, prompt_unshelved: bool = False) -> None:
         """Display physically owned books in a formatted table."""
         books = self.get_physical_books()
-        
+
         # Group books by shelf
         shelved_books: Dict[str, List[Dict]] = {}
         for book in books:
@@ -124,16 +127,16 @@ class ShelfDisplayService:
                 show_header=True,
                 header_style="bold magenta"
             )
-            
+
             table.add_column("Shelf", style="white")
             table.add_column("Book Count", justify="right", style="green")
-            
+
             total_books = 0
             for shelf, shelf_books in shelved_books.items():
                 count = len(shelf_books)
                 total_books += count
                 table.add_row(shelf, str(count))
-            
+
             table.add_row("[bold]Total[/bold]", f"[bold]{total_books}[/bold]")
             self.console.print(table)
             return
@@ -145,7 +148,7 @@ class ShelfDisplayService:
                 show_header=True,
                 header_style="bold magenta"
             )
-            
+
             table.add_column("Title", style="white")
             table.add_column("Author", style="white")
             table.add_column("Published", style="white", justify="right")
@@ -156,7 +159,7 @@ class ShelfDisplayService:
                     book['author_name_second']
                 ]
                 author = " ".join(filter(None, author_parts)) or "Unknown Author"
-                
+
                 table.add_row(
                     book['title'],
                     author,

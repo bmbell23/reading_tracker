@@ -45,3 +45,4 @@ alias tbr='reading-list chain-report'
 
 alias shelves='reading-list shelf && reading-list shelf --shelve'
 
+alias entry='reading-list update-entries'

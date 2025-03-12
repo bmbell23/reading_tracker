@@ -19,6 +19,7 @@ from . import generate_dashboard
 from . import list_readings
 from . import excel_template_cli
 from . import shelf
+from . import search
 
 def main():
     """Main CLI entry point."""
@@ -101,6 +102,7 @@ def main():
     list_readings_parser = list_readings.add_subparser(subparsers)
 
     shelf_parser = shelf.add_subparser(subparsers)
+    search_parser = search.add_subparser(subparsers)
 
     args = parser.parse_args()
 
@@ -152,6 +154,8 @@ def main():
         return email_report.handle_command(args)
     elif args.command == "shelf":
         return shelf.handle_command(args)
+    elif args.command == "search":
+        return search.handle_command(args)
     else:
         parser.print_help()
         return 1

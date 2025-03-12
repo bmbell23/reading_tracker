@@ -105,7 +105,7 @@ class EntryEditor:
         if existing_reading:
             # Ensure the existing reading is in the session
             existing_reading = self.session.merge(existing_reading)
-            
+
             # Get and merge the associated book
             book = self.session.get(Book, book_id)
             if book:
@@ -148,38 +148,21 @@ class EntryEditor:
             if not entry:
                 raise ValueError(f"No {model.__name__} entry found with ID {entry_id}")
 
-            # If this is a Reading entry and we're updating id_previous
-            if isinstance(entry, Reading) and 'id_previous' in data:
-                # Get the previous reading and book
-                prev_reading_id = int(data['id_previous'])
-                prev_reading = self.session.get(Reading, prev_reading_id)
-                if prev_reading:
-                    # Ensure both readings are in the session
-                    entry = self.session.merge(entry)
-                    prev_reading = self.session.merge(prev_reading)
-                    
-                    # Get the associated book
-                    book = self.session.get(Book, entry.book_id)
-                    book = self.session.merge(book)
-
-            # Update attributes
+            # Update the entry attributes
             for key, value in data.items():
-                setattr(entry, key, value)
+                if hasattr(entry, key):
+                    setattr(entry, key, value)
 
-            # Mark as modified
-            self.session.add(entry)
-            
-            # Commit changes
-            self.session.commit()
-            
-            # Refresh to get updated data
-            self.session.refresh(entry)
-            
-            return entry
+            try:
+                self.session.commit()
+                return entry
+            except Exception as e:
+                self.session.rollback()
+                raise Exception(f"Failed to commit changes: {str(e)}")
 
         except Exception as e:
             self.session.rollback()
-            raise ValueError(f"Error updating {model.__name__}: {str(e)}")
+            raise Exception(f"Error updating entry: {str(e)}")
 
     def get_related_entries(self, book_id: int) -> Dict[str, List[Any]]:
         """Get all related entries for a book"""

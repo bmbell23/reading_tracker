@@ -12,7 +12,7 @@ from rich.table import Table
 from rich.style import Style
 from pathlib import Path
 from datetime import datetime
-from sqlalchemy import text
+from sqlalchemy import text, or_  # Add or_ to the imports
 
 from reading_list.models.base import engine, SessionLocal
 from reading_list.models.book import Book
@@ -96,7 +96,7 @@ class ModelHandler:
         # Special handling for different field types
         boolean_fields = {'has_cover', 'completed', 'owned_physical', 'owned_kindle', 'owned_audio'}
         date_fields = {
-            'date_published', 'date_started', 'date_finished_actual', 
+            'date_published', 'date_started', 'date_finished_actual',
             'date_est_start', 'date_est_end'
         }  # Added date_finished_actual
         # Skip these fields as they're managed by SQLAlchemy or are foreign keys
@@ -148,53 +148,77 @@ class ModelHandler:
 
         return fields
 
-    def get_input_data(self, is_new: bool = False, existing: Any = None) -> Dict[str, Any]:
-        """Get user input based on model type"""
+    def get_update_data(self, existing: Any) -> Dict[str, Any]:
+        """Get update data from user input"""
         data = {}
 
-        fields = self.get_field_config(self.model)
+        # Get field definitions based on model type
+        if self.model == Book:
+            fields = {
+                'title': ('string', existing.title),
+                'author_name_first': ('string', existing.author_name_first),
+                'author_name_second': ('string', existing.author_name_second),
+                'author_gender': ('string', existing.author_gender),
+                'word_count': ('integer', existing.word_count),
+                'page_count': ('integer', existing.page_count),
+                'date_published': ('date', existing.date_published),
+                'series': ('string', existing.series),
+                'series_number': ('integer', existing.series_number),
+                'genre': ('string', existing.genre),
+                'cover': ('boolean', existing.cover),
+                'isbn_id': ('integer', existing.isbn_id)
+            }
+        elif self.model == Reading:
+            fields = {
+                'media': ('string', existing.media),
+                'date_started': ('date', existing.date_started),
+                'date_finished_actual': ('date', existing.date_finished_actual),
+                'date_est_start': ('date', existing.date_est_start),
+                'date_est_end': ('date', existing.date_est_end),
+                'pages_read': ('integer', existing.pages_read),
+                'completed': ('boolean', existing.completed),
+                'id_previous': ('integer', existing.id_previous)
+            }
+        elif self.model == Inventory:
+            fields = {
+                'owned_physical': ('boolean', existing.owned_physical),
+                'owned_kindle': ('boolean', existing.owned_kindle),
+                'owned_audio': ('boolean', existing.owned_audio),
+                'location': ('string', existing.location)
+            }
+        else:
+            raise ValueError(f"Unsupported model type: {self.model.__name__}")
 
-        for field_name, prompt, field_type in fields:
-            current = getattr(existing, field_name) if existing else None
-            if Prompt.ask(f"Update {prompt}? [cyan](current: {current})[/cyan]", choices=['y', 'n'], default='n') == 'y':
-                value = Prompt.ask(prompt)
-                # Convert empty string to None
-                if value.strip() == '':
-                    value = None
-                else:
-                    # Handle different field types
-                    if field_type == 'date' and value:
-                        try:
-                            # Convert string to date object
-                            date_obj = datetime.strptime(value, '%Y-%m-%d').date()
-                            value = date_obj
-                            StyleConfig.console.print(f"Debug: Converted date {value} to {type(value)}")
-                        except ValueError:
-                            StyleConfig.console.print(f"Invalid date format for {field_name}. Use YYYY-MM-DD", style=StyleConfig.ERROR)
-                            continue
-                    elif field_name in {'page_count', 'word_count', 'series_number'}:
-                        try:
-                            value = int(value)
-                        except ValueError:
-                            StyleConfig.console.print(f"Invalid number format for {field_name}: {value}", style=StyleConfig.ERROR)
-                            continue
-                    elif field_type == 'boolean':
-                        value = value.lower() in ('true', 'yes', 'y', '1')
+        for field_name, (field_type, current_value) in fields.items():
+            if Confirm.ask(f"Update {field_name.replace('_', ' ').title()}? (current: {current_value})", default=False):
+                value = Prompt.ask(f"{field_name.replace('_', ' ').title()}")
 
-                data[field_name] = value
-                StyleConfig.console.print(f"Debug: Added {field_name} = {value} (type: {type(value)}) to update data")
+                if not value.strip():
+                    data[field_name] = None
+                    continue
+
+                if field_type == 'date':
+                    try:
+                        date_obj = datetime.strptime(value, '%Y-%m-%d').date()
+                        data[field_name] = date_obj
+                        StyleConfig.console.print(f"Debug: Converted date {value} to {type(date_obj)}")
+                    except ValueError:
+                        StyleConfig.console.print(f"Invalid date format for {field_name}. Use YYYY-MM-DD", style=StyleConfig.ERROR)
+                        continue
+                elif field_type == 'integer':
+                    try:
+                        data[field_name] = int(value)
+                    except ValueError:
+                        StyleConfig.console.print(f"Invalid number format for {field_name}", style=StyleConfig.ERROR)
+                        continue
+                elif field_type == 'boolean':
+                    data[field_name] = value.lower() in ('true', 'yes', 'y', '1')
+                else:  # string
+                    data[field_name] = value.strip()
+
+                StyleConfig.console.print(f"Debug: Added {field_name} = {data[field_name]} (type: {type(data[field_name])}) to update data")
 
         StyleConfig.console.print(f"Debug: Final update data: {data}")
-
-        # Return the raw data directly for Reading model
-        if self.model == Reading:
-            return data
-        # Use editor methods for other models
-        elif self.model == Book:
-            return self.editor.get_book_data(data, existing)
-        elif self.model == Inventory:
-            return self.editor.get_inventory_data(data, existing.book_id, existing)
-
         return data
 
 class DatabaseUpdater:
@@ -239,6 +263,56 @@ class DatabaseUpdater:
         finally:
             self.session.close()
 
+    def _get_book_id_from_user(self) -> Optional[int]:
+        """Get book ID either directly or by searching title"""
+        while True:
+            search_term = Prompt.ask("Enter book ID or title to search (or 'back' to return)")
+
+            if search_term.lower() == 'back':
+                return None
+
+            # Try to process as ID first
+            try:
+                book_id = int(search_term)
+                book = self.session.get(Book, book_id)
+                if book:
+                    StyleConfig.console.print(f"Selected book: [green]{book.title}[/green]")
+                    return book_id
+                else:
+                    StyleConfig.console.print(f"[red]Book ID {book_id} not found[/red]")
+            except ValueError:
+                # If not a valid ID, search by title
+                results = self.editor.search_entries(Book, search_term)
+                if results:
+                    table = Table(title="Matching Books")
+                    table.add_column("ID")
+                    table.add_column("Title")
+                    table.add_column("Author")
+
+                    for book in results:
+                        table.add_row(
+                            str(book.id),
+                            book.title,
+                            f"{book.author_name_first} {book.author_name_second or ''}"
+                        )
+
+                    StyleConfig.console.print(table)
+
+                    book_id = Prompt.ask("Enter ID of desired book (or 'back' to search again)")
+                    if book_id.lower() == 'back':
+                        continue
+
+                    try:
+                        book_id = int(book_id)
+                        if any(b.id == book_id for b in results):
+                            return book_id
+                        else:
+                            StyleConfig.console.print("[red]Invalid selection[/red]")
+                    except ValueError:
+                        StyleConfig.console.print("[red]Invalid ID format[/red]")
+                else:
+                    StyleConfig.console.print("[yellow]No matching books found[/yellow]")
+
     def _handle_table_updates(self, table_choice: str):
         """Handle updates for a specific table"""
         handler = self.handlers[table_choice]
@@ -246,7 +320,7 @@ class DatabaseUpdater:
         while True:
             action = Prompt.ask(
                 "\nWhat would you like to do?",
-                choices=["update", "new", "back"],
+                choices=["update", "new", "delete", "back"],
                 default="back"
             )
 
@@ -259,38 +333,67 @@ class DatabaseUpdater:
                 elif table_choice == 'books':
                     self._create_new_book()
                 elif table_choice == 'inv':
-                    book_id = Prompt.ask("Enter book ID for new inventory entry")
-                    self._create_new_inventory(int(book_id))
+                    book_id = self._get_book_id_from_user()
+                    if book_id is not None:
+                        self._create_new_inventory(book_id)
                 continue
 
-            # Handle updating existing entry
-            search_term = Prompt.ask("Enter ID or title to search (or 'back' to return)")
-            if search_term.lower() == 'back':
-                continue
+            if action in ['update', 'delete']:
+                # Handle searching for entry
+                search_term = Prompt.ask("Enter ID or title to search (or 'back' to return)")
+                if search_term.lower() == 'back':
+                    continue
 
-            entries = handler.search(search_term)
-            if not entries:
-                StyleConfig.console.print("No matching entries found", style=StyleConfig.ERROR)
-                continue
+                # Try to process as ID first
+                try:
+                    search_id = int(search_term)
+                    # Direct ID lookup
+                    entry = self.session.get(handler.model, search_id)
+                    if entry:
+                        handler.display_results([entry])
+                        if action == 'delete':
+                            self._delete_entry(entry, handler)
+                        else:
+                            self._update_entry(entry, handler)
+                        continue
+                except ValueError:
+                    pass  # Not an ID, continue with text search
 
-            handler.display_results(entries)
-            
-            # New code for selecting entry by ID
-            if len(entries) > 0:
+                # Handle text search
+                entries = handler.search(search_term)
+                if not entries:
+                    StyleConfig.console.print("No matching entries found", style=StyleConfig.ERROR)
+                    continue
+
+                handler.display_results(entries)
+
+                # If only one result, use it directly
+                if len(entries) == 1:
+                    title_display = entries[0].title if isinstance(entries[0], Book) else entries[0].book.title
+                    if action == 'delete':
+                        self._delete_entry(entries[0], handler)
+                    else:
+                        StyleConfig.console.print(f"\nUpdating entry for: [cyan]{title_display}[/cyan]")
+                        self._update_entry(entries[0], handler)
+                    continue
+
+                # Multiple results - ask for ID selection
                 entry_id = Prompt.ask(
-                    "\nEnter ID of entry to update (or 'back' to return)",
+                    "\nEnter ID of entry to process (or 'back' to return)",
                     default="back"
                 )
-                
+
                 if entry_id.lower() == 'back':
                     continue
-                    
+
                 try:
                     entry_id = int(entry_id)
                     selected_entry = next((e for e in entries if e.id == entry_id), None)
-                    
+
                     if selected_entry:
-                        if Prompt.ask(f"Update entry with ID {entry_id}?", choices=['y', 'n'], default='n') == 'y':
+                        if action == 'delete':
+                            self._delete_entry(selected_entry, handler)
+                        else:
                             self._update_entry(selected_entry, handler)
                     else:
                         StyleConfig.console.print(f"[red]No entry found with ID {entry_id} in search results[/red]")
@@ -305,9 +408,9 @@ class DatabaseUpdater:
             handler.display_results([entry])
 
             # Get new data
-            data = handler.get_input_data(is_new=False, existing=entry)
+            data = handler.get_update_data(entry)
             StyleConfig.console.print(f"\n[yellow]Debug - New data received:[/yellow] {data}")
-            
+
             if not data:
                 StyleConfig.console.print("No changes made", style="yellow")
                 return
@@ -317,24 +420,31 @@ class DatabaseUpdater:
             if not fresh_entry:
                 raise ValueError(f"Entry with ID {entry.id} not found")
 
-            StyleConfig.console.print(f"\n[yellow]Debug - Before update:[/yellow] media={fresh_entry.media}")
-            
+            # Only show media debug info for Reading model
+            if hasattr(fresh_entry, 'media'):
+                StyleConfig.console.print(f"\n[yellow]Debug - Before update:[/yellow] media={fresh_entry.media}")
+
             # Apply the changes
             for key, value in data.items():
                 if value is not None:
                     StyleConfig.console.print(f"[yellow]Debug - Setting {key}={value}[/yellow]")
                     setattr(fresh_entry, key, value)
 
-            StyleConfig.console.print(f"\n[yellow]Debug - After update, before commit:[/yellow] media={fresh_entry.media}")
+            # Only show media debug info for Reading model
+            if hasattr(fresh_entry, 'media'):
+                StyleConfig.console.print(f"\n[yellow]Debug - After update, before commit:[/yellow] media={fresh_entry.media}")
 
             try:
                 # Commit the changes
                 self.session.commit()
-                
+
                 # Get the updated entry and display it
                 updated_entry = self.session.get(type(entry), entry.id)
-                StyleConfig.console.print(f"\n[yellow]Debug - After commit:[/yellow] media={updated_entry.media}")
-                
+
+                # Only show media debug info for Reading model
+                if hasattr(updated_entry, 'media'):
+                    StyleConfig.console.print(f"\n[yellow]Debug - After commit:[/yellow] media={updated_entry.media}")
+
                 StyleConfig.console.print("\n[bold green]Database updated successfully![/bold green]")
                 handler.display_results([updated_entry])
 
@@ -349,7 +459,7 @@ class DatabaseUpdater:
     def _create_new_reading(self, book_id: int = None):
         """Create a new reading entry"""
         StyleConfig.console.print("\n[bold cyan]Creating New Reading Entry[/bold cyan]")
-        
+
         # Get and validate book ID if not provided
         if book_id is None:
             while True:
@@ -366,27 +476,27 @@ class DatabaseUpdater:
         else:
             book = self.session.get(Book, book_id)
             StyleConfig.console.print(f"Selected book: [green]{book.title}[/green]")
-        
+
         # Get media type
         media = Prompt.ask("Enter media type", choices=["kindle", "hardcover", "audio"])
-        
+
         # Get the next available read ID
         next_id = self.session.execute(text("SELECT MAX(id) FROM read")).scalar()
         next_id = (next_id or 0) + 1
-        
+
         # Get the latest chain ID for this media type
         prev_id = self.session.execute(
             text("""
-                SELECT id 
-                FROM read 
+                SELECT id
+                FROM read
                 WHERE LOWER(media) = LOWER(:media)
-                AND date_finished_actual IS NULL 
-                ORDER BY date_est_end DESC, id DESC 
+                AND date_finished_actual IS NULL
+                ORDER BY date_est_end DESC, id DESC
                 LIMIT 1
             """),
             {"media": media}
         ).scalar()
-        
+
         # Create new reading entry
         new_reading = Reading(
             id=next_id,
@@ -394,16 +504,16 @@ class DatabaseUpdater:
             media=media,
             id_previous=prev_id
         )
-        
+
         self.session.add(new_reading)
-        
+
         # Display preview
         StyleConfig.console.print("\n[bold cyan]New Reading Entry Preview:[/bold cyan]")
         StyleConfig.console.print(f"Read ID: [green]{next_id}[/green]")
         StyleConfig.console.print(f"Book: [green]{book.title}[/green]")
         StyleConfig.console.print(f"Media: [green]{media}[/green]")
         StyleConfig.console.print(f"Previous Read ID: [green]{prev_id or 'None'}[/green]")
-        
+
         if Prompt.ask("\nSave this new reading entry?", choices=['y', 'n'], default='n') == 'y':
             self.session.commit()
             StyleConfig.console.print("[green]New reading entry created successfully![/green]")
@@ -414,17 +524,17 @@ class DatabaseUpdater:
     def _create_new_book(self):
         """Create a new book entry"""
         StyleConfig.console.print("\n[bold cyan]Creating New Book Entry[/bold cyan]")
-        
+
         # Get the next available book ID
         next_id = self.session.execute(text("SELECT MAX(id) FROM books")).scalar()
         next_id = (next_id or 0) + 1
-        
+
         # Get required fields
         title = Prompt.ask("Enter book title")
         author_first = Prompt.ask("Enter author's first name")
         author_last = Prompt.ask("Enter author's last name")
         author_gender = Prompt.ask("Enter author's gender", choices=['M', 'F', 'O', ''], default='')
-        
+
         # Optional numeric fields
         word_count = Prompt.ask("Enter word count (optional)", default="")
         if word_count and word_count.strip():
@@ -434,7 +544,7 @@ class DatabaseUpdater:
                 word_count = None
         else:
             word_count = None
-        
+
         page_count = Prompt.ask("Enter page count (optional)", default="")
         if page_count and page_count.strip():
             try:
@@ -443,7 +553,7 @@ class DatabaseUpdater:
                 page_count = None
         else:
             page_count = None
-        
+
         # Date field
         date_published = Prompt.ask("Enter publication date (YYYY-MM-DD) (optional)", default="")
         if date_published and date_published.strip():
@@ -453,7 +563,7 @@ class DatabaseUpdater:
                 date_published = None
         else:
             date_published = None
-        
+
         # Series information
         series = Prompt.ask("Enter series name (optional)", default="")
         series_number = Prompt.ask("Enter series number (optional)", default="")
@@ -464,7 +574,7 @@ class DatabaseUpdater:
                 series_number = None
         else:
             series_number = None
-        
+
         # Other fields
         genre = Prompt.ask("Enter genre (optional)", default="")
         isbn = Prompt.ask("Enter ISBN (optional)", default="")
@@ -475,7 +585,7 @@ class DatabaseUpdater:
                 isbn = None
         else:
             isbn = None
-        
+
         # Create new book entry
         new_book = Book(
             id=next_id,
@@ -492,7 +602,7 @@ class DatabaseUpdater:
             cover=False,  # Default to False for new books
             isbn_id=isbn
         )
-        
+
         # Display preview
         StyleConfig.console.print("\n[bold cyan]New Book Entry Preview:[/bold cyan]")
         StyleConfig.console.print(f"Book ID: [green]{next_id}[/green]")
@@ -512,16 +622,16 @@ class DatabaseUpdater:
             StyleConfig.console.print(f"Genre: [green]{genre}[/green]")
         if isbn:
             StyleConfig.console.print(f"ISBN: [green]{isbn}[/green]")
-        
+
         if Prompt.ask("\nSave this new book entry?", choices=['y', 'n'], default='n') == 'y':
             self.session.add(new_book)
             self.session.commit()
             StyleConfig.console.print("[green]New book entry created successfully![/green]")
-            
+
             # Ask if user wants to create related entries
             if Prompt.ask("Create inventory entry for this book?", choices=['y', 'n'], default='n') == 'y':
                 self._create_new_inventory(new_book.id)
-            
+
             if Prompt.ask("Create reading entry for this book?", choices=['y', 'n'], default='n') == 'y':
                 self._create_new_reading(new_book.id)
         else:
@@ -530,20 +640,28 @@ class DatabaseUpdater:
 
     def _create_new_inventory(self, book_id: int):
         """Create a new inventory entry for a given book ID"""
-        StyleConfig.console.print(f"\n[bold cyan]Creating New Inventory Entry for Book ID {book_id}[/bold cyan]")
-        
-        # Get the next available inventory ID - Changed 'inventory' to 'inv'
+        # First verify the book exists and get its title
+        book = self.session.get(Book, book_id)
+        if not book:
+            StyleConfig.console.print(f"[red]Error: Book ID {book_id} not found[/red]")
+            return
+
+        StyleConfig.console.print(f"\n[bold cyan]Creating New Inventory Entry for:[/bold cyan]")
+        StyleConfig.console.print(f"Book ID: [green]{book_id}[/green]")
+        StyleConfig.console.print(f"Title: [green]{book.title}[/green]")
+
+        # Get the next available inventory ID
         next_id = self.session.execute(text("SELECT MAX(id) FROM inv")).scalar()
         next_id = (next_id or 0) + 1
-        
+
         # Get required fields
         owned_physical = Confirm.ask("Do you own the physical copy?")
         owned_kindle = Confirm.ask("Do you own the Kindle copy?")
         owned_audio = Confirm.ask("Do you own the audio copy?")
-        
+
         # Optional fields
         location = Prompt.ask("Enter location (optional)", default="")
-        
+
         # Create new inventory entry
         new_inventory = Inventory(
             id=next_id,
@@ -553,7 +671,7 @@ class DatabaseUpdater:
             owned_audio=owned_audio,
             location=location if location else None
         )
-        
+
         # Display preview
         StyleConfig.console.print("\n[bold cyan]New Inventory Entry Preview:[/bold cyan]")
         StyleConfig.console.print(f"Inventory ID: [green]{next_id}[/green]")
@@ -563,7 +681,7 @@ class DatabaseUpdater:
         StyleConfig.console.print(f"Audio Copy: [green]{'Yes' if owned_audio else 'No'}[/green]")
         if location:
             StyleConfig.console.print(f"Location: [green]{location}[/green]")
-        
+
         if Prompt.ask("\nSave this new inventory entry?", choices=['y', 'n'], default='n') == 'y':
             self.session.add(new_inventory)
             self.session.commit()
@@ -583,6 +701,39 @@ class DatabaseUpdater:
                     if entries and Prompt.ask(f"Update {entry_type}?", choices=['y', 'n'], default='n') == 'y':
                         self._update_entry(entries[0], handler)
 
+    def _delete_entry(self, entry: Any, handler: ModelHandler):
+        """Delete a single entry"""
+        try:
+            # Display current entry
+            StyleConfig.console.print("\n[bold red]Entry to delete:[/bold red]")
+            handler.display_results([entry])
+
+            # Confirm deletion
+            if Confirm.ask("\nAre you sure you want to delete this entry?", default=False):
+                # Check for related entries if it's a Book
+                if isinstance(entry, Book):
+                    reading_count = self.session.query(Reading).filter_by(book_id=entry.id).count()
+                    inventory_count = self.session.query(Inventory).filter_by(book_id=entry.id).count()
+
+                    if reading_count > 0 or inventory_count > 0:
+                        StyleConfig.console.print(
+                            f"\n[yellow]Warning: This book has {reading_count} reading entries and {inventory_count} inventory entries.[/yellow]"
+                        )
+                        if not Confirm.ask("Delete anyway? This will remove all related entries", default=False):
+                            StyleConfig.console.print("Deletion cancelled", style="yellow")
+                            return
+
+                # Perform the deletion
+                self.session.delete(entry)
+                self.session.commit()
+                StyleConfig.console.print("\n[bold green]Entry deleted successfully![/bold green]")
+            else:
+                StyleConfig.console.print("Deletion cancelled", style="yellow")
+
+        except Exception as e:
+            self.session.rollback()
+            StyleConfig.console.print(f"Error deleting entry: {str(e)}", style=StyleConfig.ERROR)
+
 def handle_read_table(session):
     """Handle operations on the read table"""
     while True:
@@ -591,23 +742,23 @@ def handle_read_table(session):
             choices=["update", "new", "back"],
             default="back"
         )
-        
+
         if action == 'back':
             return
-            
+
         if action == 'new':
             create_new_reading(session)
             continue
-            
+
         # Handle updating existing entry
         if action == 'update':
             search_input = Prompt.ask("Enter ID or title to search (or 'back' to return)")
             if search_input.lower() == 'back':
                 continue
-                
+
             total_entries = session.query(Reading).count()
             console.print(f"Total entries in Reading table: {total_entries}")
-            
+
             console.print(f"Searching for term: {search_input}")
             readings = find_readings(session, search_input)
             display_readings(readings)
@@ -615,7 +766,7 @@ def handle_read_table(session):
 def create_new_reading(session):
     """Create a new reading entry"""
     console.print("\n[bold cyan]Creating New Reading Entry[/bold cyan]")
-    
+
     # Get and validate book ID
     while True:
         try:
@@ -628,27 +779,27 @@ def create_new_reading(session):
                 console.print(f"[red]Book ID {book_id} not found[/red]")
         except ValueError:
             console.print("[red]Please enter a valid number[/red]")
-    
+
     # Get media type
     media = Prompt.ask("Enter media type", choices=["kindle", "hardcover", "audio"])
-    
+
     # Get the next available read ID
     next_id = session.execute(text("SELECT MAX(id) FROM read")).scalar()
     next_id = (next_id or 0) + 1
-    
+
     # Get the latest chain ID for this media type
     prev_id = session.execute(
         text("""
-            SELECT id 
-            FROM read 
-            WHERE media = :media 
+            SELECT id
+            FROM read
+            WHERE media = :media
             AND date_est_end IS NOT NULL
-            ORDER BY date_est_end DESC 
+            ORDER BY date_est_end DESC
             LIMIT 1
         """),
         {"media": media}
     ).scalar()
-    
+
     # Create new reading entry
     new_reading = Reading(
         id=next_id,
@@ -656,16 +807,16 @@ def create_new_reading(session):
         media=media,
         id_previous=prev_id
     )
-    
+
     session.add(new_reading)
-    
+
     # Display preview
     console.print("\n[bold cyan]New Reading Entry Preview:[/bold cyan]")
     console.print(f"Read ID: [green]{next_id}[/green]")
     console.print(f"Book: [green]{book.title}[/green]")
     console.print(f"Media: [green]{media}[/green]")
     console.print(f"Previous Read ID: [green]{prev_id}[/green]")
-    
+
     if Confirm.ask("\nSave this new reading entry?"):
         session.commit()
         console.print("[green]New reading entry created successfully![/green]")
