@@ -45,7 +45,7 @@ def get_project_paths() -> Dict[str, Path]:
         'assets': root / 'assets',
         'workspace': root,
         'database': root / 'data' / 'db' / 'reading_list.db',
-        'backups': root / 'data' / 'backups'
+        'backups': root / 'data' / 'db' / 'backups'  # Updated path
     }
 
 def ensure_paths_exist():

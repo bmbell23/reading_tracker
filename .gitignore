@@ -40,6 +40,11 @@ config/.env
 .coverage
 htmlcov/
 
+# Database files
+data/db/*.db
+data/db/backups/*.db
+data/db/backups/
+
 # Temporary files
 *.tmp
 *.bak
@@ -52,8 +57,6 @@ dist/
 __pycache__/
 
 # Data directories
-data/db/*.db
-data/backups/
 data/csv/*
 !data/csv/.gitkeep
 
