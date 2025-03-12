@@ -87,7 +87,7 @@
         .feature-card {
             display: flex;
             align-items: center;
-            padding: 1rem;
+            padding: 0.75rem;  /* Reduced from 1rem */
             background: var(--color-bg);
             border-radius: 0.5rem;
             text-decoration: none;
@@ -100,8 +100,8 @@
         }
 
         .feature-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;     /* Reduced from 40px */
+            height: 36px;    /* Reduced from 40px */
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -118,6 +118,7 @@
         .feature-content {
             flex: 1;
             min-width: 0;
+            line-height: 1.4;  /* Slightly tighter line height */
         }
 
         .feature-title {
@@ -127,8 +128,9 @@
         }
 
         .feature-description {
-            color: var(--color-secondary);
-            font-size: 0.875rem;
+            color: var(--color-text-light);
+            font-size: 0.875rem;  /* Slightly smaller description text */
+            margin-top: 0.15rem;  /* Reduced from default */
             display: none;
         }
 
