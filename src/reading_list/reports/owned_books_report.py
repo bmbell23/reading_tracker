@@ -46,11 +46,23 @@ class OwnedBooksReport:
             total_pages = 0
             total_words = 0
 
+            # Track format-specific stats
+            format_stats = {
+                'physical': {'total': 0, 'read': 0},
+                'kindle': {'total': 0, 'read': 0},
+                'audio': {'total': 0, 'read': 0}
+            }
+
             # Process all formats
             for format_type in ['physical', 'kindle', 'audio']:
                 for book in all_books.get(format_type, []):
                     book_id = book['book_id']
                     
+                    # Update format-specific stats
+                    format_stats[format_type]['total'] += 1
+                    if book['reading_status'] == 'completed':
+                        format_stats[format_type]['read'] += 1
+
                     if book_id not in books_by_id:
                         total_books += 1
                         total_pages += book['pages'] or 0
@@ -111,7 +123,8 @@ class OwnedBooksReport:
                 total_books=total_books,
                 total_read=total_read,
                 total_pages=total_pages,
-                total_words=total_words
+                total_words=total_words,
+                format_stats=format_stats
             )
 
             # Write the report

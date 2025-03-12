@@ -195,6 +195,35 @@
             color: #666;
         }
 
+        .format-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .format-stat-item {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .format-stat-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+
+        .format-stat-details {
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        .completion-rate {
+            margin-top: 0.5rem;
+            font-weight: bold;
+            color: #2c5282;
+        }
+
         .books-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -438,6 +467,43 @@
             <div class="stat-item">
                 <div class="stat-value">{{ "{:,}".format(total_words) }}</div>
                 <div class="stat-label">Total Words</div>
+            </div>
+        </div>
+
+        <h3>Format Breakdown</h3>
+        <div class="format-stats-grid">
+            <div class="format-stat-item">
+                <h4>Physical Books</h4>
+                <div class="format-stat-details">
+                    <div>Total: {{ format_stats.physical.total }}</div>
+                    <div>Read: {{ format_stats.physical.read }}</div>
+                    <div>Unread: {{ format_stats.physical.total - format_stats.physical.read }}</div>
+                    <div class="completion-rate">
+                        {{ "%.1f"|format(format_stats.physical.read / format_stats.physical.total * 100 if format_stats.physical.total > 0 else 0) }}% Complete
+                    </div>
+                </div>
+            </div>
+            <div class="format-stat-item">
+                <h4>Kindle Books</h4>
+                <div class="format-stat-details">
+                    <div>Total: {{ format_stats.kindle.total }}</div>
+                    <div>Read: {{ format_stats.kindle.read }}</div>
+                    <div>Unread: {{ format_stats.kindle.total - format_stats.kindle.read }}</div>
+                    <div class="completion-rate">
+                        {{ "%.1f"|format(format_stats.kindle.read / format_stats.kindle.total * 100 if format_stats.kindle.total > 0 else 0) }}% Complete
+                    </div>
+                </div>
+            </div>
+            <div class="format-stat-item">
+                <h4>Audiobooks</h4>
+                <div class="format-stat-details">
+                    <div>Total: {{ format_stats.audio.total }}</div>
+                    <div>Read: {{ format_stats.audio.read }}</div>
+                    <div>Unread: {{ format_stats.audio.total - format_stats.audio.read }}</div>
+                    <div class="completion-rate">
+                        {{ "%.1f"|format(format_stats.audio.read / format_stats.audio.total * 100 if format_stats.audio.total > 0 else 0) }}% Complete
+                    </div>
+                </div>
             </div>
         </div>
     </div>
