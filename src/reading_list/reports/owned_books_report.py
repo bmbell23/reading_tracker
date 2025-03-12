@@ -3,6 +3,7 @@ from typing import Dict, List
 from jinja2 import Environment, FileSystemLoader
 from ..queries.common_queries import CommonQueries
 from ..utils.paths import get_project_paths
+from datetime import datetime
 
 class OwnedBooksReport:
     def __init__(self):
@@ -118,13 +119,17 @@ class OwnedBooksReport:
             env = Environment(loader=FileSystemLoader(str(template_dir)))
             template = env.get_template('owned_books_report.html')
 
+            # Add timestamp for cache busting
+            timestamp = int(datetime.now().timestamp())
+
             html = template.render(
                 books=processed_books,
                 total_books=total_books,
                 total_read=total_read,
                 total_pages=total_pages,
                 total_words=total_words,
-                format_stats=format_stats
+                format_stats=format_stats,
+                timestamp=timestamp
             )
 
             # Write the report

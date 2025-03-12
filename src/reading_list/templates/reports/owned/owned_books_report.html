@@ -9,6 +9,7 @@
     <title>My GreatReads Library</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* Cache buster: {{ timestamp }} */
         :root {
             --kindle-color: #0066CC;
             --physical-color: #6B4BA3;
@@ -630,7 +631,16 @@
             };
         }
 
+        const CACHE_BUSTER = '{{ timestamp }}';
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Add cache buster to all cover images
+            document.querySelectorAll('.cover-img').forEach(img => {
+                const url = new URL(img.src, window.location.href);
+                url.searchParams.set('v', CACHE_BUSTER);
+                img.src = url.href;
+            });
+
             const statusFilters = document.querySelectorAll('.filter-button.status');
             const mediaFilters = document.querySelectorAll('.filter-button.media');
             const books = document.querySelectorAll('.book-card');
