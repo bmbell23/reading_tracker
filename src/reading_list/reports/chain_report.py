@@ -255,8 +255,18 @@ def generate_chain_report(args=None):
         project_paths = get_project_paths()
         reports_dir = project_paths['workspace'] / 'reports' / 'tbr'
         output_path = reports_dir / 'to_be_read.html'
-        reports_dir.mkdir(parents=True, exist_ok=True)
+
+        # Ensure directory exists with correct permissions
         ensure_directory(reports_dir)
+        reports_dir.chmod(0o755)  # Make directory traversable
+
+        # Remove existing file if it exists (to handle permission issues)
+        if output_path.exists():
+            try:
+                output_path.unlink()
+            except PermissionError:
+                fix_report_permissions(output_path)
+                output_path.unlink()
 
         with SessionLocal() as session:
             # Get all readings, no chain logic
@@ -303,6 +313,10 @@ def generate_chain_report(args=None):
 
             # Write the report
             output_path.write_text(html)
+            
+            # Fix permissions after writing
+            fix_report_permissions(output_path)
+            
             console.print(f"\n[green]Report generated: {output_path}[/green]")
 
     except Exception as e:
