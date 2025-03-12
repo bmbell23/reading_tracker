@@ -352,7 +352,8 @@ class DatabaseUpdater:
                     else:
                         StyleConfig.console.print(f"[red]No entry found with ID {search_id}[/red]")
                 except ValueError:
-                    results = handler.search_entries(search_term)
+                    # Search by title using the editor's search_entries method
+                    results = handler.editor.search_entries(handler.model, search_term)
                     if results:
                         handler.display_results(results)
                         entry_id = Prompt.ask("Enter ID of entry to update")
