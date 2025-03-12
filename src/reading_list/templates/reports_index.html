@@ -350,8 +350,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const yearSelect = document.getElementById('yearSelect');
-            const goButton = document.getElementById('goButton');
             const goalsSelect = document.getElementById('goalsSelect');
+            const goButton = document.getElementById('goButton');
             const goalsButton = document.getElementById('goalsButton');
             
             // Function to select current year (2025) in a dropdown
@@ -367,6 +367,22 @@
             // Set default selections
             selectCurrentYear(yearSelect);
             selectCurrentYear(goalsSelect);
+
+            // Handle journey select change
+            yearSelect.addEventListener('change', function() {
+                const selectedUrl = this.value;
+                if (selectedUrl) {
+                    window.location.href = selectedUrl;
+                }
+            });
+
+            // Handle goals select change
+            goalsSelect.addEventListener('change', function() {
+                const selectedUrl = this.value;
+                if (selectedUrl) {
+                    window.location.href = selectedUrl;
+                }
+            });
 
             // Handle journey go button click
             goButton.addEventListener('click', function() {
