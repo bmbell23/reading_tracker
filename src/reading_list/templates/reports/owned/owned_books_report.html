@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Owned Books Gallery</title>
     <style>
         :root {
@@ -22,6 +25,39 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
+        }
+
+        .filter-container {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding: 15px 0;
+            z-index: 100;
+            margin: 0 auto;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: white;
+            z-index: -1;
+        }
+
+        .filter-container::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+            pointer-events: none;
         }
 
         .filters {
@@ -172,10 +208,29 @@
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: transform 0.2s;
+            position: relative !important; /* Force position relative */
         }
 
         .book-card:hover {
             transform: translateY(-5px);
+        }
+
+        .book-id-tooltip {
+            visibility: hidden;
+            position: absolute;
+            top: 0;  /* Changed from -30px */
+            left: 0; /* Changed from right: 10px */
+            background-color: #000;  /* Solid black for testing */
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 9999;  /* Increased z-index */
+            pointer-events: none;  /* Prevent tooltip from interfering with hover */
+        }
+
+        .book-card:hover .book-id-tooltip {
+            visibility: visible;
         }
 
         .cover-container {
@@ -351,15 +406,17 @@
         <h1>Owned Books Gallery</h1>
     </div>
 
-    <div class="filters">
-        <div class="filter-group">
-            <button class="filter-button status" data-status="read">Read</button>
-            <div class="media-filters">
-                <button class="filter-button media hardcover" data-format="physical">Physical</button>
-                <button class="filter-button media kindle" data-format="kindle">Kindle</button>
-                <button class="filter-button media audio" data-format="audio">Audio</button>
+    <div class="filter-container">
+        <div class="filters">
+            <div class="filter-group">
+                <button class="filter-button status" data-status="read">Read</button>
+                <div class="media-filters">
+                    <button class="filter-button media hardcover" data-format="physical">Physical</button>
+                    <button class="filter-button media kindle" data-format="kindle">Kindle</button>
+                    <button class="filter-button media audio" data-format="audio">Audio</button>
+                </div>
+                <button class="filter-button status" data-status="unread">Unread</button>
             </div>
-            <button class="filter-button status" data-status="unread">Unread</button>
         </div>
     </div>
 
@@ -390,6 +447,7 @@
         <div class="book-card" 
              data-formats="{{ book.formats|map(attribute='type')|join(' ') }}"
              data-status="{{ 'read' if book.is_read else 'unread' }}">
+            <div class="book-id-tooltip">{{ book.book_id }}</div>
             <div class="cover-container">
                 <img class="cover-img" src="{{ book.cover_url }}" alt="{{ book.title }} cover">
                 <div class="reading-status-badge {{ 'read' if book.is_read else 'unread' }}">
@@ -418,6 +476,30 @@
             const mediaFilters = document.querySelectorAll('.filter-button.media');
             const books = document.querySelectorAll('.book-card');
 
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
+            // Add cache busting to book cover images
+            function refreshBookCovers() {
+                const timestamp = new Date().getTime();
+                const coverImages = document.querySelectorAll('.book-cover img');
+                coverImages.forEach(img => {
+                    const currentSrc = img.src;
+                    if (currentSrc.includes('?')) {
+                        img.src = currentSrc.split('?')[0] + '?v=' + timestamp;
+                    } else {
+                        img.src = currentSrc + '?v=' + timestamp;
+                    }
+                });
+            }
+
+            // Refresh covers on page load
+            refreshBookCovers();
+
             function updateVisibility() {
                 const activeStatus = document.querySelector('.filter-button.status[data-active="true"]')?.dataset.status;
                 const activeFormat = document.querySelector('.filter-button.media[data-active="true"]')?.dataset.format;
@@ -427,6 +509,9 @@
                     const matchesFormat = !activeFormat || book.dataset.formats.includes(activeFormat);
                     book.style.display = (matchesStatus && matchesFormat) ? '' : 'none';
                 });
+
+                // Refresh covers after filtering
+                refreshBookCovers();
             }
 
             statusFilters.forEach(btn => {
@@ -438,6 +523,7 @@
                         btn.dataset.active = "true";
                     }
                     updateVisibility();
+                    scrollToTop();
                 });
             });
 
@@ -450,8 +536,12 @@
                         btn.dataset.active = "true";
                     }
                     updateVisibility();
+                    scrollToTop();
                 });
             });
+
+            // Add reload listener
+            window.addEventListener('load', refreshBookCovers);
         });
     </script>
 </body>
