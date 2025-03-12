@@ -161,11 +161,12 @@
         /* Format badges */
         .format-badges {
             position: absolute;
-            top: 10px;
+            bottom: 10px;
             right: 10px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;  /* Changed to row for horizontal layout */
             gap: 5px;
+            z-index: 2;
         }
 
         .format-badge {
@@ -201,6 +202,7 @@
             color: white;
             text-transform: uppercase;
             z-index: 2;
+            max-width: 40%;  /* Prevent overlap with format badges */
         }
 
         .reading-status-badge.read {
@@ -267,6 +269,23 @@
             .reading-status-badge {
                 font-size: 0.7rem;
                 padding: 3px 6px;
+            }
+
+            .format-badges {
+                flex-direction: column;  /* Stack vertically on mobile */
+                bottom: 10px;
+                right: 5px;
+            }
+
+            .format-badge {
+                font-size: 0.6rem;
+                padding: 3px 6px;
+            }
+
+            .reading-status-badge {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+                left: 5px;
             }
         }
     </style>
