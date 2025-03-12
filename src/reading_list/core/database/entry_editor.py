@@ -15,7 +15,7 @@ Features:
 """
 from typing import Optional, List, Dict, Any, Type
 from datetime import date
-from sqlalchemy import or_
+from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
 
 from reading_list.models.book import Book
@@ -26,6 +26,23 @@ from reading_list.utils.validation import parse_date, parse_boolean
 class EntryEditor:
     def __init__(self, session: Session):
         self.session = session
+
+    def create_new_reading(self, book_id: int) -> Reading:
+        """Create a new reading entry for a book."""
+        # Get the next available read ID
+        next_id = self.session.execute(text("SELECT MAX(id) FROM read")).scalar()
+        next_id = (next_id or 0) + 1
+
+        # Create new reading entry
+        new_reading = Reading(
+            id=next_id,
+            book_id=book_id,
+            date_started=date.today()
+        )
+
+        self.session.add(new_reading)
+        self.session.commit()
+        return new_reading
 
     def search_entries(self, model: Type, search_term: str, search_by_id: bool = False) -> List[Any]:
         """Search for entries in specified model"""
@@ -176,3 +193,56 @@ class EntryEditor:
             'readings': self.session.query(Reading).filter(Reading.book_id == book_id).all(),
             'inventory': self.session.query(Inventory).filter(Inventory.book_id == book_id).all()
         }
+
+    def get_update_data(self, existing: Any) -> Dict[str, Any]:
+        """Get update data for an entry"""
+        data = {}
+
+        if isinstance(existing, Book):
+            fields = {
+                'title': ('string', existing.title),
+                'author_name_first': ('string', existing.author_name_first),
+                'author_name_second': ('string', existing.author_name_second),
+                'author_gender': ('string', existing.author_gender),
+                'word_count': ('int', existing.word_count),
+                'page_count': ('int', existing.page_count),
+                'date_published': ('date', existing.date_published),
+                'series': ('string', existing.series),
+                'series_number': ('int', existing.series_number),
+                'genre': ('string', existing.genre),
+                'cover': ('bool', existing.cover),
+                'isbn_id': ('int', existing.isbn_id)
+            }
+
+            for field_name, (field_type, current_value) in fields.items():
+                if Confirm.ask(f"Update {field_name.replace('_', ' ').title()}? (current: {current_value})", default=False):
+                    value = Prompt.ask(f"Enter new {field_name.replace('_', ' ').title()}")
+
+                    if not value.strip():
+                        data[field_name] = None
+                        continue
+
+                    if field_type == 'int':
+                        try:
+                            data[field_name] = int(value)
+                        except ValueError:
+                            data[field_name] = None
+                    elif field_type == 'date':
+                        try:
+                            data[field_name] = datetime.strptime(value, '%Y-%m-%d').date()
+                        except ValueError:
+                            data[field_name] = None
+                    elif field_type == 'bool':
+                        data[field_name] = value.lower() in ('true', 't', 'yes', 'y', '1')
+                    else:
+                        data[field_name] = value.strip()
+
+        elif isinstance(existing, Reading):
+            # ... existing Reading logic ...
+            pass
+
+        elif isinstance(existing, Inventory):
+            # ... existing Inventory logic ...
+            pass
+
+        return data

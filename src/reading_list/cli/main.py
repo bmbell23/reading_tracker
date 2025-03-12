@@ -20,6 +20,7 @@ from . import list_readings
 from . import excel_template_cli
 from . import shelf
 from . import search
+from . import unread_inventory  # Add this import
 
 def main():
     """Main CLI entry point."""
@@ -104,6 +105,9 @@ def main():
     shelf_parser = shelf.add_subparser(subparsers)
     search_parser = search.add_subparser(subparsers)
 
+    # Add the new unread-inventory command
+    unread_inventory.add_subparser(subparsers)
+
     args = parser.parse_args()
 
     if args.command == "excel":
@@ -156,6 +160,8 @@ def main():
         return shelf.handle_command(args)
     elif args.command == "search":
         return search.handle_command(args)
+    elif args.command == "unread-inventory":
+        return unread_inventory.handle_command(args)
     else:
         parser.print_help()
         return 1

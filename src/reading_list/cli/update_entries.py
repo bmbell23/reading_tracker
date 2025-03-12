@@ -4,7 +4,7 @@ Database Update Utility
 
 A command-line interface for updating book-related database entries.
 """
-from typing import List, Optional, Any, Dict, Type
+from typing import List, Optional, Any, Dict, Type, Union
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 from rich.panel import Panel
@@ -12,7 +12,7 @@ from rich.table import Table
 from rich.style import Style
 from pathlib import Path
 from datetime import datetime
-from sqlalchemy import text, or_  # Add or_ to the imports
+from sqlalchemy import text, or_
 
 from reading_list.models.base import engine, SessionLocal
 from reading_list.models.book import Book
@@ -336,15 +336,12 @@ class DatabaseUpdater:
                 continue
 
             if action in ['update', 'delete']:
-                # Handle searching for entry
                 search_term = Prompt.ask("Enter ID or title to search (or 'back' to return)")
                 if search_term.lower() == 'back':
                     continue
 
-                # Try to process as ID first
                 try:
                     search_id = int(search_term)
-                    # Direct ID lookup
                     entry = self.session.get(handler.model, search_id)
                     if entry:
                         handler.display_results([entry])
@@ -352,106 +349,96 @@ class DatabaseUpdater:
                             self._delete_entry(entry, handler)
                         else:
                             self._update_entry(entry, handler)
-                        continue
-                except ValueError:
-                    pass  # Not an ID, continue with text search
-
-                # Handle text search
-                entries = handler.search(search_term)
-                if not entries:
-                    StyleConfig.console.print("No matching entries found", style=StyleConfig.ERROR)
-                    continue
-
-                handler.display_results(entries)
-
-                # If only one result, use it directly
-                if len(entries) == 1:
-                    title_display = entries[0].title if isinstance(entries[0], Book) else entries[0].book.title
-                    if action == 'delete':
-                        self._delete_entry(entries[0], handler)
                     else:
-                        StyleConfig.console.print(f"\nUpdating entry for: [cyan]{title_display}[/cyan]")
-                        self._update_entry(entries[0], handler)
-                    continue
-
-                # Multiple results - ask for ID selection
-                entry_id = Prompt.ask(
-                    "\nEnter ID of entry to process (or 'back' to return)",
-                    default="back"
-                )
-
-                if entry_id.lower() == 'back':
-                    continue
-
-                try:
-                    entry_id = int(entry_id)
-                    selected_entry = next((e for e in entries if e.id == entry_id), None)
-
-                    if selected_entry:
-                        if action == 'delete':
-                            self._delete_entry(selected_entry, handler)
-                        else:
-                            self._update_entry(selected_entry, handler)
-                    else:
-                        StyleConfig.console.print(f"[red]No entry found with ID {entry_id} in search results[/red]")
+                        StyleConfig.console.print(f"[red]No entry found with ID {search_id}[/red]")
                 except ValueError:
-                    StyleConfig.console.print("[red]Please enter a valid number[/red]")
+                    results = handler.search_entries(search_term)
+                    if results:
+                        handler.display_results(results)
+                        entry_id = Prompt.ask("Enter ID of entry to update")
+                        try:
+                            entry_id = int(entry_id)
+                            entry = next((e for e in results if e.id == entry_id), None)
+                            if entry:
+                                if action == 'delete':
+                                    self._delete_entry(entry, handler)
+                                else:
+                                    self._update_entry(entry, handler)
+                            else:
+                                StyleConfig.console.print("[red]Invalid selection[/red]")
+                        except ValueError:
+                            StyleConfig.console.print("[red]Invalid ID format[/red]")
+                    else:
+                        StyleConfig.console.print("[yellow]No matching entries found[/yellow]")
 
-    def _update_entry(self, entry: Any, handler: ModelHandler):
+    def _update_entry(self, existing: Union[Book, Reading, Inventory], handler: ModelHandler):
         """Update a single entry"""
         try:
-            # Display current entry
-            StyleConfig.console.print("\n[bold cyan]Current Entry:[/bold cyan]")
-            handler.display_results([entry])
+            new_data = {}
+            table_name = existing.__tablename__
 
-            # Get new data
-            data = handler.get_update_data(entry)
-            StyleConfig.console.print(f"\n[yellow]Debug - New data received:[/yellow] {data}")
+            # Get all columns for the table
+            with engine.connect() as conn:
+                columns = conn.execute(text(f"PRAGMA table_info({table_name})")).fetchall()
 
-            if not data:
-                StyleConfig.console.print("No changes made", style="yellow")
-                return
+            # Skip the ID column as it's primary key
+            for col in columns[1:]:  # Skip first column (ID)
+                col_name = col[1]  # Column name is second element
+                current_value = getattr(existing, col_name, None)
 
-            # Get a fresh instance from the database
-            fresh_entry = self.session.get(type(entry), entry.id)
-            if not fresh_entry:
-                raise ValueError(f"Entry with ID {entry.id} not found")
+                if Prompt.ask(
+                    f"Update {col_name}? (current: {current_value})",
+                    choices=['y', 'n'],
+                    default='n'
+                ) == 'y':
+                    # Handle different column types
+                    if col[2].upper() == 'DATE':
+                        new_value = Prompt.ask(f"Enter new {col_name} (YYYY-MM-DD)")
+                        try:
+                            new_value = datetime.strptime(new_value, '%Y-%m-%d').date()
+                        except ValueError:
+                            new_value = None
+                    elif col[2].upper() == 'BOOLEAN':
+                        new_value = Prompt.ask(f"Enter new {col_name}", choices=['true', 'false']) == 'true'
+                    elif col[2].upper().startswith('INTEGER'):
+                        new_value = Prompt.ask(f"Enter new {col_name}")
+                        try:
+                            new_value = int(new_value) if new_value else None
+                        except ValueError:
+                            new_value = None
+                    elif col[2].upper().startswith('FLOAT'):
+                        new_value = Prompt.ask(f"Enter new {col_name}")
+                        try:
+                            new_value = float(new_value) if new_value else None
+                        except ValueError:
+                            new_value = None
+                    else:  # VARCHAR/TEXT
+                        new_value = Prompt.ask(f"Enter new {col_name}") or None
 
-            # Only show media debug info for Reading model
-            if hasattr(fresh_entry, 'media'):
-                StyleConfig.console.print(f"\n[yellow]Debug - Before update:[/yellow] media={fresh_entry.media}")
+                    if new_value != current_value:
+                        new_data[col_name] = new_value
 
-            # Apply the changes
-            for key, value in data.items():
-                if value is not None:
-                    StyleConfig.console.print(f"[yellow]Debug - Setting {key}={value}[/yellow]")
-                    setattr(fresh_entry, key, value)
+            if new_data:
+                # Display changes
+                StyleConfig.console.print("\n[bold cyan]Changes to be made:[/bold cyan]")
+                for field, new_value in new_data.items():
+                    old_value = getattr(existing, field)
+                    StyleConfig.console.print(f"{field}: [red]{old_value}[/red] → [green]{new_value}[/green]")
 
-            # Only show media debug info for Reading model
-            if hasattr(fresh_entry, 'media'):
-                StyleConfig.console.print(f"\n[yellow]Debug - After update, before commit:[/yellow] media={fresh_entry.media}")
-
-            try:
-                # Commit the changes
-                self.session.commit()
-
-                # Get the updated entry and display it
-                updated_entry = self.session.get(type(entry), entry.id)
-
-                # Only show media debug info for Reading model
-                if hasattr(updated_entry, 'media'):
-                    StyleConfig.console.print(f"\n[yellow]Debug - After commit:[/yellow] media={updated_entry.media}")
-
-                StyleConfig.console.print("\n[bold green]Database updated successfully![/bold green]")
-                handler.display_results([updated_entry])
-
-            except Exception as commit_error:
-                self.session.rollback()
-                raise Exception(f"Failed to commit changes: {str(commit_error)}")
+                if Prompt.ask("\nSave these changes?", choices=['y', 'n'], default='n') == 'y':
+                    for field, value in new_data.items():
+                        setattr(existing, field, value)
+                    self.session.commit()
+                    StyleConfig.console.print("[green]Changes saved successfully![/green]")
+                else:
+                    self.session.rollback()
+                    StyleConfig.console.print("[yellow]Changes discarded[/yellow]")
+            else:
+                StyleConfig.console.print("\nNo changes made")
 
         except Exception as e:
             self.session.rollback()
-            StyleConfig.console.print(f"Error updating entry: {str(e)}", style=StyleConfig.ERROR)
+            StyleConfig.console.print(f"[red]Error updating entry: {str(e)}[/red]")
 
     def _create_new_reading(self, book_id: int = None):
         """Create a new reading entry"""
@@ -730,96 +717,6 @@ class DatabaseUpdater:
         except Exception as e:
             self.session.rollback()
             StyleConfig.console.print(f"Error deleting entry: {str(e)}", style=StyleConfig.ERROR)
-
-def handle_read_table(session):
-    """Handle operations on the read table"""
-    while True:
-        action = Prompt.ask(
-            "\nWhat would you like to do?",
-            choices=["update", "new", "back"],
-            default="back"
-        )
-
-        if action == 'back':
-            return
-
-        if action == 'new':
-            create_new_reading(session)
-            continue
-
-        # Handle updating existing entry
-        if action == 'update':
-            search_input = Prompt.ask("Enter ID or title to search (or 'back' to return)")
-            if search_input.lower() == 'back':
-                continue
-
-            total_entries = session.query(Reading).count()
-            console.print(f"Total entries in Reading table: {total_entries}")
-
-            console.print(f"Searching for term: {search_input}")
-            readings = find_readings(session, search_input)
-            display_readings(readings)
-
-def create_new_reading(session):
-    """Create a new reading entry"""
-    console.print("\n[bold cyan]Creating New Reading Entry[/bold cyan]")
-
-    # Get and validate book ID
-    while True:
-        try:
-            book_id = int(Prompt.ask("Enter book ID"))
-            book = session.get(Book, book_id)
-            if book:
-                console.print(f"Selected book: [green]{book.title}[/green]")
-                break
-            else:
-                console.print(f"[red]Book ID {book_id} not found[/red]")
-        except ValueError:
-            console.print("[red]Please enter a valid number[/red]")
-
-    # Get media type
-    media = Prompt.ask("Enter media type", choices=["kindle", "hardcover", "audio"])
-
-    # Get the next available read ID
-    next_id = session.execute(text("SELECT MAX(id) FROM read")).scalar()
-    next_id = (next_id or 0) + 1
-
-    # Get the latest chain ID for this media type
-    prev_id = session.execute(
-        text("""
-            SELECT id
-            FROM read
-            WHERE media = :media
-            AND date_est_end IS NOT NULL
-            ORDER BY date_est_end DESC
-            LIMIT 1
-        """),
-        {"media": media}
-    ).scalar()
-
-    # Create new reading entry
-    new_reading = Reading(
-        id=next_id,
-        book_id=book_id,
-        media=media,
-        id_previous=prev_id
-    )
-
-    session.add(new_reading)
-
-    # Display preview
-    console.print("\n[bold cyan]New Reading Entry Preview:[/bold cyan]")
-    console.print(f"Read ID: [green]{next_id}[/green]")
-    console.print(f"Book: [green]{book.title}[/green]")
-    console.print(f"Media: [green]{media}[/green]")
-    console.print(f"Previous Read ID: [green]{prev_id}[/green]")
-
-    if Confirm.ask("\nSave this new reading entry?"):
-        session.commit()
-        console.print("[green]New reading entry created successfully![/green]")
-    else:
-        session.rollback()
-        console.print("[yellow]New reading entry discarded[/yellow]")
 
 def main():
     """Main entry point"""
