@@ -589,20 +589,19 @@
             // Add cache busting to book cover images
             function refreshBookCovers() {
                 const timestamp = new Date().getTime();
-                const coverImages = document.querySelectorAll('.book-cover img');
+                const coverImages = document.querySelectorAll('img[src*="book_covers"]');
                 coverImages.forEach(img => {
                     const currentSrc = img.src;
-                    if (currentSrc.includes('?')) {
-                        img.src = currentSrc.split('?')[0] + '?v=' + timestamp;
-                    } else {
-                        img.src = currentSrc + '?v=' + timestamp;
-                    }
+                    // Remove any existing cache-busting parameter
+                    const baseUrl = currentSrc.split('?')[0];
+                    img.src = `${baseUrl}?v=${timestamp}`;
                 });
             }
 
-            // Refresh covers on page load
-            refreshBookCovers();
-
+            // Refresh covers on page load and after any filter changes
+            document.addEventListener('DOMContentLoaded', refreshBookCovers);
+            window.addEventListener('load', refreshBookCovers);
+            
             function updateVisibility() {
                 const activeStatus = document.querySelector('.filter-button.status[data-active="true"]')?.dataset.status;
                 const activeFormat = document.querySelector('.filter-button.media[data-active="true"]')?.dataset.format;
@@ -614,7 +613,7 @@
                 });
 
                 // Refresh covers after filtering
-                refreshBookCovers();
+                setTimeout(refreshBookCovers, 100); // Small delay to ensure DOM updates are complete
             }
 
             statusFilters.forEach(btn => {
