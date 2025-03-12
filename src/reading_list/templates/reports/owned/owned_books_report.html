@@ -31,45 +31,91 @@
             margin-bottom: 30px;
         }
 
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .media-filters {
+            display: flex;
+            gap: 10px;
+        }
+
         .filter-button {
+            display: inline-block;
             padding: 8px 16px;
-            border: 2px solid #ccc;
-            border-radius: 20px;
-            background: white;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            background-color: transparent;
+            border: 2px solid;
         }
 
+        /* Media-specific colors - Default state */
         .filter-button.kindle {
-            border-color: var(--kindle-color);
-            color: var(--kindle-color);
+            color: #0066CC;
+            border-color: #0066CC;
         }
 
-        .filter-button.physical {
-            border-color: var(--physical-color);
-            color: var(--physical-color);
+        .filter-button.hardcover {
+            color: #6B4BA3;
+            border-color: #6B4BA3;
         }
 
         .filter-button.audio {
-            border-color: var(--audio-color);
-            color: var(--audio-color);
+            color: #FF6600;
+            border-color: #FF6600;
         }
 
-        .filter-button.active {
+        /* Active states - Filled background */
+        .filter-button[data-active="true"].kindle {
+            background-color: #0066CC;
+            color: white;
+            border-color: #0066CC;
+        }
+
+        .filter-button[data-active="true"].hardcover {
+            background-color: #6B4BA3;
+            color: white;
+            border-color: #6B4BA3;
+        }
+
+        .filter-button[data-active="true"].audio {
+            background-color: #FF6600;
+            color: white;
+            border-color: #FF6600;
+        }
+
+        /* Status filter styles */
+        .filter-button.status {
+            color: #0066CC;
+            border-color: #0066CC;
+        }
+
+        .filter-button[data-active="true"].status {
+            background-color: #0066CC;
             color: white;
         }
 
-        .filter-button.kindle.active {
-            background: var(--kindle-color);
+        /* Hover effects */
+        .filter-button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
-        .filter-button.physical.active {
-            background: var(--physical-color);
+        /* Filter group layout */
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
 
-        .filter-button.audio.active {
-            background: var(--audio-color);
+        .media-filters {
+            display: flex;
+            gap: 10px;
         }
 
         .stats {
@@ -295,9 +341,13 @@
     </div>
 
     <div class="filters">
-        <!-- Reading status filters -->
         <div class="filter-group">
             <button class="filter-button status" data-status="read">Read</button>
+            <div class="media-filters">
+                <button class="filter-button media hardcover" data-format="physical">Physical</button>
+                <button class="filter-button media kindle" data-format="kindle">Kindle</button>
+                <button class="filter-button media audio" data-format="audio">Audio</button>
+            </div>
             <button class="filter-button status" data-status="unread">Unread</button>
         </div>
     </div>
@@ -354,31 +404,41 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const statusFilters = document.querySelectorAll('.filter-button.status');
+            const mediaFilters = document.querySelectorAll('.filter-button.media');
             const books = document.querySelectorAll('.book-card');
+
+            function updateVisibility() {
+                const activeStatus = document.querySelector('.filter-button.status[data-active="true"]')?.dataset.status;
+                const activeFormat = document.querySelector('.filter-button.media[data-active="true"]')?.dataset.format;
+
+                books.forEach(book => {
+                    const matchesStatus = !activeStatus || book.dataset.status === activeStatus;
+                    const matchesFormat = !activeFormat || book.dataset.formats.includes(activeFormat);
+                    book.style.display = (matchesStatus && matchesFormat) ? '' : 'none';
+                });
+            }
 
             statusFilters.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    if (btn.classList.contains('active')) {
-                        // If clicking active button, deactivate it and show all books
-                        btn.classList.remove('active');
-                        books.forEach(book => {
-                            book.style.display = '';
-                        });
+                    if (btn.dataset.active === "true") {
+                        btn.dataset.active = "false";
                     } else {
-                        // If clicking inactive button, deactivate other button and activate this one
-                        statusFilters.forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-
-                        // Filter books
-                        const selectedStatus = btn.dataset.status;
-                        books.forEach(book => {
-                            if (book.dataset.status === selectedStatus) {
-                                book.style.display = '';
-                            } else {
-                                book.style.display = 'none';
-                            }
-                        });
+                        statusFilters.forEach(b => b.dataset.active = "false");
+                        btn.dataset.active = "true";
                     }
+                    updateVisibility();
+                });
+            });
+
+            mediaFilters.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (btn.dataset.active === "true") {
+                        btn.dataset.active = "false";
+                    } else {
+                        mediaFilters.forEach(b => b.dataset.active = "false");
+                        btn.dataset.active = "true";
+                    }
+                    updateVisibility();
                 });
             });
         });
