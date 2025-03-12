@@ -115,13 +115,19 @@ class EntryEditor:
             validated['date_started'] = parse_date(data['date_started'])
         if 'date_finished' in data and data['date_finished']:
             validated['date_finished'] = parse_date(data['date_finished'])
-        if 'pages_read' in data:
-            validated['pages_read'] = int(data['pages_read']) if data['pages_read'] else 0
-        if 'completed' in data:
-            validated['completed'] = parse_boolean(data['completed'])
+        if 'date_est_start' in data and data['date_est_start']:
+            validated['date_est_start'] = parse_date(data['date_est_start'])
+        if 'date_est_end' in data and data['date_est_end']:
+            validated['date_est_end'] = parse_date(data['date_est_end'])
+        if 'media' in data:
+            validated['media'] = data['media']
         if 'id_previous' in data:
             prev_id = data['id_previous']
             validated['id_previous'] = int(prev_id) if prev_id else None
+        if 'notes' in data:
+            validated['notes'] = data['notes']
+        if 'days_to_read_delta_from_estimate' in data:
+            validated['days_to_read_delta_from_estimate'] = int(data['days_to_read_delta_from_estimate']) if data['days_to_read_delta_from_estimate'] else None
 
         return validated
 

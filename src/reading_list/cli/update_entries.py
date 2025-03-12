@@ -149,37 +149,38 @@ class ModelHandler:
         return fields
 
     def get_update_data(self, existing: Any) -> Dict[str, Any]:
-        """Get update data from user input"""
+        """Get update data for an entry"""
         data = {}
 
-        # Get field definitions based on model type
-        if self.model == Book:
+        if isinstance(existing, Reading):
             fields = {
-                'title': ('string', existing.title),
-                'author_name_first': ('string', existing.author_name_first),
-                'author_name_second': ('string', existing.author_name_second),
-                'author_gender': ('string', existing.author_gender),
-                'word_count': ('integer', existing.word_count),
-                'page_count': ('integer', existing.page_count),
-                'date_published': ('date', existing.date_published),
-                'series': ('string', existing.series),
-                'series_number': ('integer', existing.series_number),
-                'genre': ('string', existing.genre),
-                'cover': ('boolean', existing.cover),
-                'isbn_id': ('integer', existing.isbn_id)
-            }
-        elif self.model == Reading:
-            fields = {
+                'id_previous': ('number', existing.id_previous),
                 'media': ('string', existing.media),
                 'date_started': ('date', existing.date_started),
                 'date_finished_actual': ('date', existing.date_finished_actual),
                 'date_est_start': ('date', existing.date_est_start),
                 'date_est_end': ('date', existing.date_est_end),
-                'pages_read': ('integer', existing.pages_read),
-                'completed': ('boolean', existing.completed),
-                'id_previous': ('integer', existing.id_previous)
+                'rating_horror': ('float', existing.rating_horror),
+                'rating_spice': ('float', existing.rating_spice),
+                'rating_world_building': ('float', existing.rating_world_building),
+                'rating_writing': ('float', existing.rating_writing),
+                'rating_characters': ('float', existing.rating_characters),
+                'rating_readability': ('float', existing.rating_readability),
+                'rating_enjoyment': ('float', existing.rating_enjoyment),
+                'rank': ('number', existing.rank),
+                'days_estimate': ('number', existing.days_estimate),
+                'days_elapsed_to_read': ('number', existing.days_elapsed_to_read),
+                'days_to_read_delta_from_estimate': ('number', existing.days_to_read_delta_from_estimate),
+                'reread': ('boolean', existing.reread)
             }
-        elif self.model == Inventory:
+        elif isinstance(existing, Book):
+            fields = {
+                'title': ('string', existing.title),
+                'author_name_first': ('string', existing.author_name_first),
+                'author_name_second': ('string', existing.author_name_second),
+                'author_gender': ('string', existing.author_gender)
+            }
+        elif isinstance(existing, Inventory):
             fields = {
                 'owned_physical': ('boolean', existing.owned_physical),
                 'owned_kindle': ('boolean', existing.owned_kindle),
@@ -187,11 +188,11 @@ class ModelHandler:
                 'location': ('string', existing.location)
             }
         else:
-            raise ValueError(f"Unsupported model type: {self.model.__name__}")
+            raise ValueError(f"Unsupported model type: {type(existing).__name__}")
 
         for field_name, (field_type, current_value) in fields.items():
             if Confirm.ask(f"Update {field_name.replace('_', ' ').title()}? (current: {current_value})", default=False):
-                value = Prompt.ask(f"{field_name.replace('_', ' ').title()}")
+                value = Prompt.ask(f"Enter new {field_name.replace('_', ' ').title()}")
 
                 if not value.strip():
                     data[field_name] = None
@@ -201,24 +202,20 @@ class ModelHandler:
                     try:
                         date_obj = datetime.strptime(value, '%Y-%m-%d').date()
                         data[field_name] = date_obj
-                        StyleConfig.console.print(f"Debug: Converted date {value} to {type(date_obj)}")
                     except ValueError:
-                        StyleConfig.console.print(f"Invalid date format for {field_name}. Use YYYY-MM-DD", style=StyleConfig.ERROR)
+                        StyleConfig.console.print(f"[red]Invalid date format. Use YYYY-MM-DD[/red]")
                         continue
-                elif field_type == 'integer':
+                elif field_type == 'boolean':
+                    data[field_name] = value.lower() in ('y', 'yes', 'true', '1')
+                elif field_type == 'number':
                     try:
                         data[field_name] = int(value)
                     except ValueError:
-                        StyleConfig.console.print(f"Invalid number format for {field_name}", style=StyleConfig.ERROR)
+                        StyleConfig.console.print(f"[red]Invalid number format[/red]")
                         continue
-                elif field_type == 'boolean':
-                    data[field_name] = value.lower() in ('true', 'yes', 'y', '1')
-                else:  # string
-                    data[field_name] = value.strip()
+                else:
+                    data[field_name] = value
 
-                StyleConfig.console.print(f"Debug: Added {field_name} = {data[field_name]} (type: {type(data[field_name])}) to update data")
-
-        StyleConfig.console.print(f"Debug: Final update data: {data}")
         return data
 
 class DatabaseUpdater:
