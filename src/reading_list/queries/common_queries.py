@@ -443,3 +443,91 @@ class CommonQueries:
         except Exception as e:
             self.console.print(f"[red]Error getting reading chain: {str(e)}[/red]")
             return []
+
+    def get_owned_books_by_format(self, media_format: str) -> List[Dict[str, Any]]:
+        """
+        Get all owned books for a specific format (physical, kindle, or audio)
+        
+        Args:
+            media_format: Format to query for ('physical', 'kindle', or 'audio')
+        
+        Returns:
+            List of dictionaries containing book information
+        """
+        try:
+            # Validate format
+            if media_format.lower() not in ['physical', 'kindle', 'audio']:
+                raise ValueError("media_format must be one of: physical, kindle, audio")
+            
+            query = """
+                WITH FirstRead AS (
+                    SELECT 
+                        r1.*
+                    FROM read r1
+                    LEFT JOIN read r2 ON r1.book_id = r2.book_id 
+                        AND (r2.date_started < r1.date_started 
+                            OR (r2.date_started = r1.date_started AND r2.id < r1.id))
+                        AND r2.reread IS NOT TRUE
+                    WHERE r2.id IS NULL
+                        AND r1.reread IS NOT TRUE
+                )
+                SELECT
+                    b.id as book_id,
+                    fr.id as reading_id,
+                    b.title,
+                    b.author_name_first,
+                    b.author_name_second,
+                    b.page_count,
+                    b.word_count,
+                    b.date_published,
+                    i.location,
+                    fr.date_started,
+                    fr.date_finished_actual
+                FROM books b
+                JOIN inv i ON b.id = i.book_id
+                LEFT JOIN FirstRead fr ON b.id = fr.book_id
+                WHERE i.owned_{} = TRUE
+                ORDER BY 
+                    COALESCE(b.author_name_second, b.author_name_first) COLLATE NOCASE,
+                    b.author_name_first COLLATE NOCASE,
+                    b.date_published,
+                    b.title COLLATE NOCASE
+            """.format(media_format.lower())
+            
+            results = self.session.execute(text(query))
+            
+            books = []
+            for row in results:
+                books.append({
+                    'book_id': row.book_id,
+                    'reading_id': row.reading_id,
+                    'title': row.title,
+                    'author': f"{row.author_name_first or ''} {row.author_name_second or ''}".strip(),
+                    'pages': row.page_count,
+                    'words': row.word_count,
+                    'location': row.location,
+                    'reading_status': 'reading' if row.date_started and not row.date_finished_actual
+                                   else 'completed' if row.date_finished_actual
+                                   else 'unread',
+                    'reading_id': row.reading_id
+                })
+            
+            return books
+        
+        except Exception as e:
+            self.console.print(f"[red]Error getting {media_format} books: {str(e)}[/red]")
+            return []
+
+    def get_all_owned_books(self) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Get all owned books organized by format
+        
+        Returns:
+            Dictionary with keys 'physical', 'kindle', and 'audio', each containing
+            a list of books in that format
+        """
+        return {
+            'physical': self.get_owned_books_by_format('physical'),
+            'kindle': self.get_owned_books_by_format('kindle'),
+            'audio': self.get_owned_books_by_format('audio')
+        }
