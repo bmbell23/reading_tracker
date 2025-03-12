@@ -36,7 +36,7 @@ async def reports_index(request: Request):
     reports = []
 
     # Define report types to look for
-    report_types = ['yearly', 'monthly', 'tbr', 'chain']
+    report_types = ['yearly', 'monthly', 'tbr', 'chain', 'owned', 'cover_gallery']
 
     try:
         # Create reports directory if it doesn't exist
@@ -44,14 +44,18 @@ async def reports_index(request: Request):
 
         # Debug: Print directory being searched
         print(f"\nSearching reports directory: {reports_dir}")
+        print(f"Looking for report types: {report_types}")
 
         # Collect all HTML reports
         for report_type in report_types:
             type_dir = reports_dir / report_type
             print(f"\nChecking directory: {type_dir}")
+            print(f"Directory exists: {type_dir.exists()}")
             if type_dir.exists():
-                for report in type_dir.glob('*.html'):
-                    print(f"Found report: {report}")
+                html_files = list(type_dir.glob('*.html'))
+                print(f"Found HTML files: {[f.name for f in html_files]}")
+                for report in html_files:
+                    print(f"Processing report: {report}")
                     reports.append({
                         'name': report.stem.replace('_', ' ').title(),
                         'type': report_type,
@@ -59,10 +63,10 @@ async def reports_index(request: Request):
                         'date_modified': report.stat().st_mtime
                     })
 
-        # Debug: Print found reports
-        print("\nFound reports:")
+        # Debug: Print final report list
+        print("\nFinal reports list:")
         for report in reports:
-            print(f"- {report['name']} ({report['type']}): {report['url']}")
+            print(f"- {report['name']} ({report['type']}) at {report['url']}")
 
         # Sort reports by modification date, newest first
         reports.sort(key=lambda x: x['date_modified'], reverse=True)

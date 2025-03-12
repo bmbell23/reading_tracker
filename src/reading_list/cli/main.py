@@ -22,6 +22,7 @@ from . import shelf
 from . import search
 from . import unread_inventory
 from . import owned
+from . import owned_report  # Add this import
 
 def main():
     """Main CLI entry point."""
@@ -112,6 +113,9 @@ def main():
     # Add the owned command
     owned_parser = owned.add_subparser(subparsers)
 
+    # Add the owned-report command
+    owned_report_parser = owned_report.add_subparser(subparsers)
+
     args = parser.parse_args()
 
     if args.command == "excel":
@@ -168,6 +172,8 @@ def main():
         return unread_inventory.handle_command(args)
     elif args.command == "owned":
         return owned.handle_command(args)
+    elif args.command == "owned-report":  # Add this handler
+        return owned_report.handle_command(args)
     else:
         parser.print_help()
         return 1
