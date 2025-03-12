@@ -23,7 +23,7 @@ def update_chain_data(chain_ops: ChainOperations, reading_id: int):
         # Ensure the session is committed and cleared
         chain_ops.session.commit()
         chain_ops.session.expire_all()
-        
+
         # First update the chain dates directly using our ChainOperations instance
         media_type = chain_ops.session.get(Reading, reading_id).media.lower()
         chain_changes = chain_ops.preview_chain_updates(media_type=media_type)
@@ -31,44 +31,42 @@ def update_chain_data(chain_ops: ChainOperations, reading_id: int):
             updates = chain_ops.apply_chain_updates(chain_changes)
             chain_ops.session.commit()
             console.print(f"[green]Successfully updated {updates} chain dates![/green]")
-        
-        # Then run the full update command for any other calculations
+
+        # Then run the full update command with better error handling
         try:
             result = subprocess.run(
-                ["reading-list", "update-readings", 
-                 "--all",  # Update all calculations
-                 "--no-confirm"], 
-                check=False,  # Changed to False to handle errors manually
-                capture_output=True,
-                text=True
-            )
-            
-            if result.returncode != 0:
-                console.print("[red]Error during reading calculations update:[/red]")
-                if result.stderr:
-                    console.print(f"[red]Error output:[/red]\n{result.stderr}")
-                if result.stdout:
-                    console.print(f"[yellow]Standard output:[/yellow]\n{result.stdout}")
-                return
-            
-            console.print("[green]Reading calculations updated successfully[/green]")
-
-            # Generate new chain report
-            report_result = subprocess.run(
-                ["reading-list", "chain-report"], 
+                ["reading-list", "update-readings", "--all", "--no-confirm"],
                 check=False,
                 capture_output=True,
                 text=True
             )
-            
-            if report_result.returncode != 0:
-                console.print("[red]Error generating chain report:[/red]")
-                if report_result.stderr:
-                    console.print(f"[red]Error output:[/red]\n{report_result.stderr}")
-                return
-            
-            console.print("[green]Chain report generated successfully[/green]")
-            
+
+            if result.returncode != 0:
+                console.print("[red]Error during reading calculations update:[/red]")
+                if result.stderr and result.stderr.strip():
+                    console.print(f"[red]Error output:[/red]\n{result.stderr}")
+                if result.stdout and result.stdout.strip():
+                    console.print(f"[yellow]Standard output:[/yellow]\n{result.stdout}")
+                console.print(f"[yellow]Return code: {result.returncode}[/yellow]")
+            else:
+                console.print("[green]Reading calculations updated successfully[/green]")
+
+                # Generate new chain report
+                report_result = subprocess.run(
+                    ["reading-list", "chain-report"],
+                    check=False,
+                    capture_output=True,
+                    text=True
+                )
+
+                if report_result.returncode != 0:
+                    console.print("[red]Error generating chain report:[/red]")
+                    if report_result.stderr:
+                        console.print(f"[red]Error output:[/red]\n{report_result.stderr}")
+                    return
+
+                console.print("[green]Chain report generated successfully[/green]")
+
         except subprocess.SubprocessError as e:
             console.print(f"[red]Error executing update command: {str(e)}[/red]")
             return
@@ -101,7 +99,7 @@ def main(args=None):
     try:
         chain_ops = ChainOperations()
         success, message, chain_info = chain_ops.reorder_reading_chain(reading_id, target_id)
-        
+
         if not success:
             console.print(f"[red]{message}[/red]")
             return
