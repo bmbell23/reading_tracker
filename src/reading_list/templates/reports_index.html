@@ -20,9 +20,11 @@
             --color-border: #e2e8f0;
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --gradient-library: linear-gradient(135deg, #0066CC, #3b82f6);
-            --gradient-tbr: linear-gradient(135deg, #6B4BA3, #9333ea);
+            --gradient-library: linear-gradient(135deg, #6B4BA3, #9333ea);  /* Purple */
+            --gradient-tbr: linear-gradient(135deg, #0066CC, #3b82f6);     /* Blue */
             --gradient-yearly: linear-gradient(135deg, #FF6600, #f97316);
+            --gradient-journey: linear-gradient(135deg, #FF6600, #f97316);  /* Orange */
+            --gradient-goals: linear-gradient(135deg, #10b981, #059669);    /* Green */
         }
 
         body {
@@ -183,7 +185,44 @@
             font-size: 1rem;
         }
 
-        /* Override the feature-card hover effect for the yearly section */
+        /* Reading Journey specific styles */
+        .section:nth-child(1) .go-button {
+            background: var(--gradient-journey);
+        }
+
+        .section:nth-child(1) .feature-icon {
+            background: var(--gradient-library);
+        }
+
+        .section:nth-child(1) .go-button:hover {
+            transform: translateX(2px);
+        }
+
+        /* Reading Goals specific styles */
+        .section:nth-child(2) .go-button {
+            background: var(--gradient-goals);
+        }
+
+        .section:nth-child(2) .feature-icon {
+            background: var(--gradient-tbr);
+        }
+
+        .section:nth-child(2) .go-button:hover {
+            transform: translateX(2px);
+        }
+
+        .section:nth-child(2) .section-icon {
+            color: #10b981;
+        }
+
+        /* Update the yearly-select focus state for goals section */
+        .section:nth-child(2) .yearly-select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Feature card hover effects */
         .feature-card[style*="cursor: default"]:hover {
             transform: none;
         }
@@ -286,6 +325,38 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Reading Goals Section -->
+            <section class="section">
+                <div class="section-header">
+                    <i class="fas fa-bullseye section-icon"></i>
+                    <h2 class="section-title">Reading Goals</h2>
+                </div>
+                <div class="feature-card" style="cursor: default;">
+                    <div class="feature-icon yearly-icon">
+                        <i class="fas fa-target"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="select-group">
+                            <select class="yearly-select" id="goalsSelect">
+                                <option value="">Select a Year...</option>
+                                {% set goals_reports = [] %}
+                                {% for report in reports %}
+                                    {% if report.type == 'yearly' and report.name.endswith('Reading Goals') %}
+                                        {% set _ = goals_reports.append(report) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for report in goals_reports|sort(attribute='name', reverse=True) %}
+                                    <option value="{{ report.url }}">{{ report.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="go-button" id="goalsButton">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -293,13 +364,24 @@
         document.addEventListener('DOMContentLoaded', function() {
             const yearSelect = document.getElementById('yearSelect');
             const goButton = document.getElementById('goButton');
+            const goalsSelect = document.getElementById('goalsSelect');
+            const goalsButton = document.getElementById('goalsButton');
             
-            // Just pre-select the most recent year without redirecting
-            if (yearSelect.options.length > 1) {
-                yearSelect.selectedIndex = 1;  // Index 1 is first year (0 is "Select a Year...")
+            // Function to select current year (2025) in a dropdown
+            function selectCurrentYear(dropdown) {
+                for (let i = 0; i < dropdown.options.length; i++) {
+                    if (dropdown.options[i].text.includes('2025')) {
+                        dropdown.selectedIndex = i;
+                        break;
+                    }
+                }
             }
 
-            // Handle go button click
+            // Set default selections
+            selectCurrentYear(yearSelect);
+            selectCurrentYear(goalsSelect);
+
+            // Handle journey go button click
             goButton.addEventListener('click', function() {
                 const selectedUrl = yearSelect.value;
                 if (selectedUrl) {
@@ -307,13 +389,11 @@
                 }
             });
 
-            // Optional: Also allow selection via Enter key
-            yearSelect.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const selectedUrl = this.value;
-                    if (selectedUrl) {
-                        window.location.href = selectedUrl;
-                    }
+            // Handle goals go button click
+            goalsButton.addEventListener('click', function() {
+                const selectedUrl = goalsSelect.value;
+                if (selectedUrl) {
+                    window.location.href = selectedUrl;
                 }
             });
         });
