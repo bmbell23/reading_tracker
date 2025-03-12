@@ -617,108 +617,34 @@
     </div>
 
     <script>
+        // Add the debounce function at the top
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const statusFilters = document.querySelectorAll('.filter-button.status');
             const mediaFilters = document.querySelectorAll('.filter-button.media');
             const books = document.querySelectorAll('.book-card');
             const searchInput = document.getElementById('bookSearch');
 
-            // Function to clear search
-            function clearSearch() {
-                searchInput.value = '';
-                searchInput.dispatchEvent(new Event('input'));
-            }
-
-            function scrollToTop() {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            }
-
-            // Add cache busting to book cover images
-            function refreshBookCovers() {
-                const timestamp = new Date().getTime();
-                const coverImages = document.querySelectorAll('img[src*="book_covers"]');
-                coverImages.forEach(img => {
-                    const currentSrc = img.src;
-                    // Remove any existing cache-busting parameter
-                    const baseUrl = currentSrc.split('?')[0];
-                    img.src = `${baseUrl}?v=${timestamp}`;
-                });
-            }
-
-            // Refresh covers on page load and after any filter changes
-            document.addEventListener('DOMContentLoaded', refreshBookCovers);
-            window.addEventListener('load', refreshBookCovers);
-            
             function updateVisibility() {
                 const activeStatus = document.querySelector('.filter-button.status[data-active="true"]')?.dataset.status;
                 const activeFormat = document.querySelector('.filter-button.media[data-active="true"]')?.dataset.format;
+                const searchTerm = searchInput.value.toLowerCase().trim();
 
                 books.forEach(book => {
                     const matchesStatus = !activeStatus || book.dataset.status === activeStatus;
                     const matchesFormat = !activeFormat || book.dataset.formats.includes(activeFormat);
-                    book.style.display = (matchesStatus && matchesFormat) ? '' : 'none';
-                });
-
-                // Refresh covers after filtering
-                setTimeout(refreshBookCovers, 100); // Small delay to ensure DOM updates are complete
-            }
-
-            statusFilters.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    clearSearch(); // Clear search when filter is clicked
-                    if (btn.dataset.active === "true") {
-                        btn.dataset.active = "false";
-                    } else {
-                        statusFilters.forEach(b => b.dataset.active = "false");
-                        btn.dataset.active = "true";
-                    }
-                    updateVisibility();
-                    scrollToTop();
-                });
-            });
-
-            mediaFilters.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    clearSearch(); // Clear search when filter is clicked
-                    if (btn.dataset.active === "true") {
-                        btn.dataset.active = "false";
-                    } else {
-                        mediaFilters.forEach(b => b.dataset.active = "false");
-                        btn.dataset.active = "true";
-                    }
-                    updateVisibility();
-                    scrollToTop();
-                });
-            });
-
-            // Add reload listener
-            window.addEventListener('load', refreshBookCovers);
-
-            // Handle enter key press
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault(); // Prevent any default form submission
-                    this.blur(); // Remove focus from input, which hides keyboard on mobile
-                }
-            });
-
-            // Clear search box on focus
-            searchInput.addEventListener('focus', function() {
-                if (this.value) {
-                    this.value = '';
-                    // Trigger the search update to show all books
-                    this.dispatchEvent(new Event('input'));
-                }
-            });
-
-            // Add search functionality
-            function searchBooks(searchTerm) {
-                searchTerm = searchTerm.toLowerCase();
-                
-                books.forEach(book => {
+                    
                     const title = book.querySelector('.book-title').textContent.toLowerCase();
                     const author = book.querySelector('.book-author').textContent.toLowerCase();
                     const series = book.querySelector('.book-series')?.textContent.toLowerCase() || '';
@@ -727,54 +653,57 @@
                         title.includes(searchTerm) || 
                         author.includes(searchTerm) || 
                         series.includes(searchTerm);
-                    
-                    // Only show if it matches both search and current filters
-                    const currentDisplay = book.style.display;
-                    if (currentDisplay !== 'none' || !searchTerm) {
-                        book.style.display = matchesSearch ? '' : 'none';
-                    }
-                });
-            }
-
-            // Debounce function to limit search frequency
-            function debounce(func, wait) {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            }
-
-            // Add search event listener with debounce
-            searchInput.addEventListener('input', debounce(function(e) {
-                searchBooks(e.target.value);
-            }, 250));
-
-            // Modify existing updateVisibility function to work with search
-            const originalUpdateVisibility = window.updateVisibility;
-            window.updateVisibility = function() {
-                const activeStatus = document.querySelector('.filter-button.status[data-active="true"]')?.dataset.status;
-                const activeFormat = document.querySelector('.filter-button.media[data-active="true"]')?.dataset.format;
-                const searchTerm = searchInput.value.toLowerCase();
-
-                books.forEach(book => {
-                    const matchesStatus = !activeStatus || book.dataset.status === activeStatus;
-                    const matchesFormat = !activeFormat || book.dataset.formats.includes(activeFormat);
-                    const matchesSearch = !searchTerm || 
-                        book.querySelector('.book-title').textContent.toLowerCase().includes(searchTerm) ||
-                        book.querySelector('.book-author').textContent.toLowerCase().includes(searchTerm) ||
-                        (book.querySelector('.book-series')?.textContent.toLowerCase() || '').includes(searchTerm);
 
                     book.style.display = (matchesStatus && matchesFormat && matchesSearch) ? '' : 'none';
                 });
+            }
 
-                // Refresh covers after filtering
-                setTimeout(refreshBookCovers, 100); // Small delay to ensure DOM updates are complete
-            };
+            statusFilters.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Clear search when filter is clicked
+                    clearSearch();
+                    
+                    // Toggle active state
+                    const wasActive = btn.dataset.active === "true";
+                    
+                    // First, remove active state from all status filters
+                    statusFilters.forEach(b => b.dataset.active = "false");
+                    
+                    // Then set this button's state (only if it wasn't already active)
+                    if (!wasActive) {
+                        btn.dataset.active = "true";
+                    }
+                    
+                    updateVisibility();
+                    scrollToTop();
+                });
+            });
+
+            mediaFilters.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Clear search when filter is clicked
+                    clearSearch();
+                    
+                    // Toggle active state
+                    const wasActive = btn.dataset.active === "true";
+                    
+                    // First, remove active state from all media filters
+                    mediaFilters.forEach(b => b.dataset.active = "false");
+                    
+                    // Then set this button's state (only if it wasn't already active)
+                    if (!wasActive) {
+                        btn.dataset.active = "true";
+                    }
+                    
+                    updateVisibility();
+                    scrollToTop();
+                });
+            });
+
+            // Update search functionality
+            searchInput.addEventListener('input', debounce(function(e) {
+                updateVisibility();
+            }, 250));
         });
     </script>
 </body>
