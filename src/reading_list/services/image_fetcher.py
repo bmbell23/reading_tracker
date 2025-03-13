@@ -11,6 +11,9 @@ from sqlalchemy.orm import Session
 from ..utils.paths import get_project_paths
 import random
 import time
+from PIL import Image
+from io import BytesIO
+import re
 
 class GoogleImageFetcher:
     def __init__(self, session: Session):
@@ -30,6 +33,17 @@ class GoogleImageFetcher:
         self.min_aspect_ratio = 0.5
         self.max_aspect_ratio = 0.8
         self.retry_delays = [1, 2, 4, 8, 16]  # Exponential backoff delays in seconds
+
+    def is_valid_cover_dimensions(self, image_data: bytes) -> bool:
+        """Check if image has proper book cover dimensions"""
+        try:
+            with Image.open(BytesIO(image_data)) as img:
+                width, height = img.size
+                aspect_ratio = width / height
+                return self.min_aspect_ratio <= aspect_ratio <= self.max_aspect_ratio
+        except Exception as e:
+            self.console.print(f"[red]Error checking image dimensions: {str(e)}[/red]")
+            return False
 
     async def fetch_with_retry(self, session: aiohttp.ClientSession, url: str, params: dict) -> tuple[int, str]:
         """Fetch URL with retry logic and exponential backoff."""
@@ -55,9 +69,7 @@ class GoogleImageFetcher:
                 raise
 
     async def fetch_book_cover(self, book_id: int) -> bool:
-        """
-        Fetch and save book cover for the given book ID.
-        """
+        """Fetch and save book cover for the given book ID."""
         try:
             # Get book details from database
             result = self.session.execute(
@@ -82,8 +94,6 @@ class GoogleImageFetcher:
             search_term = f"{book.title} {author} book cover"
             output_path = self.covers_path / f"{book_id}.jpg"
             
-            self.console.print(f"[cyan]Searching for: {search_term}[/cyan]")
-            
             # Prepare search query
             params = {
                 'q': search_term,
@@ -99,13 +109,12 @@ class GoogleImageFetcher:
                     return False
                 
                 # Look for high-quality retail images first (usually Amazon, etc.)
-                import re
                 matches = re.findall(r'https://[^"\']*?amazon[^"\']*?\.jpg', html)
                 if not matches:
                     matches = re.findall(r'https://[^"\']*?\.jpg', html)
                 
-                if matches:
-                    img_url = matches[0].replace('\\u003d', '=').replace('\\', '')
+                for img_url in matches:
+                    img_url = img_url.replace('\\u003d', '=').replace('\\', '')
                     
                     async with session.get(img_url) as img_response:
                         if img_response.status == 200:
@@ -113,7 +122,11 @@ class GoogleImageFetcher:
                             
                             # Basic validation
                             if len(content) < 5000:  # Skip very small files
-                                return False
+                                continue
+                                
+                            # Check image dimensions
+                            if not self.is_valid_cover_dimensions(content):
+                                continue
                                 
                             # Save the image
                             output_path.write_bytes(content)

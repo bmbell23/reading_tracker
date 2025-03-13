@@ -39,3 +39,10 @@ function cover()
         echo "Cover added for book ID $2"
         ls -alh "$WORKSPACE/assets/book_covers/$2.jpg"
 }
+
+
+function blank_cover()
+{
+        echo "Adding blank cover for book ID $1"
+        cp assets/book_covers/0.jpg assets/book_covers/$1.jpg
+}

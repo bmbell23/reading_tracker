@@ -1,5 +1,6 @@
 """Service for generating book cover gallery."""
 from pathlib import Path
+from datetime import datetime
 from jinja2 import Template
 from rich.console import Console
 from sqlalchemy import text
@@ -12,9 +13,9 @@ class CoverGalleryGenerator:
         self.console = Console()
         self.paths = get_project_paths()
         self.covers_path = self.paths['assets'] / 'book_covers'
-        self.output_path = self.paths['reports'] / 'cover_gallery.html'
+        self.output_path = self.paths['reports'] / 'chain' / 'cover_gallery.html'
         
-        # Create reports directory if it doesn't exist
+        # Create chain reports directory if it doesn't exist
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
 
     def generate(self, debug=False):
@@ -22,29 +23,15 @@ class CoverGalleryGenerator:
         try:
             self.console.print("[blue]Generating cover gallery...[/blue]")
 
-            if debug:
-                self.console.print(f"Looking for covers in: {self.covers_path}")
-                self.console.print(f"Covers directory exists: {self.covers_path.exists()}")
-                
-                if self.covers_path.exists():
-                    self.console.print("Files in covers directory:")
-                    for file in self.covers_path.iterdir():
-                        self.console.print(f"  - {file.name}")
-
             books = []
             with engine.connect() as conn:
-                if debug:
-                    result = conn.execute(text("SELECT COUNT(*) FROM books WHERE cover = TRUE"))
-                    count = result.scalar()
-                    self.console.print(f"Books with cover=True in database: {count}")
-
                 result = conn.execute(text("""
-                    SELECT
+                    SELECT 
                         b.id,
                         b.title,
-                        CASE
+                        CASE 
                             WHEN b.author_name_first IS NOT NULL AND b.author_name_second IS NOT NULL 
-                            THEN b.author_name_first || ' ' || b.author_name_second
+                                THEN b.author_name_first || ' ' || b.author_name_second
                             ELSE COALESCE(b.author_name_first, b.author_name_second, 'Unknown Author')
                         END as author
                     FROM books b
@@ -53,18 +40,11 @@ class CoverGalleryGenerator:
                 """))
                 
                 for row in result:
-                    if debug:
-                        self.console.print(f"\nChecking book ID {row.id}: {row.title}")
-                    
                     cover_file = None
                     for ext in ['.jpg', '.jpeg', '.png', '.webp']:
                         check_path = self.covers_path / f"{row.id}{ext}"
-                        if debug:
-                            self.console.print(f"  Checking for {check_path}")
                         if check_path.exists():
                             cover_file = f"{row.id}{ext}"
-                            if debug:
-                                self.console.print(f"  Found cover: {cover_file}")
                             break
                     
                     if cover_file:
@@ -74,18 +54,21 @@ class CoverGalleryGenerator:
                             'author': row.author,
                             'cover_path': f"/assets/book_covers/{cover_file}"
                         })
-                    elif debug:
-                        self.console.print(f"  No cover found for book ID {row.id}")
+
+            # Add timestamp for cache busting
+            timestamp = int(datetime.now().timestamp())
 
             # Generate HTML
-            html_content = self._get_template().render(books=books)
+            html_content = self._get_template().render(
+                books=books,
+                timestamp=timestamp
+            )
 
             # Write to file
             with open(self.output_path, 'w', encoding='utf-8') as f:
                 f.write(html_content)
 
-            self.console.print(f"[green]Gallery generated successfully at {self.output_path}[/green]")
-            self.console.print(f"Found covers for [blue]{len(books)}[/blue] books")
+            self.console.print(f"[green]Gallery generated with {len(books)} covers[/green]")
 
         except Exception as e:
             self.console.print(f"[red]Error generating gallery: {str(e)}[/red]")
@@ -121,13 +104,12 @@ class CoverGalleryGenerator:
             transition: transform 0.2s;
         }
         .book-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         .cover-img {
             width: 100%;
-            height: 280px;
-            object-fit: cover;
+            height: auto;
             border-radius: 4px;
             margin-bottom: 10px;
         }
@@ -135,22 +117,18 @@ class CoverGalleryGenerator:
             text-align: center;
         }
         .book-title {
-            font-weight: 600;
-            margin: 5px 0;
+            font-weight: bold;
+            margin-bottom: 5px;
             color: #2c3e50;
         }
         .book-author {
             color: #7f8c8d;
-            margin: 5px 0;
+            font-size: 0.9em;
         }
         .book-id {
             color: #95a5a6;
             font-size: 0.8em;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
+            margin-top: 5px;
         }
         .stats {
             text-align: center;
@@ -158,6 +136,16 @@ class CoverGalleryGenerator:
             color: #7f8c8d;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add cache buster to all cover images
+            document.querySelectorAll('.cover-img').forEach(img => {
+                const url = new URL(img.src, window.location.href);
+                url.searchParams.set('v', '{{ timestamp }}');
+                img.src = url.href;
+            });
+        });
+    </script>
 </head>
 <body>
     <h1>Book Cover Gallery</h1>
