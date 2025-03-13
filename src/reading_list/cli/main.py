@@ -23,7 +23,8 @@ from . import search
 from . import unread_inventory
 from . import owned
 from . import owned_report
-from . import backup_db  # Add this import
+from . import backup_db
+from . import fetch_cover  # Add this import
 
 def main():
     """Main CLI entry point."""
@@ -120,6 +121,9 @@ def main():
     # Add the backup-db command
     backup_db_parser = backup_db.add_subparser(subparsers)
 
+    # Add the fetch-cover command
+    fetch_cover.add_subparser(subparsers)  # Add this line
+
     args = parser.parse_args()
 
     if args.command == "excel":
@@ -180,6 +184,8 @@ def main():
         return owned_report.handle_command(args)
     elif args.command == "backup-db":
         return backup_db.handle_command(args)
+    elif args.command == "fetch-cover":  # Add this handler
+        return fetch_cover.handle_command(args)
     else:
         parser.print_help()
         return 1
