@@ -463,6 +463,12 @@ class CommonQueries:
                     r.date_started,
                     r.date_finished_actual,
                     (
+                        SELECT COUNT(*)
+                        FROM read r2
+                        WHERE r2.book_id = b.id
+                        AND r2.date_finished_actual IS NOT NULL
+                    ) as times_completed,
+                    (
                         SELECT MIN(r2.date_started)
                         FROM read r2
                         WHERE r2.book_id = b.id
@@ -487,12 +493,12 @@ class CommonQueries:
                 'words': row.word_count,
                 'location': row.location,
                 'series': row.series,
-                'series_index': row.series_number,  # Map series_number to series_index for compatibility
+                'series_index': row.series_number,
                 'date_published': row.date_published,
                 'first_read_date': row.first_read_date,
-                'reading_status': 'reading' if row.date_started and not row.date_finished_actual
-                               else 'completed' if row.date_finished_actual
-                               else 'unread',
+                'reading_status': ('reading' if row.date_started and not row.date_finished_actual
+                                 else 'completed' if row.times_completed > 0
+                                 else 'unread'),
                 'reading_id': row.reading_id
             } for row in results]
         
