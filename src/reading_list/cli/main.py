@@ -24,7 +24,8 @@ from . import unread_inventory
 from . import owned
 from . import owned_report
 from . import backup_db
-from . import fetch_cover  # Add this import
+from . import fetch_cover
+from . import analyze_covers
 
 def main():
     """Main CLI entry point."""
@@ -36,7 +37,8 @@ def main():
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Register all subparsers
-    excel_template_cli.add_excel_subcommand(subparsers)  # Make sure this is registered
+    excel_template_cli.add_excel_subcommand(subparsers)
+    analyze_covers.add_subparser(subparsers)
 
     # Register all subparsers
     dashboard_parser = subparsers.add_parser(
@@ -122,11 +124,13 @@ def main():
     backup_db_parser = backup_db.add_subparser(subparsers)
 
     # Add the fetch-cover command
-    fetch_cover.add_subparser(subparsers)  # Add this line
+    fetch_cover.add_subparser(subparsers)
 
     args = parser.parse_args()
 
-    if args.command == "excel":
+    if args.command == "analyze-covers":
+        return analyze_covers.handle_command(args)
+    elif args.command == "excel":
         return excel_template_cli.handle_excel_command(args)
     elif args.command == "list-readings":
         return list_readings.handle_command(args)
@@ -180,11 +184,11 @@ def main():
         return unread_inventory.handle_command(args)
     elif args.command == "owned":
         return owned.handle_command(args)
-    elif args.command == "owned-report":  # Add this handler
+    elif args.command == "owned-report":
         return owned_report.handle_command(args)
     elif args.command == "backup-db":
         return backup_db.handle_command(args)
-    elif args.command == "fetch-cover":  # Add this handler
+    elif args.command == "fetch-cover":
         return fetch_cover.handle_command(args)
     else:
         parser.print_help()
