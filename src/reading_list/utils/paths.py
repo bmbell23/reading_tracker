@@ -5,19 +5,19 @@ from dotenv import load_dotenv
 from typing import Dict
 
 def find_project_root(start_path: Path = None) -> Path:
-    """Find the project root directory by looking for .project-root marker file."""
+    """Find the project root directory by looking for pyproject.toml."""
     if start_path is None:
         start_path = Path.cwd()
 
     current = start_path.absolute()
 
     while current != current.parent:
-        if (current / '.project-root').exists():
+        if (current / 'pyproject.toml').exists():
             return current
         current = current.parent
 
     raise FileNotFoundError(
-        "Project root not found. Ensure .project-root file exists in project root directory."
+        "Project root not found. Ensure pyproject.toml exists in project root directory."
     )
 
 def load_workspace() -> Path:
