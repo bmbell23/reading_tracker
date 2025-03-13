@@ -1,4 +1,18 @@
-"""CLI command for generating yearly reading reports."""
+"""CLI command for generating yearly reading reports.
+
+This module provides the command-line interface for generating yearly reading reports.
+It handles argument parsing, report generation, and permission management for output files.
+
+Command Usage:
+    reading-list yearly <year> [options]
+
+Options:
+    --format, -f     Output format (console, html, or both)
+    --actual-only    Show only completed readings
+    --estimated-only Show only planned/estimated readings
+    --verbose, -v    Show detailed error information
+"""
+
 import argparse
 import traceback
 import os
@@ -11,29 +25,52 @@ from ..utils.permissions import fix_report_permissions
 console = Console()
 
 def fix_report_permissions(file_path: Path) -> None:
-    """Fix permissions for the generated report file."""
+    """Fix permissions for the generated report file.
+    
+    Ensures the report file and its parent directory have correct permissions
+    and ownership for web server access.
+    
+    Args:
+        file_path: Path to the report file
+    
+    Note:
+        - Attempts to set 644 permissions on file
+        - Attempts to set 755 permissions on parent directory
+        - Attempts to set www-data group ownership
+        - Provides guidance if sudo is required
+    """
     try:
-        # First try to set basic file permissions without sudo
+        # Basic file permissions without sudo
         file_path.chmod(0o644)
         file_path.parent.chmod(0o755)
         
-        # Then try to set group ownership (requires sudo)
+        # Group ownership (requires sudo)
         try:
             www_data_gid = grp.getgrnam('www-data').gr_gid
             os.chown(str(file_path), os.getuid(), www_data_gid)
             os.chown(str(file_path.parent), os.getuid(), www_data_gid)
             console.print("[green]✓ File permissions and ownership fixed[/green]")
         except PermissionError:
-            console.print("\n[yellow]Note: Group ownership requires sudo. To fix, run:[/yellow]")
+            console.print("\n[yellow]Note: Group ownership requires sudo. To fix:[/yellow]")
             console.print(f"[yellow]  sudo chown :www-data {file_path}[/yellow]")
             console.print("[yellow]  # or use the permissions script:[/yellow]")
             console.print("[yellow]  sudo ./scripts/utils/fix_permissions.sh[/yellow]")
             
     except Exception as e:
-        pass  # Silently handle other permission errors as they'll be caught by the PermissionError above
+        pass  # Silently handle other permission errors
 
 def add_subparser(subparsers):
-    """Add the yearly command parser to the main parser."""
+    """Add the yearly command parser to the main parser.
+    
+    Configures the argument parser for the yearly report command,
+    including all available options and help text.
+    
+    Args:
+        subparsers: argparse subparsers object to add to
+    
+    Returns:
+        ArgumentParser: Configured parser for yearly command
+    """
     parser = subparsers.add_parser(
         "yearly",
         help="Generate yearly readings report",

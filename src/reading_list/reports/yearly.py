@@ -1,4 +1,20 @@
-"""Generate yearly reading reports."""
+"""Generate yearly reading reports.
+
+This module handles the generation of yearly reading reports in both console and HTML formats.
+It processes reading data for a specific year and creates visualizations and statistics.
+
+Key Components:
+- Template handling using Jinja2
+- Monthly data aggregation and processing
+- Report generation in console and/or HTML format
+- File permission management for generated reports
+
+Dependencies:
+- Jinja2 for HTML templating
+- Rich for console output
+- ReportAnalytics for data retrieval
+"""
+
 from datetime import datetime
 import os
 from pathlib import Path
@@ -6,38 +22,52 @@ from typing import Optional, Dict, List
 from jinja2 import Environment, FileSystemLoader
 from rich.console import Console
 from ..utils.paths import get_project_paths, ensure_directory
-from ..utils.permissions import fix_report_permissions  # Updated import
+from ..utils.permissions import fix_report_permissions
 from ..analytics.core import ReportAnalytics
 
 console = Console()
 
 def _get_template_env() -> Environment:
-    """Get the Jinja2 template environment."""
+    """Get the Jinja2 template environment.
+    
+    Sets up the template environment by locating the templates directory
+    and initializing Jinja2's FileSystemLoader.
+    
+    Returns:
+        Environment: Configured Jinja2 environment
+    """
     project_paths = get_project_paths()
     workspace = project_paths['workspace']
     template_dir = workspace / 'src' / 'reading_list' / 'templates' / 'reports'
-    console.print(f"[blue]Template directory: {template_dir}[/blue]")
-    env = Environment(loader=FileSystemLoader(str(template_dir)))
-    console.print(f"[blue]Available templates: {env.list_templates()}[/blue]")
-    return env
+    return Environment(loader=FileSystemLoader(str(template_dir)))
 
 def _prepare_monthly_data(readings: List[Dict]) -> tuple:
-    """Prepare monthly data for the report."""
+    """Prepare monthly data for the report.
+    
+    Processes raw reading data into monthly aggregates and statistics.
+    
+    Args:
+        readings: List of reading records, each containing book details
+                 and temporal information
+    
+    Returns:
+        tuple: Contains:
+            - months: List of monthly data with books and statistics
+            - monthly_books_data: Array of book counts per month
+            - monthly_pages_data: Array of page counts per month
+            - monthly_words_data: Array of word counts per month
+    """
     months = []
-    monthly_books_data = [0] * 12  # Initialize with zeros
+    monthly_books_data = [0] * 12
     monthly_pages_data = [0] * 12
     monthly_words_data = [0] * 12
-    
-    # Create a dict to store month data
     month_data_dict = {}
-    
+
     for reading in readings:
-        # Get month number (1-based) and subtract 1 for 0-based array indexing
         month_num = reading['month']
         month_idx = int(month_num) - 1
         month_name = datetime(2024, int(month_num), 1).strftime('%B')
-        
-        # Initialize month data if not exists
+
         if month_num not in month_data_dict:
             month_data_dict[month_num] = {
                 'name': month_name,
@@ -47,46 +77,49 @@ def _prepare_monthly_data(readings: List[Dict]) -> tuple:
                 'total_pages': 0,
                 'total_words': 0
             }
-        
-        # Add book to month data - Let's add pages and words here
-        month_data_dict[month_num]['books'].append({
+
+        book_data = {
             'id': reading.get('book_id', ''),
             'title': reading['title'],
             'author': reading['author'],
             'status': reading.get('status', ''),
-            'pages': reading['pages'],  # Add pages
-            'words': reading['words'],   # Add words
-            'pages_display': f"{reading['pages']:,} pages",  # Formatted display string
-            'words_display': f"{reading['words']:,} words",   # Formatted display string - Added comma here
-            'cover_url': f"/assets/book_covers/{reading.get('book_id', '0')}.jpg"  # Added cover URL
-        })
+            'pages': reading['pages'],
+            'words': reading['words'],
+            'pages_display': f"{reading['pages']:,} pages",
+            'words_display': f"{reading['words']:,} words",
+            'cover_url': f"/assets/book_covers/{reading.get('book_id', '0')}.jpg"
+        }
+        month_data_dict[month_num]['books'].append(book_data)
         
-        # Update monthly totals
         month_data_dict[month_num]['total_books'] += 1
         month_data_dict[month_num]['total_pages'] += reading['pages']
         month_data_dict[month_num]['total_words'] += reading['words']
         
-        # Update the monthly data arrays
         monthly_books_data[month_idx] += 1
         monthly_pages_data[month_idx] += reading['pages']
         monthly_words_data[month_idx] += reading['words']
     
-    # Convert dict to sorted list for the template
     months = [month_data_dict[month_num] for month_num in sorted(month_data_dict.keys())]
-    
     return months, monthly_books_data, monthly_pages_data, monthly_words_data
 
 def generate_report(year: int, format: str = 'both', actual_only: bool = False, estimated_only: bool = False) -> Optional[str]:
     """Generate yearly reading report.
     
+    Creates a comprehensive report of reading activity for the specified year.
+    Can output to console, HTML, or both formats.
+    
     Args:
-        year: Year to generate report for
+        year: Target year for the report
         format: Output format ('console', 'html', or 'both')
-        actual_only: Show only readings with actual dates
-        estimated_only: Show only readings with estimated dates
+        actual_only: Filter for only completed readings
+        estimated_only: Filter for only planned/estimated readings
     
     Returns:
-        Path to generated HTML report if format includes HTML, None otherwise
+        Optional[str]: Path to generated HTML report if format includes HTML,
+                      None for console-only output or if no readings found
+    
+    Raises:
+        Exception: Propagates any errors during report generation
     """
     try:
         analytics = ReportAnalytics()
@@ -97,40 +130,17 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
         )
 
         if not readings:
-            console.print(f"[yellow]No readings found for year {year}[/yellow]")
             return None
 
-        # Add more debug prints
         env = _get_template_env()
-        console.print(f"[blue]Attempting to load template: yearly/yearly_reading_report.html[/blue]")
         template = env.get_template('yearly/yearly_reading_report.html')
-        console.print(f"[blue]Template loaded successfully[/blue]")
         
-        # First prepare monthly data
         months, monthly_books_data, monthly_pages_data, monthly_words_data = _prepare_monthly_data(readings)
 
-        # Calculate totals from monthly data
         total_books = sum(month['total_books'] for month in months)
         total_pages = sum(month['total_pages'] for month in months)
         total_words = sum(month['total_words'] for month in months)
 
-        # Console output if requested
-        if format in ['console', 'both']:
-            console.print(f"\n[bold]Reading Report {year}[/bold]")
-            console.print(f"Total Books: {total_books}")
-            console.print(f"Total Pages: {total_pages:,}")
-            console.print(f"Total Words: {total_words:,}")
-            
-            for month in months:
-                console.print(f"\n[bold]{month['name']}[/bold]")
-                console.print(f"Books: {month['total_books']}")
-                console.print(f"Pages: {month['total_pages']:,}")
-                console.print(f"Words: {month['total_words']:,}")
-                
-                for book in month['books']:
-                    console.print(f"- {book['title']} by {book['author']}")
-
-        # HTML output if requested
         if format in ['html', 'both']:
             output = template.render(
                 year=year,
@@ -139,41 +149,28 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
                 total_pages=total_pages,
                 total_words=total_words,
                 months=months,
-                # Add the new monthly data arrays for the charts
                 monthly_books_data=monthly_books_data,
                 monthly_pages_data=monthly_pages_data,
                 monthly_words_data=monthly_words_data
             )
             
-            # Save the report
             project_paths = get_project_paths()
             reports_dir = project_paths['workspace'] / 'reports' / 'yearly'
             
-            # Ensure directory exists with correct permissions
             ensure_directory(reports_dir)
-            reports_dir.chmod(0o755)  # Make directory traversable
+            reports_dir.chmod(0o755)
             
-            # Determine the appropriate filename based on flags
-            if actual_only:
-                filename = f'{year}_reading_journey.html'
-            else:
-                filename = f'{year}_reading_goals.html'
-            
+            filename = f'{year}_reading_journey.html' if actual_only else f'{year}_reading_goals.html'
             output_file = reports_dir / filename
             
-            # First try to remove the file if it exists (to handle permission issues)
             if output_file.exists():
                 try:
                     output_file.unlink()
                 except PermissionError:
-                    console.print("[yellow]Attempting to fix permissions...[/yellow]")
                     fix_report_permissions(output_file)
                     output_file.unlink()
             
-            # Write the new file
             output_file.write_text(output)
-            
-            # Make sure to fix permissions
             fix_report_permissions(output_file)
             
             return str(output_file)
@@ -181,5 +178,4 @@ def generate_report(year: int, format: str = 'both', actual_only: bool = False, 
         return None
 
     except Exception as e:
-        console.print(f"[red]Error generating report: {str(e)}[/red]")
         raise
