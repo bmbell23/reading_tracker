@@ -12,25 +12,28 @@ class CoverQuality(NamedTuple):
     width: int
     height: int
     file_size_kb: float
+    aspect_ratio: float
     is_high_quality: bool
     reason: str
 
 class CoverAnalyzer:
     def __init__(self, 
-                 min_width: int = 250,  # Previously reduced from 400
-                 min_height: int = 400,  # Previously reduced from 600
-                 min_file_size_kb: float = 20.0):  # Reduced from 50.0
+                 min_width: int = 250,
+                 min_height: int = 400,
+                 min_file_size_kb: float = 20.0,
+                 min_aspect_ratio: float = 0.5,  # width/height should be between 0.5 and 0.8
+                 max_aspect_ratio: float = 0.8):
         self.console = Console()
         self.project_paths = get_project_paths()
         self.covers_path = self.project_paths['assets'] / 'book_covers'
         self.min_width = min_width
         self.min_height = min_height
         self.min_file_size_kb = min_file_size_kb
+        self.min_aspect_ratio = min_aspect_ratio
+        self.max_aspect_ratio = max_aspect_ratio
 
     def analyze_covers(self) -> List[CoverQuality]:
-        """
-        Analyze all book covers and return quality information.
-        """
+        """Analyze all book covers and return quality information."""
         results = []
         
         for cover_file in self.covers_path.glob('*.jp*g'):
@@ -49,6 +52,9 @@ class CoverAnalyzer:
                 with Image.open(cover_file) as img:
                     width, height = img.size
                 
+                # Calculate aspect ratio (width/height)
+                aspect_ratio = width / height
+                
                 # Determine quality and reason
                 is_high_quality = True
                 reasons = []
@@ -65,6 +71,16 @@ class CoverAnalyzer:
                     is_high_quality = False
                     reasons.append(f"file size ({file_size_kb:.1f}KB < {self.min_file_size_kb}KB)")
                 
+                if aspect_ratio > self.max_aspect_ratio:
+                    is_high_quality = False
+                    reasons.append(f"too wide ({aspect_ratio:.2f} > {self.max_aspect_ratio})")
+                elif aspect_ratio < self.min_aspect_ratio:
+                    is_high_quality = False
+                    reasons.append(f"too narrow ({aspect_ratio:.2f} < {self.min_aspect_ratio})")
+                elif abs(aspect_ratio - 1.0) < 0.1:  # Check if close to square
+                    is_high_quality = False
+                    reasons.append(f"too square (ratio {aspect_ratio:.2f})")
+                
                 reason = " and ".join(reasons) if reasons else "meets quality standards"
                 
                 results.append(CoverQuality(
@@ -72,6 +88,7 @@ class CoverAnalyzer:
                     filename=cover_file.name,
                     width=width,
                     height=height,
+                    aspect_ratio=aspect_ratio,
                     file_size_kb=file_size_kb,
                     is_high_quality=is_high_quality,
                     reason=reason
@@ -88,6 +105,7 @@ class CoverAnalyzer:
         
         table.add_column("Book ID", justify="right", style="cyan")
         table.add_column("Dimensions", justify="right")
+        table.add_column("Ratio", justify="right")
         table.add_column("Size (KB)", justify="right")
         table.add_column("Quality", justify="center")
         table.add_column("Reason", justify="left")
@@ -99,6 +117,7 @@ class CoverAnalyzer:
             table.add_row(
                 str(result.book_id),
                 f"{result.width}x{result.height}",
+                f"{result.aspect_ratio:.2f}",
                 f"{result.file_size_kb:.1f}",
                 f"[{quality_style}]{quality_text}[/{quality_style}]",
                 result.reason
@@ -109,9 +128,8 @@ class CoverAnalyzer:
         # Print summary
         low_quality = [r for r in results if not r.is_high_quality]
         self.console.print(f"\nFound {len(low_quality)} low-quality covers out of {len(results)} total.")
-        if low_quality:
-            self.console.print("\nLow-quality book IDs:")
-            self.console.print(" ".join(str(r.book_id) for r in low_quality))
+        
+        return [r.book_id for r in low_quality]
 
 def analyze_book_covers():
     """CLI entry point for cover analysis."""
