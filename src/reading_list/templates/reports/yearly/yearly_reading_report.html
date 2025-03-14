@@ -533,34 +533,6 @@ Security and Performance Notes
             </div>
         </div>
 
-        <div class="year-summary">
-            <div class="title-section" style="text-align: center;">
-                <h1>Year at a Glance</h1>
-                <div class="title-decoration">
-                    <span class="dot"></span>
-                    <span class="line"></span>
-                    <span class="dot"></span>
-                </div>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">{{ total_books if total_books else 0 }}</div>
-                    <div class="stat-label">Books Completed</div>
-                    <canvas id="booksChart"></canvas>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{{ "{:,}".format(total_pages) if total_pages else 0 }}</div>
-                    <div class="stat-label">Pages Read</div>
-                    <canvas id="pagesChart"></canvas>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{{ "{:,}".format(total_words) if total_words else 0 }}</div>
-                    <div class="stat-label">Words Read</div>
-                    <canvas id="wordsChart"></canvas>
-                </div>
-            </div>
-        </div>
-
         <div class="monthly-section">
             <div class="month-grid">
                 {# Iterate through each month that has books #}
@@ -616,10 +588,6 @@ Security and Performance Notes
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get monthly statistics data passed from Python backend
-            const booksData = {{ monthly_books_data }};
-            const wordsData = {{ monthly_words_data }};
-            const pagesData = {{ monthly_pages_data }};
 
             // Common configuration for all chart displays
             const commonChartOptions = {
