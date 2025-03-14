@@ -1,11 +1,11 @@
 import asyncio
 import aiohttp
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any, Any
 from urllib.parse import quote
 from PIL import Image
 from rich.console import Console
-from rich.progress import Progress
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn  # Added progress components, SpinnerColumn, TextColumn, BarColumn  # Added progress components
 from rich.table import Table
 from rich.panel import Panel
 from rich.prompt import Confirm
@@ -18,10 +18,11 @@ from ..models.isbn import ISBN
 from ..utils.paths import get_project_paths
 
 class MetadataFetcher:
-    def __init__(self, force_update: bool = False):
+    def __init__(self, force_update: bool = False, missing_only: bool = False):
         self.session = SessionLocal()
         self.console = Console()
         self.force_update = force_update
+        self.missing_only = missing_only
         self.max_concurrent_requests = 10
         self.max_workers = 4
         self.min_aspect_ratio = 0.6
@@ -74,11 +75,16 @@ class MetadataFetcher:
                 book.cover = has_cover  # Changed from has_cover to cover
         self.session.commit()
 
-    def get_books_needing_covers(self) -> List[Book]:
-        """Get list of books that need covers"""
+    def get_books_needing_metadata(self, metadata_type: str) -> List[Book]:
+        """Get books that need metadata updates"""
         query = self.session.query(Book)
-        if not self.force_update:
-            query = query.filter(Book.cover == False)  # Changed from has_cover to cover
+        
+        if metadata_type == 'pages':
+            if self.missing_only:
+                query = query.filter(Book.page_count.is_(None))
+            elif not self.force_update:
+                query = query.filter(Book.page_count.is_(None))
+        
         return query.all()
 
     def is_cover_rectangular(self, image_path: Path) -> bool:
@@ -489,3 +495,59 @@ class MetadataFetcher:
             
             self.console.print("\n")
             self.console.print(failed_table)
+
+    async def try_fetch_page_count(self, session: aiohttp.ClientSession, title: str, author: str) -> Optional[int]:
+        """Try to fetch page count from Google Books API"""
+        try:
+            query = quote(f"intitle:\"{title}\" inauthor:\"{author}\"")
+            async with session.get(f"{self.google_books_url}?q={query}&maxResults=1") as response:
+                if response.status != 200:
+                    return None
+
+                data = await response.json()
+                if 'items' not in data:
+                    return None
+
+                volume_info = data['items'][0]['volumeInfo']
+                return volume_info.get('pageCount')
+
+        except Exception as e:
+            self.console.print(f"[red]Error fetching page count: {str(e)}[/red]")
+            return None
+
+    async def fetch_page_counts_async(self):
+        """Fetch page counts asynchronously"""
+        books = self.get_books_needing_metadata('pages')
+        
+        if not books:
+            self.console.print("[yellow]No books found needing page count updates.[/yellow]")
+            return
+
+        async with aiohttp.ClientSession() as session:
+            with Progress() as progress:
+                task = progress.add_task("[cyan]Fetching page counts...", total=len(books))
+
+                for book in books:
+                    author = f"{book.author_name_first or ''} {book.author_name_second or ''}".strip()
+                    if page_count := await self.try_fetch_page_count(session, book.title, author):
+                        book.page_count = page_count
+                        self.results['pages']['success'] += 1
+                    else:
+                        self.results['pages']['failed'].append(f"{book.title} by {author}")
+                    
+                    progress.advance(task)
+
+            self.session.commit()
+
+        # Print results
+        self.console.print("\n[bold green]Page Count Fetching Report:[/bold green]")
+        self.console.print(f"Successfully fetched: {self.results['pages']['success']}")
+        if self.results['pages']['failed']:
+            self.console.print("\n[bold red]Failed to fetch page counts for:[/bold red]")
+            for book in self.results['pages']['failed']:
+                self.console.print(f"- {book}")
+
+    def fetch_page_counts(self):
+        """Fetch page counts for books"""
+        self.console.print("[bold blue]Fetching page counts...[/bold blue]")
+        asyncio.run(self.fetch_page_counts_async())

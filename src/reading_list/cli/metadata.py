@@ -22,8 +22,8 @@ Examples:
   # Force update existing metadata
   reading-list metadata --all --force-update
 
-  # Fetch specific metadata types
-  reading-list metadata --isbn --pages --dates
+  # Fetch pages only for books without page counts
+  reading-list metadata --pages --missing-only
         """
     )
     
@@ -48,6 +48,8 @@ Examples:
     
     parser.add_argument('--force-update', action='store_true',
                        help='Force update of metadata, even if it already exists')
+    parser.add_argument('--missing-only', action='store_true',
+                       help='Only update entries that are missing the requested metadata')
     parser.add_argument('--concurrent-requests', type=int, default=10,
                        help='Maximum number of concurrent API requests')
     parser.add_argument('--workers', type=int, default=4,
@@ -58,7 +60,10 @@ Examples:
 def handle_command(args):
     """Handle the metadata command."""
     try:
-        fetcher = MetadataFetcher(force_update=args.force_update)
+        fetcher = MetadataFetcher(
+            force_update=args.force_update,
+            missing_only=args.missing_only
+        )
         fetcher.max_concurrent_requests = args.concurrent_requests
         fetcher.max_workers = args.workers
 
