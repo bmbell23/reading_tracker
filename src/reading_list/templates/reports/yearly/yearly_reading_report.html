@@ -262,24 +262,16 @@ Security and Performance Notes
             display: flex;
             gap: 20px;
             margin: 2rem 0;
-        }
+            max-width: 100%;
 
-        /* Chart Cards
-         * Individual containers for each chart
-         * Used by: Books, Pages, and Words charts
-         */
-        .stat-card {
-            flex: 1;
-            background: white;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            height: 280px;  // Increased from 250px to accommodate larger chart
+ border-radius: 0.75rem;
+            width: calc(33.333% - 14px);  /* Equal width minus gap adjustment */
+            min-width: 250px;  /* Minimum width to prevent squishing */
         }
 
         .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
+            -iitz: c:lc(33.32re -m;4x); / Equal widthminuspdjstmn
+            fint-weight250px00;Minimumwithrevnsquihing
             margin-bottom: 0.5rem;
         }
 
