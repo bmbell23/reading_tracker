@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Browser tab title -->
     <title>My GreatReads TBR</title>
@@ -772,63 +772,6 @@
         <a href="/" class="title-link">
             <h1 class="page-title">My GreatReads Bookshelf</h1>
         </a>
-
-        <!-- Add search box before filter container -->
-        <div class="search-container">
-            <input type="text" 
-                   id="bookSearch" 
-                   class="search-input" 
-                   placeholder="Search titles, authors, series..."
-                   autocomplete="off">
-        </div>
-
-        <style>
-            /* Search styles */
-            .search-container {
-                padding: 20px 20px 10px 20px;
-                width: 100%;
-                max-width: 600px;
-                margin: 0 auto;
-                box-sizing: border-box;
-            }
-
-            .search-input {
-                width: 100%;
-                padding: 12px 16px;
-                border: 2px solid #e2e8f0;
-                border-radius: 8px;
-                font-size: 16px; /* Minimum 16px to prevent zoom */
-                line-height: 1.3;
-                transition: all 0.2s ease;
-                background-color: white;
-                box-sizing: border-box;
-                -webkit-appearance: none;
-                appearance: none;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            }
-
-            .search-input:focus {
-                outline: none;
-                border-color: #0066CC;
-                box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-            }
-
-            /* Ensure the placeholder also has sufficient size */
-            .search-input::placeholder {
-                color: #94a3b8;
-                font-size: 16px;
-            }
-
-            @media (max-width: 768px) {
-                .search-container {
-                    padding: 15px 10px 10px 10px;
-                }
-                .search-input {
-                    font-size: 16px; /* Maintain 16px even on mobile */
-                }
-            }
-        </style>
-
         <div class="filter-container">
             <!-- TBR filter on left -->
             <div class="filter-group">
@@ -1065,102 +1008,6 @@
 
             // Initial filter application
             applyFilters();
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('bookSearch');
-            const books = document.querySelectorAll('.book-card');
-
-            // Function to clear search
-            function clearSearch() {
-                searchInput.value = '';
-                searchInput.dispatchEvent(new Event('input'));
-            }
-
-            // Handle enter key press
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.blur(); // Hide keyboard on mobile
-                }
-            });
-
-            // Clear search box on focus
-            searchInput.addEventListener('focus', function() {
-                this.value = '';
-                this.dispatchEvent(new Event('input'));
-            });
-
-            // Search functionality
-            function searchBooks(searchTerm) {
-                searchTerm = searchTerm.toLowerCase();
-                
-                books.forEach(book => {
-                    const title = book.querySelector('.book-title').textContent.toLowerCase();
-                    const author = book.querySelector('.book-author').textContent.toLowerCase();
-                    const series = book.querySelector('.book-series')?.textContent.toLowerCase() || '';
-                    
-                    const matchesSearch = !searchTerm || 
-                        title.includes(searchTerm) || 
-                        author.includes(searchTerm) || 
-                        series.includes(searchTerm);
-                    
-                    // Only update display if it's not already hidden by filters
-                    if (!searchTerm || matchesSearch) {
-                        book.style.display = '';
-                    } else {
-                        book.style.display = 'none';
-                    }
-                });
-            }
-
-            // Debounce function
-            function debounce(func, wait) {
-                let timeout;
-                return function(...args) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => func.apply(this, args), wait);
-                };
-            }
-
-            // Add search event listener with debounce
-            searchInput.addEventListener('input', debounce(function(e) {
-                searchBooks(e.target.value);
-            }, 250));
-
-            // Clear search when filters are clicked
-            document.querySelectorAll('.filter-button').forEach(btn => {
-                btn.addEventListener('click', clearSearch);
-            });
-
-            // Modify existing filter handlers to work with search
-            const originalUpdateVisibility = window.updateVisibility;
-            window.updateVisibility = function() {
-                const activeStatus = document.querySelector('input[name="status-filter"]:checked')?.value;
-                const activeFormat = document.querySelector('input[name="media-filter"]:checked')?.value;
-                const searchTerm = searchInput.value.toLowerCase();
-
-                books.forEach(book => {
-                    const matchesStatus = !activeStatus || 
-                        (activeStatus === 'tbr' ? 
-                            (book.classList.contains('current-book') || book.classList.contains('future-book')) : 
-                            (!book.classList.contains('current-book') && !book.classList.contains('future-book')));
-                    
-                    const matchesFormat = !activeFormat || book.classList.contains(activeFormat);
-                    
-                    const title = book.querySelector('.book-title').textContent.toLowerCase();
-                    const author = book.querySelector('.book-author').textContent.toLowerCase();
-                    const series = book.querySelector('.book-series')?.textContent.toLowerCase() || '';
-                    
-                    const matchesSearch = !searchTerm || 
-                        title.includes(searchTerm) || 
-                        author.includes(searchTerm) || 
-                        series.includes(searchTerm);
-
-                    book.style.display = (matchesStatus && matchesFormat && matchesSearch) ? '' : 'none';
-                });
-            };
         });
     </script>
 </body>
