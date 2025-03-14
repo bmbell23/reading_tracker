@@ -106,6 +106,7 @@
             gap: 10px;
         }
 
+        /* Base filter button styles */
         .filter-button {
             display: inline-block;
             padding: 8px 16px;
@@ -114,71 +115,76 @@
             font-weight: 700;
             font-size: 0.9rem;
             transition: all 0.2s ease;
-            background-color: transparent;
-            border: 2px solid;
+            background-color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            box-shadow: none;  /* Add this line to explicitly remove any shadow */
+            border: none;      /* Add this line to ensure no borders */
         }
 
-        /* Media-specific colors - Default state */
+        /* Media-specific colors */
         .filter-button.kindle {
             color: #0066CC;
-            border-color: #0066CC;
         }
 
         .filter-button.hardcover {
             color: #6B4BA3;
-            border-color: #6B4BA3;
         }
 
         .filter-button.audio {
             color: #FF6600;
-            border-color: #FF6600;
         }
 
-        /* Active states - Filled background */
+        /* Active states for media filters */
         .filter-button[data-active="true"].kindle {
-            background-color: #0066CC;
-            color: white;
-            border-color: #0066CC;
+            background-color: #EFF6FF;
         }
 
         .filter-button[data-active="true"].hardcover {
-            background-color: #6B4BA3;
-            color: white;
-            border-color: #6B4BA3;
+            background-color: #F8F5FF;
         }
 
         .filter-button[data-active="true"].audio {
-            background-color: #FF6600;
-            color: white;
-            border-color: #FF6600;
+            background-color: #FFF7ED;
         }
 
-        /* Status filter styles - Read (Green) */
-        .filter-button.status[data-status="read"] {
-            color: #22c55e;
-            border-color: #22c55e;
-        }
-
+        /* Status filter active states */
         .filter-button[data-active="true"].status[data-status="read"] {
-            background-color: #22c55e;
-            color: white;
-        }
-
-        /* Status filter styles - Unread (Gray) */
-        .filter-button.status[data-status="unread"] {
-            color: #64748b;
-            border-color: #64748b;
+            background-color: #dcfce7;
         }
 
         .filter-button[data-active="true"].status[data-status="unread"] {
-            background-color: #64748b;
-            color: white;
+            background-color: #dbeafe;
         }
 
-        /* Hover effects */
+        /* Mobile-specific styles */
+        @media (max-width: 600px) {
+            .filter-button {
+                background-color: #ffffff;
+            }
+
+            .filter-button[data-active="false"] {
+                background-color: #ffffff !important;
+            }
+
+            /* Ensure active states are visible on mobile */
+            .filter-button[data-active="true"].kindle {
+                background-color: #EFF6FF !important;
+            }
+
+            .filter-button[data-active="true"].hardcover {
+                background-color: #F8F5FF !important;
+            }
+
+            .filter-button[data-active="true"].audio {
+                background-color: #FFF7ED !important;
+            }
+        }
+
+        /* Maintain hover effects */
         .filter-button:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+            background: #f3f4f6;
         }
 
         /* Filter group layout */
@@ -445,30 +451,6 @@
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
-        }
-
-        .filter-button {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 2px solid;
-            background: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .filter-button:hover {
-            opacity: 0.8;
-        }
-
-        .filter-button.status {
-            border-color: #64748b;
-            color: #64748b;
-        }
-
-        .filter-button.status.active {
-            background-color: #64748b;
-            color: white;
         }
 
         .search-container {
