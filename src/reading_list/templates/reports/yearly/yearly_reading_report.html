@@ -206,7 +206,19 @@ Security and Performance Notes
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content=" m>
+    <style>
+        /* Cache buster: {{ timestamp }} */
+    </styleaximum-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        /* Cache buster: {{ timestamp }} */
+    </style>
     <title>Reading Report {{ year }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -621,8 +633,8 @@ Security and Performance Notes
                             <div class="book-card">
                                 {# Book cover image with fallback to default #}
                                 <div class="book-cover">
-                                    <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}"
-                                         onerror="this.src='/assets/book_covers/0.jpg'">
+                                    <img src="{{ book.cover_url }}?v={{ timestamp }}?v={{ timestamp }}" alt="Cover of {{ book.title }}"
+                                         onerror="this.src='/assets/book_covers/0.jpg?v={{ timestamp }}?v={{ timestamp }}'">
                                 </div>
                                 {# Book details display #}
                                 <div class="book-info">
@@ -646,6 +658,22 @@ Security and Performance Notes
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const CACHE_BUSTER = '{{ timestamp }}';
+
+            // Add cache buster to all cover images
+            document.querySelectorAll('.book-cover img').forEach(img => {
+                const url = new URL(img.src, window.location.href);
+                url.searchParams.set('v', CACHE_BUSTER);
+                img.src = url.href;
+            });
+            const CACHE_BUSTER = '{{ timestamp }}';
+
+            // Add cache buster to all cover images
+            document.querySelectorAll('.book-cover img').forEach(img => {
+                const url = new URL(img.src, window.location.href);
+                url.searchParams.set('v', CACHE_BUSTER);
+                img.src = url.href;
+            });
 
             // Common configuration for all chart displays
             const commonChartOptions = {
