@@ -519,12 +519,70 @@ Security and Performance Notes
                 grid-template-columns: 1fr;
             }
         }
+
+        .title-link {
+            text-decoration: none;
+            display: block;
+        }
+
+        .page-title {
+            text-align: center;
+            margin: 20px 0 30px 0;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(
+                to right,
+            #0066CC,  /* Kindle blue */
+                #6B4BA3,  /* Hardcover purple */
+                #FF6600   /* Audio orange */
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            transition: opacity 0.2s ease;
+        }
+
+        .title-link:hover .page-title {
+            opacity: 0.8;
+        }
+
+        .title-link {
+            text-decoration: none;
+            display: block;
+        }">
+            <a href="/" class="title-link
+     class="page-title">
+            </a
+        .page-title {
+            text-align: center;
+            margin: 20px 0 30px 0;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(
+                to right,
+                #0066CC,  /* Kindle blue */
+                #6B4BA3,  /* Hardcover purple */
+                #FF6600   /* Audio orange */
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            transition: opacity 0.2s ease;
+        }
+
+        .title-link:hover .page-title {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="title-section" style="text-align: center;">
-            <h1>My Reading Journey in {{ year }}</h1>
+            <a href="/" class="title-link">
+                <h1 class="page-title">My Reading Journey in {{ year }}</h1>
+            </a>
             <p class="intro-text">{{ intro_text }}</p>
             <div class="title-decoration">
                 <span class="dot"></span>
