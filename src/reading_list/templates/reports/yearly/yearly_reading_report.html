@@ -1,3 +1,207 @@
+<!-- Key Template Structure:
+1. Modern, responsive design using CSS Grid and Flexbox
+2. Three main sections:
+   - Title/Header
+   - Year Summary (with charts)
+   - Monthly Book Details
+
+CSS Architecture:
+- Uses CSS variables for consistent theming
+- Mobile-first responsive design
+- Careful handling of card layouts and shadows
+- Smart use of grid/flex for different screen sizes
+
+Data Visualization:
+- Uses Chart.js for monthly statistics
+- Three chart types tracking:
+  * Books completed per month
+  * Pages read per month
+  * Words read per month
+- Charts are responsive and interactive
+- Custom tooltips with formatted numbers
+
+Template Variables Expected:
+- year: Current year being displayed
+- intro_text: Customizable introduction
+- total_books: Total books read
+- total_pages: Total pages read
+- total_words: Total words read
+- months: Array of monthly data containing:
+  * name: Month name
+  * number: Month number
+  * books: Array of book objects
+  * total_books: Books read that month
+  * total_pages: Pages read that month
+  * total_words: Words read that month
+
+Performance Considerations:
+- Lazy loading could be added for book covers
+- Chart.js initialization could be deferred
+- CSS could be moved to separate file
+
+Accessibility Improvements Needed:
+- ARIA labels for interactive elements
+- Better color contrast ratios
+- Keyboard navigation support
+- Screen reader optimizations
+
+Security Notes:
+- XSS protection via Jinja2 auto-escaping
+- Fallback handling for missing images
+- Safe handling of numeric data formatting
+
+Enhancement Opportunities:
+1. Add print stylesheet
+2. Implement dark mode
+3. Add book rating visualization
+4. Include reading speed metrics
+5. Add export functionality (PDF/CSV)
+6. Implement book cover lazy loading
+7. Add reading streak tracking
+8. Include genre distribution charts
+-->
+
+<!--
+COMPONENT ARCHITECTURE AND CONTROL FLOW
+=====================================
+
+JavaScript Components
+-------------------
+1. Chart.js Integration
+   - Loaded via CDN: https://cdn.jsdelivr.net/npm/chart.js
+   - Three main chart instances:
+     * booksChart: Controls monthly books completed visualization
+     * pagesChart: Controls monthly pages read visualization
+     * wordsChart: Controls monthly words read visualization
+   - Charts are initialized after DOMContentLoaded
+   - Each chart uses commonChartOptions for consistent styling and behavior
+   - Data flow: Python backend → Jinja template variables → JavaScript arrays:
+     * {{ monthly_books_data }} → booksData
+     * {{ monthly_words_data }} → wordsData
+     * {{ monthly_pages_data }} → pagesData
+
+Chart.js Configuration Breakdown
+------------------------------
+1. Common Configuration (commonChartOptions)
+   - Responsive behavior
+   - Custom tooltip formatting
+   - Axis styling
+   - Interaction modes
+   - Font settings
+   - Hover effects
+
+2. Individual Chart Settings
+   - Books Chart:
+     * Bar chart type
+     * Blue color scheme (#3b82f6)
+     * Monthly labels (1-12)
+     * Uses books_read data
+
+   - Pages Chart:
+     * Bar chart type
+     * Amber color scheme (#f59e0b)
+     * Monthly labels (1-12)
+     * Uses pages_read data
+
+   - Words Chart:
+     * Bar chart type
+     * Green color scheme (#10b981)
+     * Monthly labels (1-12)
+     * Uses words_read data
+
+CSS Structure and Dependencies
+----------------------------
+1. External Dependencies:
+   - Plus Jakarta Sans font from Google Fonts
+   - CSS variables for theming
+
+2. Layout Components:
+   - Container (.container): Main wrapper
+   - Header (.header): Title section
+   - Stats Grid (.stats-grid): Chart cards layout
+   - Monthly Section (.monthly-section): Book lists
+   - Book Cards (.book-card): Individual book entries
+
+3. Responsive Breakpoints:
+   - Mobile: max-width: 768px
+   - Adjusts:
+     * Stats grid layout
+     * Padding
+     * Font sizes
+     * Chart dimensions
+
+4. Chart-specific Styling:
+   - Chart containers (.stat-card)
+   - Canvas dimensions
+   - Responsive adjustments
+   - Tooltip styling
+
+Modular Separation Opportunities
+------------------------------
+1. JavaScript Files to Extract:
+   - charts.js:
+     * Chart initialization
+     * Common options
+     * Data processing
+   - tooltips.js:
+     * Tooltip formatting
+     * Number formatting
+   - interactions.js:
+     * Hover effects
+     * Click handlers
+
+2. CSS Files to Extract:
+   - variables.css:
+     * Color schemes
+     * Typography
+     * Spacing
+   - layout.css:
+     * Grid system
+     * Responsive rules
+   - charts.css:
+     * Chart-specific styling
+   - cards.css:
+     * Card components
+     * Shadows
+   - typography.css:
+     * Text styles
+     * Headers
+     * Gradients
+
+Data Flow and State Management
+----------------------------
+1. Server → Template:
+   - Jinja2 variables populate initial state
+   - Monthly data arrays
+   - Yearly totals
+
+2. Template → JavaScript:
+   - Chart data initialization
+   - Event binding
+   - Interactive features
+
+3. State Updates:
+   - Chart interactions
+   - Responsive adjustments
+   - Dynamic calculations
+
+Security and Performance Notes
+----------------------------
+1. Script Loading:
+   - Chart.js loads synchronously - candidate for async loading
+   - Font loading affects performance - consider font-display options
+
+2. Data Handling:
+   - Numeric formatting happens client-side
+   - XSS protection via Jinja2 escaping
+   - Large datasets might need pagination/lazy loading
+
+3. Rendering Optimization:
+   - Chart redraws on window resize
+   - Multiple charts might impact performance on lower-end devices
+-->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,7 +259,7 @@
             gap: 20px;
             margin: 2rem 0;
         }
-        
+
         .stat-card {
             flex: 1;
             background: white;
@@ -64,7 +268,7 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             height: 280px;  // Increased from 250px to accommodate larger chart
         }
-        
+
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
@@ -85,7 +289,7 @@
             .stats-grid {
                 flex-direction: column;
             }
-            
+
             .stat-card {
                 width: 100%;
             }
@@ -271,7 +475,7 @@
             .stats-grid, .charts-container {
                 flex-direction: column;
             }
-            
+
             .stat-card, .chart-wrapper {
                 max-width: 100%;
                 width: 100%;
@@ -360,7 +564,7 @@
                             <div class="book-card">
                                 {# Book cover image with fallback to default #}
                                 <div class="book-cover">
-                                    <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" 
+                                    <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}"
                                          onerror="this.src='/assets/book_covers/0.jpg'">
                                 </div>
                                 {# Book details display #}
@@ -389,7 +593,7 @@
             const booksData = {{ monthly_books_data }};
             const wordsData = {{ monthly_words_data }};
             const pagesData = {{ monthly_pages_data }};
-            
+
             // Common configuration for all chart displays
             const commonChartOptions = {
                 responsive: true,
@@ -427,7 +631,7 @@
                         callbacks: {
                             // Convert month number to name in tooltip
                             title: function(context) {
-                                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                                                   'July', 'August', 'September', 'October', 'November', 'December'];
                                 return monthNames[context[0].dataIndex];
                             },
