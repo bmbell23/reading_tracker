@@ -50,3 +50,5 @@ alias entry='reading-list update-entries'
 alias unread='reading-list unread-inventory'
 
 alias owned='reading-list owned-report'
+
+alias yearly='current_year=$(date +%Y); reading-list yearly $(seq 2021 $current_year) --actual-only && reading-list yearly $(seq $current_year $((current_year + 5)))'
