@@ -119,8 +119,42 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             user-select: none;
-            box-shadow: none;  /* Add this line to explicitly remove any shadow */
-            border: none;      /* Add this line to ensure no borders */
+            box-shadow: none;
+            border: none;
+        }
+
+        /* Base hover effect for all filter buttons */
+        .filter-button:hover {
+            background: #f3f4f6;
+        }
+
+        /* Status-specific styles */
+        .filter-button.status[data-status="read"] {
+            color: #16a34a !important;
+            background-color: transparent !important;
+        }
+
+        .filter-button[data-active="true"].status[data-status="read"] {
+            background-color: #dcfce7 !important;
+            color: #16a34a !important;
+        }
+
+        .filter-button.status[data-status="unread"] {
+            color: #334155 !important;  /* slate-700 - darker gray for text */
+            background-color: transparent;
+        }
+
+        .filter-button[data-active="true"].status[data-status="unread"] {
+            background-color: #f1f5f9;
+            color: #334155 !important;
+        }
+
+        /* Override any conflicting styles that might be setting blue color */
+        .filter-container button.filter-button.status[data-status="unread"],
+        .filter-container button.filter-button.status[data-status="unread"] *,
+        .filter-container .filter-button.status[data-status="unread"],
+        .filter-container .filter-button.status[data-status="unread"] * {
+            color: #334155 !important;  /* slate-700 - ensure gray color */
         }
 
         /* Media-specific colors */
@@ -152,10 +186,38 @@
         /* Status filter active states */
         .filter-button[data-active="true"].status[data-status="read"] {
             background-color: #dcfce7;
+            color: #16a34a !important;
         }
 
         .filter-button[data-active="true"].status[data-status="unread"] {
-            background-color: #dbeafe;
+            background-color: #f1f5f9;  /* slate-100 - slightly darker gray for active state */
+            color: #64748b;
+        }
+
+        /* ===== Status Button Styles (Read/Unread) ===== */
+        button.filter-button.status[data-status="read"] {
+            color: #16a34a !important;
+            background-color: transparent !important;  /* Was previously setting #f0fdf4 */
+        }
+
+        button.filter-button.status[data-status="read"][data-active="true"] {
+            color: #16a34a !important;
+        }
+
+        button.filter-button.status[data-status="unread"] {
+            color: #1e293b !important;  /* slate-800 - dark gray for text */
+        }
+
+        button.filter-button.status[data-status="unread"][data-active="true"] {
+            background-color: #f1f5f9;  /* slate-100 - slightly darker gray for active state */
+            color: #1e293b !important;  /* keeping same dark gray text */
+        }
+
+        /* Ensure mobile styles don't override */
+        @media (max-width: 600px) {
+            button.filter-button.status[data-status="read"] {
+                color: #16a34a !important;
+            }
         }
 
         /* Mobile-specific styles */
@@ -539,6 +601,48 @@
                 left: 5px;
             }
         }
+
+        /* ===== Override Status Button Text Colors ===== */
+        .filter-container .filter-button.status[data-status="read"],
+        button.filter-button.status[data-status="read"] {
+            color: #16a34a !important;
+            background-color: transparent !important;
+        }
+
+        .filter-container .filter-button.status[data-status="unread"],
+        button.filter-button.status[data-status="unread"] {
+            color: #334155 !important;  /* slate-700 */
+            background-color: transparent !important;
+        }
+
+        /* Active states */
+        .filter-container .filter-button[data-active="true"].status[data-status="read"],
+        button.filter-button[data-active="true"].status[data-status="read"] {
+            background-color: #dcfce7 !important;
+            color: #16a34a !important;
+        }
+
+        .filter-container .filter-button[data-active="true"].status[data-status="unread"],
+        button.filter-button[data-active="true"].status[data-status="unread"] {
+            background-color: #f1f5f9 !important;
+            color: #334155 !important;
+        }
+
+        /* Hover states with increased specificity */
+        .filter-container .filter-button.status[data-status="read"]:hover,
+        .filter-container .filter-button.status[data-status="unread"]:hover,
+        button.filter-button.status[data-status="read"]:hover,
+        button.filter-button.status[data-status="unread"]:hover {
+            background-color: #f3f4f6 !important;
+        }
+
+        /* Override any remaining blue color styles */
+        .filter-container button.filter-button.status[data-status="unread"],
+        .filter-container .filter-button.status[data-status="unread"],
+        .filter-container button.filter-button.status[data-status="unread"] *,
+        .filter-container .filter-button.status[data-status="unread"] * {
+            color: #383c41 !important;  /* slate-700 */
+        }
     </style>
 </head>
 <body>
@@ -564,7 +668,7 @@
                     <button class="filter-button media kindle" data-format="kindle">Kindle</button>
                     <button class="filter-button media audio" data-format="audio">Audio</button>
                 </div>
-                <button class="filter-button status" data-status="unread">Unread</button>
+                <button class="filter-button status" data-status="unread">Unread</button>   
             </div>
         </div>
     </div>
