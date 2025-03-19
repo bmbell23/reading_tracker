@@ -35,7 +35,7 @@ def update_chain_data(chain_ops: ChainOperations, reading_id: int):
         # Then run the full update command with better error handling
         try:
             result = subprocess.run(
-                ["reading-list", "update-readings", "--all", "--no-confirm"],
+                ["reading-list", "update-readings", "--chain", "--no-confirm"],
                 check=False,
                 capture_output=True,
                 text=True
