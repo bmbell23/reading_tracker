@@ -347,6 +347,20 @@
                 <span class="line"></span>
                 <span class="dot"></span>
             </div>
+            <div class="yearly-stats">
+                <div class="stat-pill books">
+                    <span class="stat-number">{{ "{:,}".format(total_books) }}</span>
+                    Books Read
+                </div>
+                <div class="stat-pill pages">
+                    <span class="stat-number">{{ "{:,}".format(total_pages) }}</span>
+                    Pages Read
+                </div>
+                <div class="stat-pill words">
+                    <span class="stat-number">{{ "{:,}".format(total_words) }}</span>
+                    Words Read
+                </div>
+            </div>
         </div>
 
         <div class="monthly-section">
@@ -425,4 +439,107 @@
     </script>
 </body>
 </html>
+
+<style>
+    .yearly-stats {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 2rem auto 1.5rem; /* Reduced bottom margin from 3rem to 1.5rem */
+        max-width: 800px;
+        padding: 0 1rem;
+    }
+
+    .yearly-stats .stat-pill {
+        flex: 1 1 0; /* Equal flex distribution */
+        padding: 1rem;
+        background: var(--color-surface);
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .yearly-stats .stat-number {
+        display: block;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+    }
+
+    .yearly-stats .stat-pill.books .stat-number {
+        color: var(--color-primary);
+    }
+
+    .yearly-stats .stat-pill.pages .stat-number {
+        color: #f97316;
+    }
+
+    .yearly-stats .stat-pill.words .stat-number {
+        color: var(--color-success);
+    }
+
+    @media (max-width: 768px) {
+        .yearly-stats {
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0;
+            margin-left: 1rem;
+            margin-right: 1rem;
+            margin-bottom: 1rem; /* Even smaller on mobile */
+        }
+
+        .yearly-stats .stat-pill {
+            padding: 0.75rem;
+        }
+
+        .yearly-stats .stat-number {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<style>
+    .month-stats {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .month-stats .stat-pill {
+        flex: 1;
+        padding: 0.5rem 1rem; /* Reduced vertical padding */
+        background: var(--color-surface);
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .month-stats .stat-number {
+        display: block;
+        font-size: 1.25rem; /* Reduced from original size */
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .month-stats .stat-pill {
+        font-size: 0.875rem; /* Slightly smaller label text */
+        color: var(--color-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 768px) {
+        .month-stats {
+            gap: 0.75rem;
+        }
+
+        .month-stats .stat-pill {
+            padding: 0.4rem 0.75rem; /* Even smaller on mobile */
+        }
+
+        .month-stats .stat-number {
+            font-size: 1.125rem;
+        }
+    }
+</style>
 
