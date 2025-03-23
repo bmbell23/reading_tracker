@@ -1,6 +1,11 @@
 #!/bin/bash
 
-COVERS_DIR="assets/book_covers"
+# Get the project root directory (where the script is located)
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+COVERS_DIR="$PROJECT_ROOT/assets/book_covers"
+
+# Create directory if it doesn't exist
+mkdir -p "$COVERS_DIR"
 
 # Ensure the covers directory exists and has correct permissions
 sudo chmod 755 "$COVERS_DIR"

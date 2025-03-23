@@ -34,15 +34,14 @@ function show_table()
 
 function cover()
 {
-        sudo curl -L "$1" -o "$WORKSPACE/assets/book_covers/$2.jpg"
-        reading-list chain-report
-        echo "Cover added for book ID $2"
-        ls -alh "$WORKSPACE/assets/book_covers/$2.jpg"
+        sudo curl -L $1 -o assets/book_covers/$2.jpg
 }
 
 
 function blank_cover()
 {
+        PROJECT_ROOT="$(pwd)"
+        COVERS_DIR="${PROJECT_ROOT}/assets/book_covers"
         echo "Adding blank cover for book ID $1"
-        cp assets/book_covers/0.jpg assets/book_covers/$1.jpg
+        cp "${COVERS_DIR}/0.jpg" "${COVERS_DIR}/$1.jpg"
 }
