@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
     <!-- Browser tab title -->
     <title>My GreatReads TBR</title>
@@ -765,6 +765,41 @@
         .book-card:hover .read-id-tooltip {
             visibility: visible;
         }
+        .search-container {
+            padding: 15px 20px 5px 20px;
+            width: calc(100% - 40px); /* Account for padding */
+            max-width: 400px; /* Reduced from 600px */
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px; /* Add font-size of at least 16px to prevent iOS zoom */
+            transition: all 0.2s ease;
+            background-color: white;
+            box-sizing: border-box; /* Ensure padding doesn't affect width */
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #0066CC;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #94a3b8;
+        }
+
+        /* Add responsive adjustments */
+        @media (max-width: 768px) {
+            .search-container {
+                max-width: 100%;
+                padding: 15px 10px 5px 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -772,6 +807,13 @@
         <a href="/" class="title-link">
             <h1 class="page-title">My GreatReads Bookshelf</h1>
         </a>
+        <div class="search-container">
+            <input type="search" 
+                   id="bookSearch" 
+                   class="search-input" 
+                   placeholder="Search titles, authors, series..."
+                   enterkeyhint="search">
+        </div>
         <div class="filter-container">
             <!-- TBR filter on left -->
             <div class="filter-group">
@@ -888,27 +930,104 @@
         Generated on {{ generated_date }}
     </div>
     <script>
+        // Add the debounce function at the top
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const statusFilters = document.querySelectorAll('input[name="status-filter"]');
             const mediaFilters = document.querySelectorAll('input[name="media-filter"]');
             const bookCards = document.querySelectorAll('.book-card');
+            const searchInput = document.getElementById('bookSearch');
 
             function scrollToTop() {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Add click handler to clear search input when clicking into it
+            searchInput.addEventListener('click', function() {
+                this.value = '';
+                updateVisibility();
+            });
+
+            function updateVisibility() {
+                const statusFilter = document.querySelector('input[name="status-filter"]:checked')?.value;
+                const selectedMediaFilter = document.querySelector('input[name="media-filter"]:checked');
+                const searchTerm = searchInput.value.toLowerCase().trim();
+
+                bookCards.forEach(card => {
+                    const title = card.querySelector('.book-title')?.textContent.toLowerCase() || '';
+                    const author = card.querySelector('.book-author')?.textContent.toLowerCase() || '';
+                    const series = card.querySelector('.book-series')?.textContent.toLowerCase() || '';
+
+                    const matchesSearch = !searchTerm || 
+                        title.includes(searchTerm) || 
+                        author.includes(searchTerm) || 
+                        series.includes(searchTerm);
+
+                    // Always apply status filter, whether searching or not
+                    let matchesStatus = true;
+                    if (statusFilter === 'tbr') {
+                        matchesStatus = card.classList.contains('current-book') ||
+                                      card.classList.contains('future-book');
+                    } else if (statusFilter === 'read') {
+                        matchesStatus = !card.classList.contains('current-book') &&
+                                      !card.classList.contains('future-book');
+                    }
+
+                    // Apply media filter if one is selected
+                    let matchesFormat = true;
+                    if (selectedMediaFilter) {
+                        matchesFormat = card.classList.contains(selectedMediaFilter.value);
+                    }
+
+                    card.style.display = (matchesSearch && matchesStatus && matchesFormat) ? 'flex' : 'none';
                 });
             }
+
+            // Update search functionality
+            searchInput.addEventListener('input', debounce(function(e) {
+                updateVisibility();
+            }, 250));
+
+            // Handle Enter key and search button on mobile keyboards
+            searchInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    this.blur();
+                }
+            });
+
+            // Handle search submission
+            searchInput.addEventListener('search', function(event) {
+                event.preventDefault();
+                this.blur();
+            });
+
+            // Handle status filters (TBR/Read)
+            statusFilters.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    statusFilters.forEach(r => {
+                        r.nextElementSibling.dataset.active = r.checked ? "true" : "false";
+                    });
+                    updateVisibility();
+                    scrollToTop();
+                });
+            });
 
             // Handle media filters
             mediaFilters.forEach(radio => {
                 radio._wasChecked = false;
                 const filterButton = radio.nextElementSibling;
-
-                // Prevent default touch behavior
-                filterButton.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                }, { passive: false });
 
                 // Combined handler for both click and touch
                 function handleFilterInteraction(e) {
@@ -940,36 +1059,13 @@
                     filterButton.offsetHeight; // Trigger reflow
                     filterButton.style.display = '';
 
-                    applyFilters();
+                    updateVisibility();
                     scrollToTop();
                 }
 
                 // Add both click and touch handlers
                 filterButton.addEventListener('click', handleFilterInteraction);
                 filterButton.addEventListener('touchend', handleFilterInteraction);
-
-                // Prevent ghost clicks
-                let lastTouchTime = 0;
-                filterButton.addEventListener('touchend', function() {
-                    lastTouchTime = Date.now();
-                });
-
-                filterButton.addEventListener('click', function(e) {
-                    if (Date.now() - lastTouchTime < 500) {
-                        e.preventDefault();
-                    }
-                });
-            });
-
-            // Handle status filters (TBR/Read)
-            statusFilters.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    statusFilters.forEach(r => {
-                        r.nextElementSibling.dataset.active = r.checked ? "true" : "false";
-                    });
-                    applyFilters();
-                    scrollToTop();
-                });
             });
 
             // Set initial active states
@@ -978,32 +1074,7 @@
             });
 
             function applyFilters() {
-                const statusFilter = document.querySelector('input[name="status-filter"]:checked').value;
-                const selectedMediaFilter = document.querySelector('input[name="media-filter"]:checked');
-
-                bookCards.forEach(card => {
-                    let showByStatus = false;
-                    let showByMedia = false;
-
-                    // Status filter logic
-                    if (statusFilter === 'tbr') {
-                        showByStatus = card.classList.contains('current-book') ||
-                                     card.classList.contains('future-book');
-                    } else if (statusFilter === 'read') {
-                        showByStatus = !card.classList.contains('current-book') &&
-                                     !card.classList.contains('future-book');
-                    }
-
-                    // Media filter logic - show all if no media filter is selected
-                    if (!selectedMediaFilter) {
-                        showByMedia = true;
-                    } else {
-                        showByMedia = card.classList.contains(selectedMediaFilter.value);
-                    }
-
-                    // Show card only if it matches both filters
-                    card.style.display = (showByStatus && showByMedia) ? 'flex' : 'none';
-                });
+                updateVisibility();
             }
 
             // Initial filter application
