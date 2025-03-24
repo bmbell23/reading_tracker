@@ -772,15 +772,51 @@
             margin: 0 auto;
         }
 
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
         .search-input {
             width: 100%;
-            padding: 10px 15px;
+            padding: 10px 35px 10px 15px; /* Added right padding for the clear button */
             border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 16px; /* Add font-size of at least 16px to prevent iOS zoom */
+            font-size: 16px;
             transition: all 0.2s ease;
             background-color: white;
-            box-sizing: border-box; /* Ensure padding doesn't affect width */
+            box-sizing: border-box;
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0 5px;
+            display: none; /* Hidden by default */
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .clear-search:hover {
+            opacity: 1;
+        }
+
+        /* Show the clear button when there's text */
+        .search-input:not(:placeholder-shown) + .clear-search {
+            display: block;
+        }
+
+        /* Add focus styles */
+        .clear-search:focus {
+            outline: none;
+            color: #64748b;
         }
 
         .search-input:focus {
@@ -808,11 +844,19 @@
             <h1 class="page-title">My GreatReads Bookshelf</h1>
         </a>
         <div class="search-container">
-            <input type="search" 
-                   id="bookSearch" 
-                   class="search-input" 
-                   placeholder="Search titles, authors, series..."
-                   enterkeyhint="search">
+            <div class="search-wrapper">
+                <input type="search" 
+                       id="bookSearch" 
+                       class="search-input" 
+                       placeholder="Search titles, authors, series..."
+                       enterkeyhint="search">
+                <button type="button" 
+                        id="clearSearch" 
+                        class="clear-search" 
+                        aria-label="Clear search">
+                    ×
+                </button>
+            </div>
         </div>
         <div class="filter-container">
             <!-- TBR filter on left -->
@@ -948,6 +992,7 @@
             const mediaFilters = document.querySelectorAll('input[name="media-filter"]');
             const bookCards = document.querySelectorAll('.book-card');
             const searchInput = document.getElementById('bookSearch');
+            const clearButton = document.getElementById('clearSearch');
 
             function scrollToTop() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -956,6 +1001,18 @@
             // Add click handler to clear search input when clicking into it
             searchInput.addEventListener('click', function() {
                 this.value = '';
+                updateVisibility();
+            });
+
+            // Show/hide clear button based on input content
+            searchInput.addEventListener('input', function() {
+                clearButton.style.display = this.value ? 'block' : 'none';
+            });
+
+            // Clear search when clicking the X button
+            clearButton.addEventListener('click', function() {
+                searchInput.value = '';
+                searchInput.focus();
                 updateVisibility();
             });
 
