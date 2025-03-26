@@ -519,3 +519,141 @@ class CommonQueries:
             'kindle': self.get_books_by_format('kindle'),
             'audio': self.get_books_by_format('audio')
         }
+
+    def get_books_by_author(self) -> List[Dict[str, Any]]:
+        """
+        Get count of books read by each author, including both unique books and total reading sessions
+        """
+        query = """
+            WITH book_ownership AS (
+                SELECT 
+                    book_id,
+                    MAX(CASE WHEN owned_physical THEN 1 ELSE 0 END) as has_physical,
+                    MAX(CASE WHEN owned_kindle THEN 1 ELSE 0 END) as has_kindle,
+                    MAX(CASE WHEN owned_audio THEN 1 ELSE 0 END) as has_audio
+                FROM inv
+                GROUP BY book_id
+            ),
+            completed_books AS (
+                SELECT 
+                    book_id,
+                    COUNT(*) as reading_sessions,
+                    COUNT(DISTINCT book_id) as unique_books
+                FROM read
+                WHERE date_finished_actual IS NOT NULL
+                GROUP BY book_id
+            ),
+            future_books AS (
+                SELECT 
+                    book_id,
+                    COUNT(*) as future_count
+                FROM read
+                WHERE date_started IS NULL OR 
+                      (date_started IS NOT NULL AND date_finished_actual IS NULL)
+                GROUP BY book_id
+            )
+            SELECT 
+                COALESCE(b.author_name_second || ', ' || b.author_name_first,
+                        b.author_name_first || ' ' || b.author_name_second,
+                        'Unknown Author') as author,
+                COUNT(DISTINCT CASE WHEN bo.has_physical + bo.has_kindle + bo.has_audio > 0 
+                                   THEN b.id END) as total_books_owned,
+                COUNT(DISTINCT CASE WHEN cb.book_id IS NOT NULL 
+                                   THEN b.id END) as unique_books_completed,
+                SUM(CASE WHEN cb.book_id IS NOT NULL 
+                         THEN cb.reading_sessions ELSE 0 END) as total_reading_sessions,
+                COUNT(DISTINCT fb.book_id) as future_reads,
+                GROUP_CONCAT(DISTINCT b.title) as books
+            FROM books b
+            JOIN (
+                SELECT DISTINCT book_id 
+                FROM read
+            ) r ON b.id = r.book_id
+            LEFT JOIN book_ownership bo ON b.id = bo.book_id
+            LEFT JOIN completed_books cb ON b.id = cb.book_id
+            LEFT JOIN future_books fb ON b.id = fb.book_id
+            GROUP BY 
+                b.author_name_first,
+                b.author_name_second
+            ORDER BY total_reading_sessions DESC, unique_books_completed DESC, author ASC
+        """
+        
+        try:
+            results = self.session.execute(text(query))
+            return [dict(row._mapping) for row in results]
+        except Exception as e:
+            self.console.print(f"\n[red]Error getting author statistics: {e}[/red]")
+            return []
+
+    def debug_author_books(self, author_first: str, author_second: str = None) -> List[Dict[str, Any]]:
+        """
+        Debug query to show detailed information about an author's books
+        """
+        query = """
+            WITH book_ownership AS (
+                SELECT 
+                    book_id,
+                    MAX(CASE WHEN owned_physical THEN 1 ELSE 0 END) as has_physical,
+                    MAX(CASE WHEN owned_kindle THEN 1 ELSE 0 END) as has_kindle,
+                    MAX(CASE WHEN owned_audio THEN 1 ELSE 0 END) as has_audio
+                FROM inv
+                GROUP BY book_id
+                HAVING (has_physical + has_kindle + has_audio) > 0
+            ),
+            completed_readings AS (
+                SELECT 
+                    book_id,
+                    COUNT(*) as times_completed
+                FROM read
+                WHERE date_finished_actual IS NOT NULL
+                GROUP BY book_id
+            )
+            SELECT 
+                b.id as book_id,
+                b.title,
+                bo.has_physical,
+                bo.has_kindle,
+                bo.has_audio,
+                COALESCE(cr.times_completed, 0) as times_completed
+            FROM books b
+            JOIN book_ownership bo ON b.id = bo.book_id
+            LEFT JOIN completed_readings cr ON b.id = cr.book_id
+            WHERE b.author_name_first = :first
+            AND (:second IS NULL OR b.author_name_second = :second)
+            ORDER BY b.title
+        """
+        
+        try:
+            results = self.session.execute(text(query), {
+                "first": author_first,
+                "second": author_second
+            })
+            books = [dict(row._mapping) for row in results]
+            
+            # Print detailed report
+            self.console.print("\n[bold cyan]Detailed Book Analysis (Owned Books Only)[/bold cyan]")
+            for book in books:
+                formats = []
+                if book['has_physical']: formats.append('physical')
+                if book['has_kindle']: formats.append('kindle')
+                if book['has_audio']: formats.append('audio')
+                
+                self.console.print(
+                    f"\n[bold]{book['title']}[/bold]"
+                    f"\nFormats owned: {', '.join(formats)}"
+                    f"\nTimes completed: {book['times_completed']}"
+                )
+                
+            # Print summary
+            total_owned = len(books)
+            completed_books = len([b for b in books if b['times_completed'] > 0])
+            self.console.print(
+                f"\n[bold green]Summary:[/bold green]"
+                f"\nTotal owned books: {total_owned}"
+                f"\nOwned books with completed readings: {completed_books}"
+            )
+            
+            return books
+        except Exception as e:
+            self.console.print(f"\n[red]Error in debug query: {e}[/red]")
+            return []
