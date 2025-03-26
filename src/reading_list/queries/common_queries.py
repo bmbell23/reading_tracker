@@ -534,22 +534,13 @@ class CommonQueries:
                 FROM inv
                 GROUP BY book_id
             ),
-            completed_books AS (
+            reading_stats AS (
                 SELECT 
                     book_id,
-                    COUNT(*) as reading_sessions,
+                    COUNT(*) as total_sessions,
                     COUNT(DISTINCT book_id) as unique_books
                 FROM read
                 WHERE date_finished_actual IS NOT NULL
-                GROUP BY book_id
-            ),
-            future_books AS (
-                SELECT 
-                    book_id,
-                    COUNT(*) as future_count
-                FROM read
-                WHERE date_started IS NULL OR 
-                      (date_started IS NOT NULL AND date_finished_actual IS NULL)
                 GROUP BY book_id
             )
             SELECT 
@@ -558,20 +549,18 @@ class CommonQueries:
                         'Unknown Author') as author,
                 COUNT(DISTINCT CASE WHEN bo.has_physical + bo.has_kindle + bo.has_audio > 0 
                                    THEN b.id END) as total_books_owned,
-                COUNT(DISTINCT CASE WHEN cb.book_id IS NOT NULL 
+                COUNT(DISTINCT CASE WHEN r.date_finished_actual IS NOT NULL 
                                    THEN b.id END) as unique_books_completed,
-                SUM(CASE WHEN cb.book_id IS NOT NULL 
-                         THEN cb.reading_sessions ELSE 0 END) as total_reading_sessions,
-                COUNT(DISTINCT fb.book_id) as future_reads,
-                GROUP_CONCAT(DISTINCT b.title) as books
+                COUNT(CASE WHEN r.date_finished_actual IS NOT NULL 
+                      THEN r.id END) as total_reading_sessions,
+                COUNT(DISTINCT CASE WHEN (r.date_finished_actual IS NULL AND r.date_started IS NOT NULL) OR
+                                   (r.date_finished_actual IS NULL AND r.date_est_start IS NOT NULL)
+                               THEN b.id END) as future_reads
             FROM books b
-            JOIN (
-                SELECT DISTINCT book_id 
-                FROM read
-            ) r ON b.id = r.book_id
+            LEFT JOIN read r ON b.id = r.book_id
             LEFT JOIN book_ownership bo ON b.id = bo.book_id
-            LEFT JOIN completed_books cb ON b.id = cb.book_id
-            LEFT JOIN future_books fb ON b.id = fb.book_id
+            LEFT JOIN reading_stats rs ON b.id = rs.book_id
+            WHERE r.book_id IS NOT NULL  -- Only include books that have readings
             GROUP BY 
                 b.author_name_first,
                 b.author_name_second

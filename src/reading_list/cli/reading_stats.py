@@ -47,37 +47,30 @@ def handle_command(args):
             show_header=True,
             header_style="bold magenta",
             border_style="blue",
-            show_lines=True,
             padding=(0, 1)
         )
         
         # Add columns with enhanced formatting
         table.add_column("Author", style="cyan", no_wrap=True)
-        table.add_column("📚\nOwned", justify="right", style="blue")
-        table.add_column("✨ Unique\nCompleted", justify="right", style="green")
-        table.add_column("🔄 Total\nSessions", justify="right", style="yellow")
+        table.add_column("📚 Books\nOwned", justify="right", style="magenta")
+        table.add_column("✨ Unique\nReads", justify="right", style="magenta")
+        table.add_column("🔄 Total\nReads", justify="right", style="magenta")
         table.add_column("📅 Future\nReads", justify="right", style="magenta")
         
         for stat in author_stats:
-            # Format numbers with thousands separator
-            books_owned = f"{stat['books_owned']:,}"
-            unique_completed = f"{stat['unique_completed']:,}"
-            completed_readings = f"{stat['completed_readings']:,}"
-            future_reads = f"{stat['future_reads']:,}"
-            
-            # Add color indicators based on values
-            if stat['completed_readings'] > stat['unique_completed']:
-                completed_readings = f"[bold yellow]{completed_readings}[/bold yellow]"
-            
-            if stat['future_reads'] > 0:
-                future_reads = f"[bold magenta]{future_reads}[/bold magenta]"
-            
+            # Convert "Last, First" to "First Last"
+            author_parts = stat['author'].split(', ', 1)
+            if len(author_parts) == 2:
+                author_name = f"{author_parts[1]} {author_parts[0]}"
+            else:
+                author_name = stat['author']
+
             table.add_row(
-                stat['author'],
-                books_owned,
-                unique_completed,
-                completed_readings,
-                future_reads
+                author_name,  # Use reformatted name here
+                str(stat['total_books_owned']),
+                str(stat['unique_books_completed']),
+                str(stat['total_reading_sessions']),
+                str(stat['future_reads'])
             )
         
         # Add some spacing and a header
@@ -89,9 +82,9 @@ def handle_command(args):
         
         # Add a footer with totals
         totals = {
-            'books_owned': sum(stat['books_owned'] for stat in author_stats),
-            'unique_completed': sum(stat['unique_completed'] for stat in author_stats),
-            'completed_readings': sum(stat['completed_readings'] for stat in author_stats),
+            'books_owned': sum(stat['total_books_owned'] for stat in author_stats),
+            'unique_completed': sum(stat['unique_books_completed'] for stat in author_stats),
+            'completed_readings': sum(stat['total_reading_sessions'] for stat in author_stats),
             'future_reads': sum(stat['future_reads'] for stat in author_stats)
         }
         
