@@ -42,23 +42,65 @@ def handle_command(args):
             console.print("[yellow]No author statistics found[/yellow]")
             return 0
         
-        table = Table(title="Reading Statistics by Author")
-        table.add_column("Author", style="cyan")
-        table.add_column("Books\nOwned", justify="right", style="blue")
-        table.add_column("Unique\nBooks\nRead", justify="right", style="magenta")
-        table.add_column("Finished\nReading\nSessions", justify="right", style="green")
-        table.add_column("Future\nReading\n Sessions", justify="right", style="yellow")
+        table = Table(
+            title="[bold cyan]Reading Statistics by Author[/bold cyan]",
+            show_header=True,
+            header_style="bold magenta",
+            border_style="blue",
+            show_lines=True,
+            padding=(0, 1)
+        )
+        
+        # Add columns with enhanced formatting
+        table.add_column("Author", style="cyan", no_wrap=True)
+        table.add_column("📚\nOwned", justify="right", style="blue")
+        table.add_column("✨ Unique\nCompleted", justify="right", style="green")
+        table.add_column("🔄 Total\nSessions", justify="right", style="yellow")
+        table.add_column("📅 Future\nReads", justify="right", style="magenta")
         
         for stat in author_stats:
+            # Format numbers with thousands separator
+            books_owned = f"{stat['books_owned']:,}"
+            unique_completed = f"{stat['unique_completed']:,}"
+            completed_readings = f"{stat['completed_readings']:,}"
+            future_reads = f"{stat['future_reads']:,}"
+            
+            # Add color indicators based on values
+            if stat['completed_readings'] > stat['unique_completed']:
+                completed_readings = f"[bold yellow]{completed_readings}[/bold yellow]"
+            
+            if stat['future_reads'] > 0:
+                future_reads = f"[bold magenta]{future_reads}[/bold magenta]"
+            
             table.add_row(
                 stat['author'],
-                str(stat['total_books_owned']),
-                str(stat['unique_books_completed']),
-                str(stat['total_reading_sessions']),
-                str(stat['future_reads'])
+                books_owned,
+                unique_completed,
+                completed_readings,
+                future_reads
             )
         
+        # Add some spacing and a header
+        console.print("\n[bold blue]📚 Author Reading Statistics[/bold blue]")
+        console.print("[dim]Shows reading patterns across your library[/dim]\n")
+        
+        # Print the table
         console.print(table)
+        
+        # Add a footer with totals
+        totals = {
+            'books_owned': sum(stat['books_owned'] for stat in author_stats),
+            'unique_completed': sum(stat['unique_completed'] for stat in author_stats),
+            'completed_readings': sum(stat['completed_readings'] for stat in author_stats),
+            'future_reads': sum(stat['future_reads'] for stat in author_stats)
+        }
+        
+        console.print("\n[bold blue]📊 Summary[/bold blue]")
+        console.print(f"Total Books Owned: [blue]{totals['books_owned']:,}[/blue]")
+        console.print(f"Total Unique Books Completed: [green]{totals['unique_completed']:,}[/green]")
+        console.print(f"Total Reading Sessions: [yellow]{totals['completed_readings']:,}[/yellow]")
+        console.print(f"Total Future Reads: [magenta]{totals['future_reads']:,}[/magenta]\n")
+        
         return 0
     
     elif args.stats_command == "debug-author":
