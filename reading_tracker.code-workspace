@@ -6,7 +6,7 @@
     ],
     "name": "reading_tracker",
     "settings": {
-        "workbench.colorTheme": "Default Dark+",
+        "workbench.colorTheme": "Redberry",
         "search.exclude": {
             "**/node_modules": true,
             "**/bower_components": true,
