@@ -70,11 +70,18 @@ class ModelHandler:
             for entry in entries:
                 # Handle both SQLAlchemy models and preview objects
                 book_title = entry.book.title if hasattr(entry.book, 'title') else entry.book
+                started = str(getattr(entry, 'date_started', '')) if getattr(entry, 'date_started', None) else "Not started"
+                # Show "Not started" for Finished Date if Started Date is "Not started"
+                finished = (
+                    "Not started" if started == "Not started"
+                    else str(getattr(entry, 'date_finished_actual', '')) if getattr(entry, 'date_finished_actual', None)
+                    else "In progress"
+                )
                 table.add_row(
                     str(getattr(entry, 'id', '')),
                     book_title,
-                    str(getattr(entry, 'date_started', '')) if getattr(entry, 'date_started', None) else "Not started",
-                    str(getattr(entry, 'date_finished_actual', '')) if getattr(entry, 'date_finished_actual', None) else "In progress",
+                    started,
+                    finished,
                     getattr(entry, 'media', '') or "Unknown",
                     str(getattr(entry, 'days_elapsed_to_read', '')) if getattr(entry, 'days_elapsed_to_read', None) else "-"
                 )
