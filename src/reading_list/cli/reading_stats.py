@@ -21,9 +21,9 @@ def add_subparser(subparsers):
         help="Display statistics about books read by author"
     )
     author_stats_parser.add_argument(
-        "--read-only",
+        "--all",
         action="store_true",
-        help="Only show authors with at least one completed book"
+        help="Show all authors with reading sessions, including those without owned books"
     )
     
     # Debug author command
@@ -47,9 +47,10 @@ def handle_command(args):
             console.print("[yellow]No author statistics found[/yellow]")
             return 0
         
-        # Filter for read-only if flag is set
-        if args.read_only:
-            author_stats = [stat for stat in author_stats if stat['unique_books_completed'] > 0]
+        # By default, only show authors with owned books or completed reads
+        if not args.all:
+            author_stats = [stat for stat in author_stats 
+                          if stat['unique_books_completed'] > 0 or stat['total_books_owned'] > 0]
         
         table = Table(
             title="[bold cyan]Reading Statistics by Author[/bold cyan]",

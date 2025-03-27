@@ -42,6 +42,11 @@ class EntryEditor:
 
         self.session.add(new_reading)
         self.session.commit()
+
+        # Run update-readings command
+        import subprocess
+        subprocess.run(["reading-list", "update-readings", "--all"], check=True)
+
         return new_reading
 
     def search_entries(self, model: Type, search_term: str, search_by_id: bool = False) -> List[Any]:

@@ -77,20 +77,41 @@ def main(args=None):
                     estimate_changes = chain_ops.preview_days_estimate_updates(media_type=media_type)
                     if estimate_changes:
                         chain_ops.display_days_estimate_preview(estimate_changes)
-                        if args.no_confirm or Confirm.ask(f"\nUpdate {len(estimate_changes)} estimates for {media_type}?"):
-                            updates = chain_ops.apply_days_estimate_updates(estimate_changes)
+                        approved_changes = []
+                        
+                        for change in estimate_changes:
+                            if args.no_confirm or Confirm.ask(
+                                f"Update estimate for '{change['title']}' from {change['current_estimate']} to {change['new_estimate']}?",
+                                default=True
+                            ):
+                                approved_changes.append(change)
+                        
+                        if approved_changes:
+                            updates = chain_ops.apply_days_estimate_updates(approved_changes)
                             chain_ops.session.commit()
                             changes_made = True
                             console.print(f"[green]Successfully updated {updates} estimates for {media_type}![/green]")
+                        else:
+                            console.print(f"[yellow]No estimates were updated for {media_type}[/yellow]")
                     else:
                         console.print(f"[yellow]No estimate updates needed for {media_type}[/yellow]")
 
-                # Chain Updates
-                if args.all or args.chain:
-                    console.print(f"\n[dim]Updating chain dates for {media_type}[/dim]\n")
+            # Process chain updates if requested
+            if args.all or args.chain:
+                display_section_header("CHAIN UPDATES")
+                
+                # Process each media type separately
+                for media_type in ['kindle', 'hardcover', 'audio']:
+                    console.print(f"\n[dim]Updating chain dates for {media_type}...[/dim]\n")
                     chain_changes = chain_ops.preview_chain_updates(media_type=media_type)
+                    
                     if chain_changes:
-                        chain_ops.display_chain_updates_preview(chain_changes)
+                        # Display preview of changes
+                        for change in chain_changes:
+                            console.print(f"[yellow]{change['title']}[/yellow]")
+                            console.print(f"  Start: {change['current_start']} → {change['new_start']}")
+                            console.print(f"  End:   {change['current_end']} → {change['new_end']}\n")
+                        
                         if args.no_confirm or Confirm.ask(f"\nUpdate {len(chain_changes)} chain dates for {media_type}?"):
                             updates = chain_ops.apply_chain_updates(chain_changes)
                             chain_ops.session.commit()
@@ -132,7 +153,7 @@ def preview_reread_updates(chain_ops):
         JOIN FirstReads fr ON r.book_id = fr.book_id
         WHERE 
             COALESCE(r.date_started, r.date_est_start) > fr.first_read_date
-            AND (r.reread IS NULL OR r.reread != TRUE)
+            AND (r.reread IS NULL OR r.reread = FALSE)
         ORDER BY r.book_id, read_date
     """)
     

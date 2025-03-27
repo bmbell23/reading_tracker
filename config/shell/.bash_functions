@@ -18,7 +18,7 @@ function rob()
 
 function chain()
 {
-        reading-list chain $1
+        reading-list chain "$1"
 }
 
 function book()
