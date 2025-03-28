@@ -138,7 +138,7 @@ def preview_reread_updates(chain_ops):
             WHERE COALESCE(date_started, date_est_start) IS NOT NULL
             GROUP BY book_id
         )
-        SELECT 
+        SELECT DISTINCT
             r.id,
             r.book_id,
             b.title,
@@ -153,11 +153,15 @@ def preview_reread_updates(chain_ops):
         JOIN FirstReads fr ON r.book_id = fr.book_id
         WHERE 
             COALESCE(r.date_started, r.date_est_start) > fr.first_read_date
-            AND (r.reread IS NULL OR r.reread = FALSE)
+            AND r.id != fr.first_read_id
+            AND (r.reread IS NULL OR r.reread = false)
+            AND r.id != fr.first_read_id
         ORDER BY r.book_id, read_date
     """)
     
     results = chain_ops.session.execute(query).mappings().all()
+    if results:
+        console.print(f"\n[dim]Found {len(results)} potential rereads to update[/dim]")
     return [dict(r) for r in results]
 
 def display_reread_preview(changes):

@@ -45,3 +45,8 @@ function blank_cover()
         echo "Adding blank cover for book ID $1"
         cp "${COVERS_DIR}/0.jpg" "${COVERS_DIR}/$1.jpg"
 }
+
+function new-read()
+{
+        reading-list new-reading $1 $2
+}

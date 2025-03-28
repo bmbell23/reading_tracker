@@ -27,6 +27,7 @@ from . import backup_db
 from . import fetch_cover
 from . import analyze_covers
 from . import reading_stats
+from . import new_reading  # Add this import
 
 def main():
     """Main CLI entry point."""
@@ -40,7 +41,8 @@ def main():
     # Register all subparsers
     excel_template_cli.add_excel_subcommand(subparsers)
     analyze_covers.add_subparser(subparsers)
-    reading_stats.add_subparser(subparsers)  # Add the new reading-stats command
+    reading_stats.add_subparser(subparsers)
+    new_reading.add_subparser(subparsers)  # Add this line
 
     # Register all subparsers
     dashboard_parser = subparsers.add_parser(
@@ -194,6 +196,8 @@ def main():
         return fetch_cover.handle_command(args)
     elif args.command == "reading-stats":
         return reading_stats.handle_command(args)
+    elif args.command == "new-reading":
+        return new_reading.handle_command(args)
     else:
         parser.print_help()
         return 1
