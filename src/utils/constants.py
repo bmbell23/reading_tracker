@@ -1,6 +1,6 @@
 # Reading speed constants (words per day)
 READING_SPEEDS = {
-    'hardcover': 8500,
+    'hardcover': 10000,
     'kindle': 10000,
     'audio': 20000
 }

@@ -6,7 +6,7 @@
     ],
     "name": "reading_tracker",
     "settings": {
-        "workbench.colorTheme": "Visual Studio 2017 Dark - C++",
+        "workbench.colorTheme": "Default Dark+",
         "search.exclude": {
             "**/node_modules": true,
             "**/bower_components": true,
