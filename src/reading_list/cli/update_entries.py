@@ -509,6 +509,12 @@ class DatabaseUpdater:
         if Prompt.ask("\nSave this new reading entry?", choices=['y', 'n'], default='n') == 'y':
             self.session.commit()
             StyleConfig.console.print("[green]New reading entry created successfully![/green]")
+
+            # Automatically run update-readings to update estimates and chain dates
+            StyleConfig.console.print("[yellow]Updating reading estimates and chain dates...[/yellow]")
+            import subprocess
+            subprocess.run(["reading-list", "update-readings", "--all", "--no-confirm"], check=True)
+            StyleConfig.console.print("[green]Reading updates completed successfully![/green]")
         else:
             self.session.rollback()
             StyleConfig.console.print("[yellow]New reading entry discarded[/yellow]")

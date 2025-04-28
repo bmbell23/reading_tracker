@@ -22,7 +22,7 @@ def check_reread_status(chain_ops, reading_id):
     """Check if the new reading should be marked as a reread"""
     query = text("""
         WITH FirstReads AS (
-            SELECT 
+            SELECT
                 book_id,
                 MIN(COALESCE(date_started, date_est_start)) as first_read_date,
                 id as first_read_id
@@ -39,14 +39,14 @@ def check_reread_status(chain_ops, reading_id):
         FROM read r
         JOIN books b ON r.book_id = b.id
         JOIN FirstReads fr ON r.book_id = fr.book_id
-        WHERE 
+        WHERE
             r.id = :reading_id
             AND COALESCE(r.date_started, r.date_est_start) > fr.first_read_date
             AND r.id != fr.first_read_id
     """)
-    
+
     result = chain_ops.session.execute(query, {"reading_id": reading_id}).first()
-    
+
     if result:
         # This is a reread - update the flag
         update_query = text("UPDATE read SET reread = TRUE WHERE id = :read_id")
@@ -114,8 +114,13 @@ def handle_command(args):
             # Check and update reread status
             check_reread_status(chain_ops, next_id)
 
-            # Generate chain report
+            # Automatically run update-readings to update estimates and chain dates
+            console.print("[yellow]Updating reading estimates and chain dates...[/yellow]")
             import subprocess
+            subprocess.run(["reading-list", "update-readings", "--all", "--no-confirm"], check=True)
+            console.print("[green]Reading updates completed successfully![/green]")
+
+            # Generate chain report
             subprocess.run(["reading-list", "chain-report"], check=True)
 
             return 0

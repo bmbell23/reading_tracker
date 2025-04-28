@@ -2,7 +2,7 @@
 READING_SPEEDS = {
     'hardcover': 15000,
     'kindle': 10000,
-    'audio': 30000
+    'audio': 20000
 }
 
 # Default speed if media type is unknown
