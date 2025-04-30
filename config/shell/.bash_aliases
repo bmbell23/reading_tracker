@@ -57,4 +57,7 @@ alias authors='reading-list reading-stats author-stats'
 
 alias update='yearly && owned && tbr'
 
-alias series='reading-list series-stats --finished-only'
+alias series-stats='reading-list series-stats --finished-only'
+
+# Query a series to show all books in order with publication dates
+alias series='./scripts/series_books.sh'

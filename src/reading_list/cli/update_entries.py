@@ -414,6 +414,12 @@ class DatabaseUpdater:
                             new_value = int(new_value) if new_value else None
                         except ValueError:
                             new_value = None
+                    elif col[2].upper().startswith('REAL'):
+                        new_value = Prompt.ask(f"Enter new {col_name}")
+                        try:
+                            new_value = float(new_value) if new_value else None
+                        except ValueError:
+                            new_value = None
                     elif col[2].upper().startswith('FLOAT'):
                         new_value = Prompt.ask(f"Enter new {col_name}")
                         try:
@@ -433,7 +439,7 @@ class DatabaseUpdater:
                     old_value = getattr(existing, field)
                     StyleConfig.console.print(f"{field}: [red]{old_value}[/red] → [green]{new_value}[/green]")
 
-                if Prompt.ask("\nSave these changes?", choices=['y', 'n'], default='n') == 'y':
+                if Prompt.ask("\nSave these changes?", choices=['y', 'n'], default='y') == 'y':
                     for field, value in new_data.items():
                         setattr(existing, field, value)
                     self.session.commit()
@@ -506,7 +512,7 @@ class DatabaseUpdater:
         StyleConfig.console.print(f"Media: [green]{media}[/green]")
         StyleConfig.console.print(f"Previous Read ID: [green]{prev_id or 'None'}[/green]")
 
-        if Prompt.ask("\nSave this new reading entry?", choices=['y', 'n'], default='n') == 'y':
+        if Prompt.ask("\nSave this new reading entry?", choices=['y', 'n'], default='y') == 'y':
             self.session.commit()
             StyleConfig.console.print("[green]New reading entry created successfully![/green]")
 
@@ -567,7 +573,7 @@ class DatabaseUpdater:
         series_number = Prompt.ask("Enter series number (optional)", default="")
         if series_number and series_number.strip():
             try:
-                series_number = int(series_number)
+                series_number = float(series_number)
             except ValueError:
                 series_number = None
         else:
@@ -621,16 +627,16 @@ class DatabaseUpdater:
         if isbn:
             StyleConfig.console.print(f"ISBN: [green]{isbn}[/green]")
 
-        if Prompt.ask("\nSave this new book entry?", choices=['y', 'n'], default='n') == 'y':
+        if Prompt.ask("\nSave this new book entry?", choices=['y', 'n'], default='y') == 'y':
             self.session.add(new_book)
             self.session.commit()
             StyleConfig.console.print("[green]New book entry created successfully![/green]")
 
             # Ask if user wants to create related entries
-            if Prompt.ask("Create inventory entry for this book?", choices=['y', 'n'], default='n') == 'y':
+            if Prompt.ask("Create inventory entry for this book?", choices=['y', 'n'], default='y') == 'y':
                 self._create_new_inventory(new_book.id)
 
-            if Prompt.ask("Create reading entry for this book?", choices=['y', 'n'], default='n') == 'y':
+            if Prompt.ask("Create reading entry for this book?", choices=['y', 'n'], default='y') == 'y':
                 self._create_new_reading(new_book.id)
         else:
             self.session.rollback()
@@ -680,7 +686,7 @@ class DatabaseUpdater:
         if location:
             StyleConfig.console.print(f"Location: [green]{location}[/green]")
 
-        if Prompt.ask("\nSave this new inventory entry?", choices=['y', 'n'], default='n') == 'y':
+        if Prompt.ask("\nSave this new inventory entry?", choices=['y', 'n'], default='y') == 'y':
             self.session.add(new_inventory)
             self.session.commit()
             StyleConfig.console.print("[green]New inventory entry created successfully![/green]")
@@ -692,11 +698,11 @@ class DatabaseUpdater:
         """Prompt for updating related entries"""
         related = self.editor.get_related_entries(book_id)
         if related['readings'] or related['inventory']:
-            if Prompt.ask("Update related entries?", choices=['y', 'n'], default='n') == 'y':
+            if Prompt.ask("Update related entries?", choices=['y', 'n'], default='y') == 'y':
                 for entry_type, entries in related.items():
                     handler = self.handlers['read' if entry_type == 'readings' else 'inv']
                     handler.display_results(entries)
-                    if entries and Prompt.ask(f"Update {entry_type}?", choices=['y', 'n'], default='n') == 'y':
+                    if entries and Prompt.ask(f"Update {entry_type}?", choices=['y', 'n'], default='y') == 'y':
                         self._update_entry(entries[0], handler)
 
     def _delete_entry(self, entry: Any, handler: ModelHandler):

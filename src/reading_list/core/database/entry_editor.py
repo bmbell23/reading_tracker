@@ -106,7 +106,7 @@ class EntryEditor:
         if 'series' in data:
             validated['series'] = data['series'].strip() if data['series'] else None
         if 'series_number' in data:
-            validated['series_number'] = int(data['series_number']) if data['series_number'] else None
+            validated['series_number'] = float(data['series_number']) if data['series_number'] else None
         if 'genre' in data:
             validated['genre'] = data['genre'].strip() if data['genre'] else None
         if 'has_cover' in data:

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, VARCHAR
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, VARCHAR, Float
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -14,7 +14,7 @@ class Book(Base):
     page_count = Column(Integer)
     date_published = Column(Date)
     series = Column(VARCHAR)
-    series_number = Column(Integer)
+    series_number = Column(Float)
     genre = Column(VARCHAR)
     cover = Column(Boolean, nullable=False, default=False)
     isbn_id = Column(Integer)
