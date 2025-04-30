@@ -41,7 +41,7 @@ async def reports_index(request: Request):
         for report in reports_dir.rglob('*.html'):
             report_type = report.parent.name if report.parent != reports_dir else 'general'
             url_path = report.relative_to(reports_dir)
-            
+
             # Parse the filename to determine the appropriate display name
             name = report.stem
             if name.endswith('_reading_journey'):
@@ -65,6 +65,18 @@ async def reports_index(request: Request):
             {
                 "request": request,
                 "reports": reports,
-                "title": "GreatReads" 
+                "title": "GreatReads"
             }
+        )
+    except Exception as e:
+        # Log the error and return a simple error response
+        print(f"Error generating reports index: {str(e)}")
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "error_message": "Failed to generate reports index",
+                "title": "Error - GreatReads"
+            },
+            status_code=500
         )
