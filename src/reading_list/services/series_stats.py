@@ -2,11 +2,12 @@
 from datetime import datetime
 import csv
 from pathlib import Path
-from typing import List, Tuple, Any
+from typing import List, Tuple
 from rich.console import Console
-from rich.table import Table
+from rich.table import Table, Column
 from rich.style import Style
-from sqlalchemy import text, func
+from rich.box import SIMPLE_HEAD
+from sqlalchemy import text
 from ..models.base import engine
 from ..queries.common_queries import CommonQueries
 
@@ -30,16 +31,12 @@ class SeriesStatsService:
 
     def _get_queries(self, finished_only: bool = False, upcoming: bool = False) -> dict[str, str]:
         """Get SQL queries for statistics."""
-        base_condition = """
-            r.date_finished_actual IS NOT NULL
-        """ if not upcoming else """
-            r.date_est_start IS NOT NULL
-            AND r.date_est_end IS NOT NULL
-            AND r.date_finished_actual IS NULL
-        """
-
-        if finished_only and not upcoming:
-            base_condition += " AND r.date_finished_actual IS NOT NULL"
+        if upcoming:
+            base_condition = "r.date_finished_actual IS NULL AND r.date_est_start IS NOT NULL AND r.date_est_end IS NOT NULL"
+        elif finished_only:
+            base_condition = "r.date_finished_actual IS NOT NULL"
+        else:
+            base_condition = "1=1"  # Always true
 
         return {
             "series": f"""
@@ -47,7 +44,9 @@ class SeriesStatsService:
                     b.series,
                     COUNT(DISTINCT b.id) as book_count,
                     SUM(DISTINCT b.word_count) as total_words,
-                    GROUP_CONCAT(DISTINCT COALESCE(b.author_name_first || ' ' || b.author_name_second, '')) as authors
+                    GROUP_CONCAT(DISTINCT COALESCE(b.author_name_first || ' ' || b.author_name_second, '')) as authors,
+                    SUM(CASE WHEN (b.series_number IS NULL OR CAST(b.series_number AS TEXT) LIKE '%.0' OR CAST(b.series_number AS INTEGER) = b.series_number) THEN 1 ELSE 0 END) as novel_count,
+                    SUM(CASE WHEN (b.series_number IS NOT NULL AND CAST(b.series_number AS TEXT) NOT LIKE '%.0' AND CAST(b.series_number AS INTEGER) != b.series_number) THEN 1 ELSE 0 END) as novella_count
                 FROM books b
                 JOIN read r ON r.book_id = b.id
                 WHERE b.series IS NOT NULL
@@ -58,7 +57,9 @@ class SeriesStatsService:
             "series_total": """
                 SELECT
                     b.series,
-                    COUNT(DISTINCT b.id) as total_book_count
+                    COUNT(DISTINCT b.id) as total_book_count,
+                    SUM(CASE WHEN (b.series_number IS NULL OR CAST(b.series_number AS TEXT) LIKE '%.0' OR CAST(b.series_number AS INTEGER) = b.series_number) THEN 1 ELSE 0 END) as total_novel_count,
+                    SUM(CASE WHEN (b.series_number IS NOT NULL AND CAST(b.series_number AS TEXT) NOT LIKE '%.0' AND CAST(b.series_number AS INTEGER) != b.series_number) THEN 1 ELSE 0 END) as total_novella_count
                 FROM books b
                 WHERE b.series IS NOT NULL
                 GROUP BY b.series
@@ -66,7 +67,9 @@ class SeriesStatsService:
             "future_books": """
                 SELECT
                     b.series,
-                    COUNT(DISTINCT b.id) as future_book_count
+                    COUNT(DISTINCT b.id) as future_book_count,
+                    SUM(CASE WHEN (b.series_number IS NULL OR CAST(b.series_number AS TEXT) LIKE '%.0' OR CAST(b.series_number AS INTEGER) = b.series_number) THEN 1 ELSE 0 END) as future_novel_count,
+                    SUM(CASE WHEN (b.series_number IS NOT NULL AND CAST(b.series_number AS TEXT) NOT LIKE '%.0' AND CAST(b.series_number AS INTEGER) != b.series_number) THEN 1 ELSE 0 END) as future_novella_count
                 FROM books b
                 LEFT JOIN read r ON b.id = r.book_id AND r.date_finished_actual IS NOT NULL
                 WHERE b.series IS NOT NULL
@@ -94,6 +97,7 @@ class SeriesStatsService:
 
     def _create_series_table(self, results: List[Tuple], total_counts: List[Tuple], future_counts: List[Tuple]) -> Table:
         """Create a table for series statistics."""
+        # Create a table with two header rows
         table = Table(
             title="📚 Series Statistics",
             show_header=True,
@@ -101,70 +105,172 @@ class SeriesStatsService:
             border_style=self.styles['border'],
             title_style=self.styles['title'],
             pad_edge=False,
-            collapse_padding=True
+            collapse_padding=True,
+            box=SIMPLE_HEAD
         )
 
-        table.add_column("Series Name", justify="left", style="cyan")
-        table.add_column("Author(s)", justify="left", style="yellow")
-        table.add_column("Read", justify="right", style="green")
-        table.add_column("Unread", justify="right", style="red")
-        table.add_column("Total", justify="right", style="blue")
-        table.add_column("Total Words", justify="right", style="green")
-        table.add_column("Avg Words/Book", justify="right", style="green")
+        # Add columns with empty headers (we'll add the actual headers in the first row)
+        table.add_column(header="", justify="left", style="cyan", no_wrap=True)  # Series Name
+        table.add_column(header="", justify="left", style="yellow")  # Author(s)
+
+        # Novels columns
+        table.add_column(header="", justify="right", style="green")  # Read
+        table.add_column(header="", justify="right", style="red")    # Unread
+        table.add_column(header="", justify="right", style="blue")   # Total
+
+        # Novellas columns
+        table.add_column(header="", justify="right", style="green")  # Read
+        table.add_column(header="", justify="right", style="red")    # Unread
+        table.add_column(header="", justify="right", style="blue")   # Total
+
+        # Total words column
+        table.add_column(header="", justify="right", style="green")  # Total Words
+
+        # Add the first header row with column groups
+        table.add_row(
+            "Series Name",
+            "Author(s)",
+            "", "[bold magenta]Novels[/bold magenta]", "",
+            "", "[bold magenta]Novellas[/bold magenta]", "",
+            "Total Words"
+        )
+
+        # Add the second header row with column names
+        table.add_row(
+            "",
+            "",
+            "[bold green]Read*[/bold green]",
+            "[bold red]Unread[/bold red]",
+            "[bold blue]Total[/bold blue]",
+            "[bold green]Read*[/bold green]",
+            "[bold red]Unread[/bold red]",
+            "[bold blue]Total[/bold blue]",
+            ""
+        )
 
         total_read_books = 0
         total_unread_books = 0
         total_all_books = 0
         total_words = 0
 
-        # Create a dictionary of total book counts by series
-        total_counts_dict = {row[0]: row[1] for row in total_counts}
-
-        # Create a dictionary of future/unpublished book counts by series
-        future_counts_dict = {row[0]: row[1] for row in future_counts}
+        # We'll use direct lookups with next() instead of dictionaries
 
         for row in results:
-            series = row[0] or "[dim]N/A[/dim]"
+            series_name = row[0] or "N/A"
             authors = row[3] or "[dim]Unknown[/dim]"
             read_books = row[1]
             words = row[2] or 0
-            # If we have a total count for this series, use it; otherwise, use read_books as the total
-            total_books = max(read_books, total_counts_dict.get(series, read_books))
+            read_novels = row[4] or 0
+            read_novellas = row[5] or 0
+
+            # Get total counts for this series
+            total_count_row = next((r for r in total_counts if r[0] == series_name), None)
+            total_books = total_count_row[1] if total_count_row else read_books
+            total_novels = total_count_row[2] if total_count_row else read_novels
+            total_novellas = total_count_row[3] if total_count_row else read_novellas
 
             # Get the number of future/unpublished books in this series
-            future_books = future_counts_dict.get(series, 0)
+            future_count_row = next((r for r in future_counts if r[0] == series_name), None)
+            future_books = future_count_row[1] if future_count_row else 0
+            future_novels = future_count_row[2] if future_count_row else 0
+            future_novellas = future_count_row[3] if future_count_row else 0
 
             # Calculate unread books, excluding future/unpublished books
             # We don't want to count future/unpublished books as "unread"
             unread_books = max(0, total_books - read_books - future_books)
-
-            avg_words = int(words / read_books) if read_books else 0
+            unread_novels = max(0, total_novels - read_novels - future_novels)
+            unread_novellas = max(0, total_novellas - read_novellas - future_novellas)
 
             total_read_books += read_books
             total_unread_books += unread_books
             total_all_books += total_books
             total_words += words
 
+            # Color-code the series name based on status:
+            # - Red for series with unread published books
+            # - Orange for series with unpublished books but no unread published books
+            # - Default color for completed series
+            if unread_books > 0:
+                # Series has unread published books - make it red
+                series = f"[bold red]{series_name}[/bold red]"
+            elif future_books > 0:
+                # Series has unpublished books but no unread published books - make it orange
+                series = f"[bold orange3]{series_name}[/bold orange3]"
+            else:
+                # Series is complete - use default color
+                series = series_name
+
             table.add_row(
                 series,
                 authors,
-                str(read_books),
-                "" if unread_books == 0 else str(unread_books),  # Show blank instead of 0
-                str(total_books),
-                f"{words:,}",
-                f"{avg_words:,}"
+                str(read_novels),
+                "" if unread_novels == 0 else str(unread_novels),  # Show blank instead of 0
+                str(total_novels),
+                str(read_novellas),
+                "" if unread_novellas == 0 else str(unread_novellas),  # Show blank instead of 0
+                str(total_novellas),
+                f"{words:,}"
             )
 
-        # Add total row
+        # Calculate totals for novels and novellas
+        total_read_novels = sum(row[4] or 0 for row in results)
+        total_read_novellas = sum(row[5] or 0 for row in results)
+
+        # Calculate total unread novels and novellas
+        total_unread_novels = 0
+        total_unread_novellas = 0
+        total_novels = 0
+        total_novellas = 0
+
+        for series_name in {row[0] for row in results}:
+            # Get total counts for this series
+            total_count_row = next((r for r in total_counts if r[0] == series_name), None)
+            if total_count_row:
+                total_novels += total_count_row[2] or 0
+                total_novellas += total_count_row[3] or 0
+
+            # Get future counts for this series
+            future_count_row = next((r for r in future_counts if r[0] == series_name), None)
+            future_novels = future_count_row[2] if future_count_row else 0
+            future_novellas = future_count_row[3] if future_count_row else 0
+
+            # Get read counts for this series
+            read_row = next((r for r in results if r[0] == series_name), None)
+            read_novels = read_row[4] if read_row else 0
+            read_novellas = read_row[5] if read_row else 0
+
+            # Calculate unread counts
+            unread_novels = max(0, (total_count_row[2] or 0) - read_novels - future_novels)
+            unread_novellas = max(0, (total_count_row[3] or 0) - read_novellas - future_novellas)
+
+            total_unread_novels += unread_novels
+            total_unread_novellas += unread_novellas
+
+        # Add total row with bold styling
         table.add_row(
             "[bold white]TOTAL[/bold white]",
             "",
-            f"[bold green]{total_read_books:,}[/bold green]",
-            f"[bold red]{total_unread_books:,}[/bold red]" if total_unread_books > 0 else "",
-            f"[bold blue]{total_all_books:,}[/bold blue]",
+            f"[bold green]{total_read_novels:,}[/bold green]",
+            f"[bold red]{total_unread_novels:,}[/bold red]" if total_unread_novels > 0 else "",
+            f"[bold blue]{total_novels:,}[/bold blue]",
+            f"[bold green]{total_read_novellas:,}[/bold green]",
+            f"[bold red]{total_unread_novellas:,}[/bold red]" if total_unread_novellas > 0 else "",
+            f"[bold blue]{total_novellas:,}[/bold blue]",
             f"[bold green]{total_words:,}[/bold green]",
-            f"[bold green]{int(total_words/total_read_books):,}[/bold green]" if total_read_books else "0",
             style="bold white"
+        )
+
+        # Add a note about the asterisk
+        table.add_row(
+            "[dim]* Read counts include re-reads[/dim]",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
         )
 
         return table
@@ -325,40 +431,68 @@ class SeriesStatsService:
         csv_dir = Path("csv") / f"series_stats_{status}_{timestamp}"
         csv_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create a dictionary of total book counts by series
-        total_counts_dict = {row[0]: row[1] for row in data['series_total']}
-
-        # Create a dictionary of future/unpublished book counts by series
-        future_counts_dict = {row[0]: row[1] for row in data['future_books']}
+        # We'll use direct lookups with next() instead of dictionaries
 
         # Save series data
         series_path = csv_dir / "series.csv"
-        with open(series_path, 'w', newline='') as f:
+        with open(series_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(['Series Name', 'Author(s)', 'Read Books', 'Unread Books', 'Future Books', 'Total Books', 'Total Words'])
+            writer.writerow([
+                'Series Name', 'Author(s)',
+                'Novels Read', 'Novels Unread', 'Novels Future', 'Novels Total',
+                'Novellas Read', 'Novellas Unread', 'Novellas Future', 'Novellas Total',
+                'Total Words', 'Status'
+            ])
+
             for row in data['series']:
                 series = row[0] or "N/A"
                 read_books = row[1]
-                # If we have a total count for this series, use it; otherwise, use read_books as the total
-                total_books = max(read_books, total_counts_dict.get(series, read_books))
-                # Get the number of future/unpublished books in this series
-                future_books = future_counts_dict.get(series, 0)
+                read_novels = row[4] if len(row) > 4 else 0
+                read_novellas = row[5] if len(row) > 5 else 0
+
+                # Get total counts for this series
+                total_count_row = next((r for r in data['series_total'] if r[0] == series), None)
+                total_books = total_count_row[1] if total_count_row else read_books
+                total_novels = total_count_row[2] if total_count_row and len(total_count_row) > 2 else read_novels
+                total_novellas = total_count_row[3] if total_count_row and len(total_count_row) > 3 else read_novellas
+
+                # Get future counts for this series
+                future_count_row = next((r for r in data['future_books'] if r[0] == series), None)
+                future_books = future_count_row[1] if future_count_row else 0
+                future_novels = future_count_row[2] if future_count_row and len(future_count_row) > 2 else 0
+                future_novellas = future_count_row[3] if future_count_row and len(future_count_row) > 3 else 0
+
                 # Calculate unread books, excluding future/unpublished books
                 unread_books = max(0, total_books - read_books - future_books)
+                unread_novels = max(0, total_novels - read_novels - future_novels)
+                unread_novellas = max(0, total_novellas - read_novellas - future_novellas)
+
+                # Determine series status
+                if unread_books > 0:
+                    status = "Unread Books"
+                elif future_books > 0:
+                    status = "Future Books Only"
+                else:
+                    status = "Complete"
 
                 writer.writerow([
                     series,
                     row[3] or "Unknown",
-                    read_books,
-                    "" if unread_books == 0 else unread_books,  # Show blank instead of 0
-                    future_books,
-                    total_books,
-                    row[2] or 0
+                    read_novels,
+                    "" if unread_novels == 0 else unread_novels,
+                    future_novels,
+                    total_novels,
+                    read_novellas,
+                    "" if unread_novellas == 0 else unread_novellas,
+                    future_novellas,
+                    total_novellas,
+                    row[2] or 0,
+                    status
                 ])
 
         # Save standalone data
         standalone_path = csv_dir / "standalone.csv"
-        with open(standalone_path, 'w', newline='') as f:
+        with open(standalone_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(['Title', 'Author', 'Word Count'])
             for row in data['standalone']:
@@ -370,7 +504,7 @@ class SeriesStatsService:
 
         # Save reread data
         reread_path = csv_dir / "rereads.csv"
-        with open(reread_path, 'w', newline='') as f:
+        with open(reread_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(['Title', 'Author', 'Times Read', 'Base Words', 'Additional Words'])
             for row in data['reread']:
@@ -436,6 +570,14 @@ class SeriesStatsService:
 
             # Display tables with spacing
             console.print("\n")
+
+            # Display color legend before the series table
+            console.print("[bold]Series Color Legend:[/bold]")
+            console.print("[bold red]Red[/bold red] = Series with unread published books")
+            console.print("[bold orange3]Orange[/bold orange3] = Series with future/unpublished books only")
+            console.print("Default = Series is complete (all published books read)")
+            console.print("")
+
             console.print(self._create_series_table(results['series'], results['series_total'], results['future_books']))
             console.print("\n")
             console.print(self._create_standalone_table(results['standalone']))

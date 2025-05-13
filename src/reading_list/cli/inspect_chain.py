@@ -50,7 +50,7 @@ def inspect_chain_around_book(title_fragment: str) -> None:
                 console.print(f"{idx}. Reading ID: {reading.id}")
                 queries.print_reading(reading)
                 console.print()  # Add blank line between entries
-            
+
             while True:
                 choice = console.input("\nSelect reading number (or press Enter for first): ")
                 if not choice:  # User pressed Enter
@@ -68,7 +68,7 @@ def inspect_chain_around_book(title_fragment: str) -> None:
         # Get chain of books
         before_chain = []
         after_chain = []
-        
+
         # Build chain backwards
         current = target
         while current and current.id_previous:
@@ -82,8 +82,11 @@ def inspect_chain_around_book(title_fragment: str) -> None:
         # Build chain forwards
         current = target
         while current:
+            # Order by date_est_start to get the chronologically next book
+            # Fall back to ID if dates are the same
             next_reading = (session.query(Reading)
                           .filter(Reading.id_previous == current.id)
+                          .order_by(Reading.date_est_start.asc().nullslast(), Reading.id.asc())
                           .first())
             if next_reading:
                 after_chain.append(next_reading)

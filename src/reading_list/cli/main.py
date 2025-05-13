@@ -27,7 +27,8 @@ from . import backup_db
 from . import fetch_cover
 from . import analyze_covers
 from . import reading_stats
-from . import new_reading  # Add this import
+from . import new_reading
+from . import find_divergent_chains
 
 def main():
     """Main CLI entry point."""
@@ -93,6 +94,11 @@ def main():
     # Chain inspection parser
     chain_parser = subparsers.add_parser("chain", help="Inspect reading chains")
     chain_parser.add_argument("title_fragment", help="Part of the book title to search for")
+
+    # Divergent chains parser
+    divergent_parser = subparsers.add_parser("divergent-chains", help="Find divergent reading chains")
+    divergent_parser.add_argument("--include-finished", action="store_true",
+                                help="Include finished books in the analysis (default: only unfinished)")
 
     # Version management parser
     version_parser = subparsers.add_parser("version", help="Version management")
@@ -198,6 +204,8 @@ def main():
         return reading_stats.handle_command(args)
     elif args.command == "new-reading":
         return new_reading.handle_command(args)
+    elif args.command == "divergent-chains":
+        return find_divergent_chains.find_divergent_chains(include_finished=args.include_finished)
     else:
         parser.print_help()
         return 1
