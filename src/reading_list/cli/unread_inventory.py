@@ -111,15 +111,38 @@ def create_books_table(title: str) -> Table:
 
     return table
 
-def add_books_to_table(table: Table, books: List[Dict]) -> None:
-    """Add books to the table."""
+def get_owned_media_types(book: Dict) -> List[str]:
+    """Get list of media types the book is owned in."""
+    owned_types = []
+    if book.get('owned_physical'):
+        owned_types.append('Physical')
+    if book.get('owned_kindle'):
+        owned_types.append('Kindle')
+    if book.get('owned_audio'):
+        owned_types.append('Audio')
+    return owned_types
+
+def format_owned_media_display(owned_types: List[str]) -> tuple[str, str]:
+    """Format owned media types for display with appropriate color."""
     media_colors = {
-        'hardcover': '#6B4BA3',  # Space purple
+        'physical': '#6B4BA3',  # Space purple
         'kindle': '#0066CC',     # Deeper Kindle blue
         'audio': '#FF6600',      # Warmer Audible orange
-        'unplanned': 'white'
     }
 
+    if not owned_types:
+        return 'None', 'white'
+
+    if len(owned_types) == 1:
+        media_type = owned_types[0].lower()
+        color = media_colors.get(media_type, 'white')
+        return owned_types[0], color
+    else:
+        # Multiple media types - use a neutral color and show all
+        return ', '.join(owned_types), 'white'
+
+def add_books_to_table(table: Table, books: List[Dict]) -> None:
+    """Add books to the table."""
     total_books = 0
     total_words = 0
 
@@ -130,10 +153,10 @@ def add_books_to_table(table: Table, books: List[Dict]) -> None:
 
         # Get the earliest start date (actual or estimated)
         start_date = book.get('date_started') or book.get('date_est_start', '')
-        
-        media = book.get('planned_media', 'unplanned').lower()
-        media_color = media_colors.get(media, 'white')
-        media_display = media.title()  # Capitalize first letter
+
+        # Get owned media types instead of planned media
+        owned_types = get_owned_media_types(book)
+        media_display, media_color = format_owned_media_display(owned_types)
 
         table.add_row(
             str(book['read_id'] or ''),

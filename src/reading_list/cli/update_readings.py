@@ -49,28 +49,26 @@ def main(args=None):
 
     try:
         with ChainOperations() as chain_ops:
-            changes_made = False
-            
+
             # Process reread detection if requested
             if args.all or args.reread:
                 display_section_header("REREAD DETECTION")
                 console.print("\n[dim]Checking for rereads...[/dim]\n")
                 reread_changes = preview_reread_updates(chain_ops)
-                
+
                 if reread_changes:
                     display_reread_preview(reread_changes)
                     if args.no_confirm or Confirm.ask(f"\nUpdate {len(reread_changes)} reread flags?"):
                         updates = apply_reread_updates(chain_ops, reread_changes)
                         chain_ops.session.commit()
-                        changes_made = True
                         console.print(f"[green]Successfully updated {updates} reread flags![/green]")
                 else:
                     console.print("[yellow]No reread updates needed[/yellow]")
-            
+
             # Process each media type separately
             for media_type in ['kindle', 'hardcover', 'audio']:
                 display_section_header(f"{media_type.upper()} Updates")
-                
+
                 # Days Estimate Updates
                 if args.all or args.estimate:
                     console.print(f"\n[dim]Calculating days estimates for {media_type}[/dim]\n")
@@ -78,18 +76,17 @@ def main(args=None):
                     if estimate_changes:
                         chain_ops.display_days_estimate_preview(estimate_changes)
                         approved_changes = []
-                        
+
                         for change in estimate_changes:
                             if args.no_confirm or Confirm.ask(
                                 f"Update estimate for '{change['title']}' from {change['current_estimate']} to {change['new_estimate']}?",
                                 default=True
                             ):
                                 approved_changes.append(change)
-                        
+
                         if approved_changes:
                             updates = chain_ops.apply_days_estimate_updates(approved_changes)
                             chain_ops.session.commit()
-                            changes_made = True
                             console.print(f"[green]Successfully updated {updates} estimates for {media_type}![/green]")
                         else:
                             console.print(f"[yellow]No estimates were updated for {media_type}[/yellow]")
@@ -99,28 +96,30 @@ def main(args=None):
             # Process chain updates if requested
             if args.all or args.chain:
                 display_section_header("CHAIN UPDATES")
-                
+
                 # Process each media type separately
                 for media_type in ['kindle', 'hardcover', 'audio']:
                     console.print(f"\n[dim]Updating chain dates for {media_type}...[/dim]\n")
                     chain_changes = chain_ops.preview_chain_updates(media_type=media_type)
-                    
+
                     if chain_changes:
                         # Display preview of changes
                         for change in chain_changes:
                             console.print(f"[yellow]{change['title']}[/yellow]")
                             console.print(f"  Start: {change['current_start']} → {change['new_start']}")
                             console.print(f"  End:   {change['current_end']} → {change['new_end']}\n")
-                        
+
                         if args.no_confirm or Confirm.ask(f"\nUpdate {len(chain_changes)} chain dates for {media_type}?"):
                             updates = chain_ops.apply_chain_updates(chain_changes)
                             chain_ops.session.commit()
-                            changes_made = True
                             console.print(f"[green]Successfully updated {updates} chain dates for {media_type}![/green]")
                     else:
                         console.print(f"[yellow]No chain updates needed for {media_type}[/yellow]")
 
-            return 0 if changes_made else 1
+            # Always return 0 (success) even if no changes were made
+            # This prevents the command from being interpreted as an error
+            # when called from other commands like finish-reading
+            return 0
 
     except Exception as e:
         console.print(f"[red]Error: {str(e)}[/red]")
@@ -130,7 +129,7 @@ def preview_reread_updates(chain_ops):
     """Preview which readings should be marked as rereads"""
     query = text("""
         WITH FirstReads AS (
-            SELECT 
+            SELECT
                 book_id,
                 MIN(COALESCE(date_started, date_est_start)) as first_read_date,
                 id as first_read_id
@@ -151,14 +150,14 @@ def preview_reread_updates(chain_ops):
         FROM read r
         JOIN books b ON r.book_id = b.id
         JOIN FirstReads fr ON r.book_id = fr.book_id
-        WHERE 
+        WHERE
             COALESCE(r.date_started, r.date_est_start) > fr.first_read_date
             AND r.id != fr.first_read_id
             AND (r.reread IS NULL OR r.reread = false)
             AND r.id != fr.first_read_id
         ORDER BY r.book_id, read_date
     """)
-    
+
     results = chain_ops.session.execute(query).mappings().all()
     if results:
         console.print(f"\n[dim]Found {len(results)} potential rereads to update[/dim]")
@@ -187,7 +186,7 @@ def display_reread_preview(changes):
         first_read_date = change['first_read_date']
         if isinstance(first_read_date, str):
             first_read_date = datetime.strptime(first_read_date, '%Y-%m-%d')
-            
+
         read_date = change['read_date']
         if isinstance(read_date, str):
             read_date = datetime.strptime(read_date, '%Y-%m-%d')
@@ -209,14 +208,14 @@ def display_reread_preview(changes):
 def apply_reread_updates(chain_ops, changes):
     """Apply reread updates to the database"""
     update_query = text("""
-        UPDATE read 
-        SET reread = TRUE 
+        UPDATE read
+        SET reread = TRUE
         WHERE id = :read_id
     """)
-    
+
     for change in changes:
         chain_ops.session.execute(update_query, {"read_id": change['id']})
-    
+
     return len(changes)
 
 if __name__ == "__main__":

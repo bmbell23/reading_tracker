@@ -29,6 +29,7 @@ from . import analyze_covers
 from . import reading_stats
 from . import new_reading
 from . import find_divergent_chains
+from . import finish_reading
 
 def main():
     """Main CLI entry point."""
@@ -43,7 +44,8 @@ def main():
     excel_template_cli.add_excel_subcommand(subparsers)
     analyze_covers.add_subparser(subparsers)
     reading_stats.add_subparser(subparsers)
-    new_reading.add_subparser(subparsers)  # Add this line
+    new_reading.add_subparser(subparsers)
+    finish_reading.add_subparser(subparsers)
 
     # Register all subparsers
     dashboard_parser = subparsers.add_parser(
@@ -204,6 +206,8 @@ def main():
         return reading_stats.handle_command(args)
     elif args.command == "new-reading":
         return new_reading.handle_command(args)
+    elif args.command == "finish-reading":
+        return finish_reading.handle_command(args)
     elif args.command == "divergent-chains":
         return find_divergent_chains.find_divergent_chains(include_finished=args.include_finished)
     else:

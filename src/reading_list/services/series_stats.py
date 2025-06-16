@@ -25,7 +25,7 @@ class SeriesStatsService:
             'total': Style(color="white", bold=True),
             'highlight': Style(color="cyan"),
             'number': Style(color="green"),
-            'author': Style(color="yellow"),
+            'author': Style(color="blue"),
             'title': Style(color="blue", bold=True),
         }
 
@@ -44,13 +44,41 @@ class SeriesStatsService:
                     b.series,
                     COUNT(DISTINCT b.id) as book_count,
                     SUM(DISTINCT b.word_count) as total_words,
-                    GROUP_CONCAT(DISTINCT COALESCE(b.author_name_first || ' ' || b.author_name_second, '')) as authors,
-                    SUM(CASE WHEN (b.series_number IS NULL OR CAST(b.series_number AS TEXT) LIKE '%.0' OR CAST(b.series_number AS INTEGER) = b.series_number) THEN 1 ELSE 0 END) as novel_count,
-                    SUM(CASE WHEN (b.series_number IS NOT NULL AND CAST(b.series_number AS TEXT) NOT LIKE '%.0' AND CAST(b.series_number AS INTEGER) != b.series_number) THEN 1 ELSE 0 END) as novella_count
+                    (SELECT GROUP_CONCAT(DISTINCT author) FROM (
+                        SELECT DISTINCT
+                            CASE
+                                WHEN b2.author_name_first = 'Sue' AND b2.author_name_second = 'Lynn Tan'
+                                THEN 'Sue Lynn Tan'
+                                WHEN b2.author_name_first = 'Evan' AND (b2.author_name_second = 'Winter' OR b2.author_name_second = 'Winters')
+                                THEN 'Evan Winter'
+                                WHEN b2.author_name_first = 'VE' OR b2.author_name_first = 'Ve'
+                                THEN 'VE Schwab'
+                                ELSE COALESCE(b2.author_name_first || ' ' || b2.author_name_second, '')
+                            END as author
+                        FROM books b2
+                        WHERE b2.series = b.series
+                        GROUP BY
+                            CASE
+                                WHEN LOWER(b2.author_name_first) IN ('sue', 've', 'evan')
+                                THEN LOWER(b2.author_name_first)
+                                ELSE LOWER(TRIM(COALESCE(b2.author_name_first, '') || ' ' || COALESCE(b2.author_name_second, '')))
+                            END
+                    )) as authors,
+                    SUM(CASE
+                        WHEN b.word_count >= 45000
+                        THEN 1
+                        ELSE 0
+                    END) as novel_count,
+                    SUM(CASE
+                        WHEN b.word_count < 45000
+                        THEN 1
+                        ELSE 0
+                    END) as novella_count
                 FROM books b
                 JOIN read r ON r.book_id = b.id
                 WHERE b.series IS NOT NULL
                 AND {base_condition}
+                AND (r.reread IS NULL OR r.reread = 0)
                 GROUP BY b.series
                 ORDER BY total_words DESC
             """,
@@ -58,8 +86,17 @@ class SeriesStatsService:
                 SELECT
                     b.series,
                     COUNT(DISTINCT b.id) as total_book_count,
-                    SUM(CASE WHEN (b.series_number IS NULL OR CAST(b.series_number AS TEXT) LIKE '%.0' OR CAST(b.series_number AS INTEGER) = b.series_number) THEN 1 ELSE 0 END) as total_novel_count,
-                    SUM(CASE WHEN (b.series_number IS NOT NULL AND CAST(b.series_number AS TEXT) NOT LIKE '%.0' AND CAST(b.series_number AS INTEGER) != b.series_number) THEN 1 ELSE 0 END) as total_novella_count
+                    SUM(CASE
+                        WHEN b.word_count >= 45000
+                        THEN 1
+                        ELSE 0
+                    END) as total_novel_count,
+                    SUM(CASE
+                        WHEN b.word_count < 45000
+                        THEN 1
+                        ELSE 0
+                    END) as total_novella_count,
+                    (SELECT COUNT(*) FROM read r WHERE r.book_id IN (SELECT id FROM books WHERE series = b.series) AND r.date_finished_actual IS NOT NULL) as read_count
                 FROM books b
                 WHERE b.series IS NOT NULL
                 GROUP BY b.series
@@ -68,13 +105,43 @@ class SeriesStatsService:
                 SELECT
                     b.series,
                     COUNT(DISTINCT b.id) as future_book_count,
-                    SUM(CASE WHEN (b.series_number IS NULL OR CAST(b.series_number AS TEXT) LIKE '%.0' OR CAST(b.series_number AS INTEGER) = b.series_number) THEN 1 ELSE 0 END) as future_novel_count,
-                    SUM(CASE WHEN (b.series_number IS NOT NULL AND CAST(b.series_number AS TEXT) NOT LIKE '%.0' AND CAST(b.series_number AS INTEGER) != b.series_number) THEN 1 ELSE 0 END) as future_novella_count
+                    SUM(CASE
+                        WHEN b.word_count >= 45000
+                        THEN 1
+                        ELSE 0
+                    END) as future_novel_count,
+                    SUM(CASE
+                        WHEN b.word_count < 45000
+                        THEN 1
+                        ELSE 0
+                    END) as future_novella_count,
+                    SUM(b.word_count) as future_words
                 FROM books b
                 LEFT JOIN read r ON b.id = r.book_id AND r.date_finished_actual IS NOT NULL
                 WHERE b.series IS NOT NULL
                 AND r.id IS NULL  -- Only include books that haven't been read
                 AND (b.date_published IS NULL OR b.date_published > DATE('now'))
+                GROUP BY b.series
+            """,
+            "unread_books": """
+                SELECT
+                    b.series,
+                    COUNT(DISTINCT b.id) as unread_book_count,
+                    SUM(CASE
+                        WHEN b.word_count >= 45000
+                        THEN 1
+                        ELSE 0
+                    END) as unread_novel_count,
+                    SUM(CASE
+                        WHEN b.word_count < 45000
+                        THEN 1
+                        ELSE 0
+                    END) as unread_novella_count,
+                    SUM(b.word_count) as unread_words
+                FROM books b
+                LEFT JOIN read r ON b.id = r.book_id AND r.date_finished_actual IS NOT NULL
+                WHERE b.series IS NOT NULL
+                AND r.id IS NULL  -- Only include books that haven't been read
                 GROUP BY b.series
             """,
             "standalone": f"""
@@ -86,6 +153,7 @@ class SeriesStatsService:
                 JOIN read r ON r.book_id = b.id
                 WHERE b.series IS NULL
                 AND {base_condition}
+                AND (r.reread IS NULL OR r.reread = 0)
                 GROUP BY b.id
                 ORDER BY b.word_count DESC
             """
@@ -95,7 +163,7 @@ class SeriesStatsService:
         """Format a number with commas and color."""
         return f"[green]{number:,}[/green]"
 
-    def _create_series_table(self, results: List[Tuple], total_counts: List[Tuple], future_counts: List[Tuple]) -> Table:
+    def _create_series_table(self, results: List[Tuple], total_counts: List[Tuple], future_counts: List[Tuple], unread_counts: List[Tuple]) -> Table:
         """Create a table for series statistics."""
         # Create a table with two header rows
         table = Table(
@@ -111,7 +179,7 @@ class SeriesStatsService:
 
         # Add columns with empty headers (we'll add the actual headers in the first row)
         table.add_column(header="", justify="left", style="cyan", no_wrap=True)  # Series Name
-        table.add_column(header="", justify="left", style="yellow")  # Author(s)
+        table.add_column(header="", justify="left", style="blue")  # Author(s)
 
         # Novels columns
         table.add_column(header="", justify="right", style="green")  # Read
@@ -123,8 +191,10 @@ class SeriesStatsService:
         table.add_column(header="", justify="right", style="red")    # Unread
         table.add_column(header="", justify="right", style="blue")   # Total
 
-        # Total words column
-        table.add_column(header="", justify="right", style="green")  # Total Words
+        # Words columns
+        table.add_column(header="", justify="right", style="green")  # Read Words
+        table.add_column(header="", justify="right", style="red")    # Unread Words
+        table.add_column(header="", justify="right", style="blue")   # Total Words
 
         # Add the first header row with column groups
         table.add_row(
@@ -132,6 +202,8 @@ class SeriesStatsService:
             "Author(s)",
             "", "[bold magenta]Novels[/bold magenta]", "",
             "", "[bold magenta]Novellas[/bold magenta]", "",
+            "Read Words",
+            "Unread Words",
             "Total Words"
         )
 
@@ -139,19 +211,22 @@ class SeriesStatsService:
         table.add_row(
             "",
             "",
-            "[bold green]Read*[/bold green]",
+            "[bold green]Read[/bold green]",
             "[bold red]Unread[/bold red]",
             "[bold blue]Total[/bold blue]",
-            "[bold green]Read*[/bold green]",
+            "[bold green]Read[/bold green]",
             "[bold red]Unread[/bold red]",
             "[bold blue]Total[/bold blue]",
+            "",
+            "",
             ""
         )
 
         total_read_books = 0
         total_unread_books = 0
         total_all_books = 0
-        total_words = 0
+        total_read_words = 0
+        total_unread_words = 0
 
         # We'll use direct lookups with next() instead of dictionaries
 
@@ -159,7 +234,7 @@ class SeriesStatsService:
             series_name = row[0] or "N/A"
             authors = row[3] or "[dim]Unknown[/dim]"
             read_books = row[1]
-            words = row[2] or 0
+            read_words = row[2] or 0
             read_novels = row[4] or 0
             read_novellas = row[5] or 0
 
@@ -175,6 +250,10 @@ class SeriesStatsService:
             future_novels = future_count_row[2] if future_count_row else 0
             future_novellas = future_count_row[3] if future_count_row else 0
 
+            # Get the unread books for this series
+            unread_count_row = next((r for r in unread_counts if r[0] == series_name), None)
+            unread_words = unread_count_row[4] if unread_count_row and len(unread_count_row) > 4 else 0
+
             # Calculate unread books, excluding future/unpublished books
             # We don't want to count future/unpublished books as "unread"
             unread_books = max(0, total_books - read_books - future_books)
@@ -184,21 +263,37 @@ class SeriesStatsService:
             total_read_books += read_books
             total_unread_books += unread_books
             total_all_books += total_books
-            total_words += words
+            total_read_words += read_words
+            total_unread_words += unread_words
+
+            # Get the read count for this series
+            total_count_row = next((r for r in total_counts if r[0] == series_name), None)
+            read_count = total_count_row[4] if total_count_row and len(total_count_row) > 4 else 0
 
             # Color-code the series name based on status:
-            # - Red for series with unread published books
-            # - Orange for series with unpublished books but no unread published books
-            # - Default color for completed series
-            if unread_books > 0:
-                # Series has unread published books - make it red
+            # - Gray for series that haven't been started (no books read)
+            # - Red for series with unread novels
+            # - Orange for series with unread novellas (but no unread novels)
+            # - Yellow for series with only unpublished books
+            # - Green for completed series
+            if read_count == 0:
+                # Series hasn't been started - make it gray
+                series = f"[dim white]{series_name}[/dim white]"
+            elif unread_novels > 0:
+                # Series has unread novels - make it red
                 series = f"[bold red]{series_name}[/bold red]"
-            elif future_books > 0:
-                # Series has unpublished books but no unread published books - make it orange
+            elif unread_novellas > 0:
+                # Series has unread novellas but no unread novels - make it orange
                 series = f"[bold orange3]{series_name}[/bold orange3]"
+            elif future_books > 0:
+                # Series has only unpublished books - make it yellow
+                series = f"[bold yellow]{series_name}[/bold yellow]"
             else:
-                # Series is complete - use default color
-                series = series_name
+                # Series is complete - make it green
+                series = f"[bold green]{series_name}[/bold green]"
+
+            # Calculate total words for this series
+            total_series_words = read_words + unread_words
 
             table.add_row(
                 series,
@@ -209,7 +304,9 @@ class SeriesStatsService:
                 str(read_novellas),
                 "" if unread_novellas == 0 else str(unread_novellas),  # Show blank instead of 0
                 str(total_novellas),
-                f"{words:,}"
+                f"{read_words:,}",
+                f"{unread_words:,}" if unread_words > 0 else "",  # Show blank instead of 0
+                f"{total_series_words:,}"
             )
 
         # Calculate totals for novels and novellas
@@ -246,6 +343,9 @@ class SeriesStatsService:
             total_unread_novels += unread_novels
             total_unread_novellas += unread_novellas
 
+        # Calculate total words (read + unread)
+        total_words = total_read_words + total_unread_words
+
         # Add total row with bold styling
         table.add_row(
             "[bold white]TOTAL[/bold white]",
@@ -256,21 +356,10 @@ class SeriesStatsService:
             f"[bold green]{total_read_novellas:,}[/bold green]",
             f"[bold red]{total_unread_novellas:,}[/bold red]" if total_unread_novellas > 0 else "",
             f"[bold blue]{total_novellas:,}[/bold blue]",
-            f"[bold green]{total_words:,}[/bold green]",
+            f"[bold green]{total_read_words:,}[/bold green]",
+            f"[bold red]{total_unread_words:,}[/bold red]" if total_unread_words > 0 else "",
+            f"[bold blue]{total_words:,}[/bold blue]",
             style="bold white"
-        )
-
-        # Add a note about the asterisk
-        table.add_row(
-            "[dim]* Read counts include re-reads[/dim]",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
         )
 
         return table
@@ -288,7 +377,7 @@ class SeriesStatsService:
         )
 
         table.add_column("Title", justify="left", style="cyan")
-        table.add_column("Author", justify="left", style="yellow")
+        table.add_column("Author", justify="left", style="blue")
         table.add_column("Words", justify="right", style="green")
 
         total_words = 0
@@ -318,7 +407,11 @@ class SeriesStatsService:
     def _create_reread_table(self, results: List[Tuple]) -> Table:
         """Create a table for reread statistics."""
         table = Table(
-            title="🔄 Reread Books",
+            title="🔄 Books Read Multiple Times",
+            caption=(
+                "Individual rows show total reads per book, total row shows additional reads only "
+                "(matching 'Additional Reads' in summary)"
+            ),
             show_header=True,
             header_style=self.styles['header'],
             border_style=self.styles['border'],
@@ -328,11 +421,14 @@ class SeriesStatsService:
         )
 
         table.add_column("Title", justify="left", style="cyan")
-        table.add_column("Author", justify="left", style="yellow")
-        table.add_column("Times Read", justify="right", style="green")
+        table.add_column("Author", justify="left", style="blue")
+        table.add_column("Times Read (Total)", justify="right", style="green")
         table.add_column("Base Words", justify="right", style="green")
         table.add_column("Additional Words", justify="right", style="green")
 
+        # For the reread table rows, we show the total times each book was read (including first read)
+        # But for the total row and summary table, we only count the additional reads beyond the first
+        # This is because the first read is already counted in either Series or Standalone
         total_rereads = 0
         total_base_words = 0
         total_additional_words = 0
@@ -344,7 +440,9 @@ class SeriesStatsService:
             base_words = row[3] or 0
             additional_words = row[4] or 0
 
-            total_rereads += times_read - 1  # Subtract first read
+            # For individual rows, we show total times read
+            # But for the total row, we'll show additional reads to match the summary table
+            total_rereads += times_read - 1  # Count additional reads for the total
             total_base_words += base_words
             total_additional_words += additional_words
 
@@ -360,7 +458,8 @@ class SeriesStatsService:
         table.add_row(
             "[bold white]TOTAL[/bold white]",
             "",
-            f"[bold green]{total_rereads:,}[/bold green]",
+            # Show only additional reads in total (matches summary table)
+            f"[bold green]{total_rereads:,} (additional reads)[/bold green]",
             f"[bold green]{total_base_words:,}[/bold green]",
             f"[bold green]{total_additional_words:,}[/bold green]",
             style="bold white"
@@ -392,9 +491,13 @@ class SeriesStatsService:
         standalone_books = len(data['standalone'])
         standalone_words = sum(row[2] or 0 for row in data['standalone'])
 
+        # For rereads, we only count the additional reads (beyond the first read)
+        # The first read is already counted in either series or standalone
         reread_books = sum(row[2] - 1 for row in data['reread'])  # Subtract first read
+        # This is already just the additional words from rereads
         reread_words = sum(row[4] or 0 for row in data['reread'])
 
+        # The total should be the sum of all categories
         total_books = series_books + standalone_books + reread_books
         total_words = series_words + standalone_words + reread_words
 
@@ -402,7 +505,8 @@ class SeriesStatsService:
         for category, books, words in [
             ("Series", series_books, series_words),
             ("Standalone", standalone_books, standalone_words),
-            ("Reread", reread_books, reread_words)
+            # Renamed to clarify these are only additional reads
+            ("Additional Reads", reread_books, reread_words)
         ]:
             percentage = (words / total_words * 100) if total_words > 0 else 0
             table.add_row(
@@ -441,7 +545,7 @@ class SeriesStatsService:
                 'Series Name', 'Author(s)',
                 'Novels Read', 'Novels Unread', 'Novels Future', 'Novels Total',
                 'Novellas Read', 'Novellas Unread', 'Novellas Future', 'Novellas Total',
-                'Total Words', 'Status'
+                'Read Words', 'Unread Words', 'Total Words', 'Status'
             ])
 
             for row in data['series']:
@@ -462,6 +566,10 @@ class SeriesStatsService:
                 future_novels = future_count_row[2] if future_count_row and len(future_count_row) > 2 else 0
                 future_novellas = future_count_row[3] if future_count_row and len(future_count_row) > 3 else 0
 
+                # Get unread counts for this series
+                unread_count_row = next((r for r in data['unread_books'] if r[0] == series), None)
+                unread_words = unread_count_row[4] if unread_count_row and len(unread_count_row) > 4 else 0
+
                 # Calculate unread books, excluding future/unpublished books
                 unread_books = max(0, total_books - read_books - future_books)
                 unread_novels = max(0, total_novels - read_novels - future_novels)
@@ -475,6 +583,10 @@ class SeriesStatsService:
                 else:
                     status = "Complete"
 
+                # Calculate total words
+                read_words = row[2] or 0
+                total_series_words = read_words + unread_words
+
                 writer.writerow([
                     series,
                     row[3] or "Unknown",
@@ -486,7 +598,9 @@ class SeriesStatsService:
                     "" if unread_novellas == 0 else unread_novellas,
                     future_novellas,
                     total_novellas,
-                    row[2] or 0,
+                    read_words,
+                    unread_words,
+                    total_series_words,
                     status
                 ])
 
@@ -573,12 +687,17 @@ class SeriesStatsService:
 
             # Display color legend before the series table
             console.print("[bold]Series Color Legend:[/bold]")
-            console.print("[bold red]Red[/bold red] = Series with unread published books")
-            console.print("[bold orange3]Orange[/bold orange3] = Series with future/unpublished books only")
-            console.print("Default = Series is complete (all published books read)")
+            if not finished_only:
+                console.print("[dim white]Gray[/dim white] = Series is not started")
+            console.print("[bold red]Red[/bold red] = Series is started, but has unread novels")
+            console.print("[bold orange3]Orange[/bold orange3] = Series is started, and has no unread novels, but some unread novellas")
+            console.print("[bold yellow]Yellow[/bold yellow] = Series is started, and all books are read, but there are unpublished books")
+            console.print("[bold green]Green[/bold green] = Series is started, and all books are published and read")
+            console.print("")
+            console.print("[bold]Note:[/bold] Books are classified as novels if they are ≥45,000 words, otherwise they are considered novellas.")
             console.print("")
 
-            console.print(self._create_series_table(results['series'], results['series_total'], results['future_books']))
+            console.print(self._create_series_table(results['series'], results['series_total'], results['future_books'], results['unread_books']))
             console.print("\n")
             console.print(self._create_standalone_table(results['standalone']))
             console.print("\n")
