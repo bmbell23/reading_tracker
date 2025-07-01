@@ -198,7 +198,7 @@ class ChainOperations:
                     reading.date_est_end = new_end
                     updates += 1
             else:
-                print(f"  SKIP: Missing start date or days estimate")
+                print("  SKIP: Missing start date or days estimate")
                 skipped += 1
             
             if updates > 0:
