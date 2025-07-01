@@ -172,12 +172,20 @@ class ChainOperations:
                     .filter(Reading.id == reading.id_previous)
                     .first()
                 )
-                
-                if not prev_reading or not prev_reading.date_est_end:
-                    print(f"  SKIP: Previous reading missing end date")
+
+                # Determine the end date to use: actual finish date takes priority over estimated end date
+                prev_end_date = None
+                if prev_reading:
+                    if prev_reading.date_finished_actual:
+                        prev_end_date = prev_reading.date_finished_actual
+                    elif prev_reading.date_est_end:
+                        prev_end_date = prev_reading.date_est_end
+
+                if not prev_end_date:
+                    print("  SKIP: Previous reading missing end date (actual or estimated)")
                     return 0, 1
-                    
-                new_start = prev_reading.date_est_end + timedelta(days=1)
+
+                new_start = prev_end_date + timedelta(days=1)
                 
                 if reading.date_est_start != new_start:
                     reading.date_est_start = new_start
@@ -570,9 +578,16 @@ class ChainOperations:
                     new_end = reading.date_started + timedelta(days=reading.days_estimate - 1)
                 elif reading.id_previous:
                     prev_reading = self.session.get(Reading, reading.id_previous)
-                    if prev_reading and prev_reading.date_est_end:
-                        # Use either actual end date from previous changes or current end date
-                        prev_end = all_changes.get(prev_reading.id, {}).get('new_end', prev_reading.date_est_end)
+                    if prev_reading:
+                        # Determine the end date to use: actual finish date takes priority
+                        prev_end = None
+                        if prev_reading.date_finished_actual:
+                            prev_end = prev_reading.date_finished_actual
+                        elif prev_reading.date_est_end:
+                            # Use either actual end date from previous changes or current end date
+                            prev_end = all_changes.get(prev_reading.id, {}).get(
+                                'new_end', prev_reading.date_est_end)
+
                         if prev_end:
                             new_start = prev_end + timedelta(days=1)
                             new_end = new_start + timedelta(days=reading.days_estimate - 1)
