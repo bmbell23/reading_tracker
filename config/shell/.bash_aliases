@@ -61,3 +61,6 @@ alias series-stats='reading-list series-stats --finished-only'
 
 # Query a series to show all books in order with publication dates
 alias series='./scripts/series_books.sh'
+
+# Update all calculated columns
+alias ur='reading-list update-readings --all --no-confirm && update'

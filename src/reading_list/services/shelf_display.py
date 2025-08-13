@@ -19,6 +19,8 @@ class ShelfDisplayService:
                     b.title,
                     b.author_name_first,
                     b.author_name_second,
+                    b.series,
+                    b.series_number,
                     b.date_published,
                     i.id as inv_id,
                     i.location as shelf_location
@@ -27,8 +29,19 @@ class ShelfDisplayService:
                 WHERE i.owned_physical = TRUE
                 ORDER BY
                     COALESCE(i.location, 'Unshelved') ASC,
-                    COALESCE(b.author_name_first, b.author_name_second) ASC,
-                    b.author_name_second ASC,
+                    COALESCE(b.author_name_second, b.author_name_first) ASC,
+                    COALESCE(b.author_name_first, '') ASC,
+                    CASE WHEN b.series IS NULL OR b.series = '' THEN 1 ELSE 0 END ASC,
+                    COALESCE(
+                        (SELECT MIN(b2.date_published)
+                         FROM books b2
+                         WHERE b2.series = b.series
+                           AND COALESCE(b2.author_name_second, '') = COALESCE(b.author_name_second, '')
+                           AND COALESCE(b2.author_name_first, '') = COALESCE(b.author_name_first, '')
+                        ),
+                        b.date_published
+                    ) ASC,
+                    COALESCE(b.series, '') ASC,
                     b.date_published ASC,
                     b.title ASC
             """)

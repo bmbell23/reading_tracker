@@ -177,9 +177,12 @@ class SeriesStatsService:
             box=SIMPLE_HEAD
         )
 
+        # Compute a minimum width for the Author(s) column to fit the longest name
+        max_author_len = max((len((row[3] or "")) for row in results), default=10)
+
         # Add columns with empty headers (we'll add the actual headers in the first row)
         table.add_column(header="", justify="left", style="cyan", no_wrap=True)  # Series Name
-        table.add_column(header="", justify="left", style="blue")  # Author(s)
+        table.add_column(header="", justify="left", style="blue", no_wrap=True, min_width=max_author_len)  # Author(s)
 
         # Novels columns
         table.add_column(header="", justify="right", style="green")  # Read
