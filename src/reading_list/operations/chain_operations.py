@@ -351,6 +351,11 @@ class ChainOperations:
                 skipped_count += 1
                 continue
 
+            # Skip if days_estimate_override is True
+            if getattr(reading, 'days_estimate_override', False):
+                skipped_count += 1
+                continue
+
             media_lower = reading.media.lower()
             words_per_day = READING_SPEEDS.get(media_lower, DEFAULT_WPD)
             old_estimate = reading.days_estimate
@@ -668,6 +673,10 @@ class ChainOperations:
             if not reading.book.word_count or not reading.media:
                 continue
             if media_type and reading.media.lower() != media_type.lower():
+                continue
+
+            # Skip if days_estimate_override is True
+            if getattr(reading, 'days_estimate_override', False):
                 continue
 
             media_lower = reading.media.lower()

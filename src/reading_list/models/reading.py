@@ -25,5 +25,6 @@ class Reading(Base):
     date_est_start = Column(Date)
     date_est_end = Column(Date)
     reread = Column(Boolean, default=False)
+    days_estimate_override = Column(Boolean, default=False)
 
     book = relationship("Book", back_populates="readings")
