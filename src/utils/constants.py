@@ -1,8 +1,8 @@
 # Reading speed constants (words per day)
 READING_SPEEDS = {
-    'hardcover': 8300,
+    'hardcover': 7500,
     'kindle': 7500,
-    'audio': 25000
+    'audio': 15000
 }
 
 # Default speed if media type is unknown
