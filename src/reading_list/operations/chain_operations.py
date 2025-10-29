@@ -155,16 +155,46 @@ class ChainOperations:
             console.print(f"[red]Debug: Error in reorder_reading_chain: {str(e)}[/red]")
             return False, f"Error during chain reorder: {str(e)}", None
 
+    def _check_and_update_past_dates(self, reading: Reading) -> bool:
+        """
+        Check if estimated start date is in the past and update to today if needed.
+        Returns True if an update was made.
+        """
+        today = date.today()
+
+        # Only check unstarted books (no actual start date)
+        if reading.date_started:
+            return False
+
+        # Check if estimated start date is in the past
+        if reading.date_est_start and reading.date_est_start < today:
+            print(f"  PAST DATE DETECTED: {reading.book.title[:40]}")
+            print(f"    Updating start date from {reading.date_est_start} to {today}")
+            reading.date_est_start = today
+
+            # Update end date if we have days estimate
+            if reading.days_estimate:
+                reading.date_est_end = today + timedelta(days=reading.days_estimate - 1)
+                print(f"    Updated end date to {reading.date_est_end}")
+
+            return True
+
+        return False
+
     def update_chain_dates(self, reading: Reading) -> Tuple[int, int]:
         """Update dates for a single reading in the chain"""
         updates = 0
         skipped = 0
-        
+
         try:
             # Get current dates for logging
             old_start = reading.date_est_start
             old_end = reading.date_est_end
-            
+
+            # First check if this reading has a past estimated start date and update it
+            if self._check_and_update_past_dates(reading):
+                updates += 1
+
             if reading.id_previous:
                 # Get fresh data for previous reading
                 prev_reading = (
@@ -183,33 +213,39 @@ class ChainOperations:
 
                 if not prev_end_date:
                     print("  SKIP: Previous reading missing end date (actual or estimated)")
-                    return 0, 1
+                    return updates, 1
 
                 new_start = prev_end_date + timedelta(days=1)
-                
+
+                # Update the start date if it's different from current
+                # But ensure we don't go backwards from today if we just corrected a past date
+                today = date.today()
+                if not reading.date_started:  # Only for unstarted books
+                    new_start = max(new_start, today)
+
                 if reading.date_est_start != new_start:
                     reading.date_est_start = new_start
                     updates += 1
-                    
+
             if reading.date_est_start and reading.days_estimate:
                 new_end = reading.date_est_start + timedelta(days=reading.days_estimate - 1)
-                
+
                 if reading.date_est_end != new_end:
                     reading.date_est_end = new_end
                     updates += 1
             else:
                 print("  SKIP: Missing start date or days estimate")
                 skipped += 1
-            
+
             if updates > 0:
                 print(f"  UPDATED: {reading.book.title[:40]}")
                 print(f"    Start: {old_start} -> {reading.date_est_start}")
                 print(f"    End:   {old_end} -> {reading.date_est_end}")
-            
+
         except Exception as e:
             print(f"ERROR updating reading {reading.id}: {str(e)}")
             skipped += 1
-        
+
         return updates, skipped
 
     def update_all_chain_dates(self) -> Tuple[int, int]:
@@ -550,7 +586,8 @@ class ChainOperations:
         all_changes = {}  # Use dict to track unique changes by reading ID
         iteration = 0
         max_iterations = 50
-        
+        today = date.today()
+
         while iteration < max_iterations:
             iteration += 1
             new_changes_found = False
@@ -577,38 +614,50 @@ class ChainOperations:
 
                 new_start = None
                 new_end = None
+                is_past_date_update = False
 
                 if reading.date_started:
                     new_start = reading.date_started
                     new_end = reading.date_started + timedelta(days=reading.days_estimate - 1)
-                elif reading.id_previous:
-                    prev_reading = self.session.get(Reading, reading.id_previous)
-                    if prev_reading:
-                        # Determine the end date to use: actual finish date takes priority
-                        prev_end = None
-                        if prev_reading.date_finished_actual:
-                            prev_end = prev_reading.date_finished_actual
-                        elif prev_reading.date_est_end:
-                            # Use either actual end date from previous changes or current end date
-                            prev_end = all_changes.get(prev_reading.id, {}).get(
-                                'new_end', prev_reading.date_est_end)
+                else:
+                    # Check if estimated start date is in the past and needs updating
+                    if reading.date_est_start and reading.date_est_start < today:
+                        new_start = today
+                        new_end = today + timedelta(days=reading.days_estimate - 1)
+                        is_past_date_update = True
+                        current_change['past_date_update'] = True
+                        current_change['original_start'] = reading.date_est_start
+                    elif reading.id_previous:
+                        prev_reading = self.session.get(Reading, reading.id_previous)
+                        if prev_reading:
+                            # Determine the end date to use: actual finish date takes priority
+                            prev_end = None
+                            if prev_reading.date_finished_actual:
+                                prev_end = prev_reading.date_finished_actual
+                            elif prev_reading.date_est_end:
+                                # Use either actual end date from previous changes or current end date
+                                prev_end = all_changes.get(prev_reading.id, {}).get(
+                                    'new_end', prev_reading.date_est_end)
 
-                        if prev_end:
-                            new_start = prev_end + timedelta(days=1)
-                            new_end = new_start + timedelta(days=reading.days_estimate - 1)
+                            if prev_end:
+                                calculated_start = prev_end + timedelta(days=1)
+                                # Use the later of calculated start or today (for past date correction)
+                                new_start = max(calculated_start, today) if reading.date_est_start and reading.date_est_start < today else calculated_start
+                                new_end = new_start + timedelta(days=reading.days_estimate - 1)
 
                 if new_start and new_end:
                     if (new_start != reading.date_est_start or new_end != reading.date_est_end):
                         current_change.update({
                             'new_start': new_start,
                             'new_end': new_end,
-                            'has_actual_start': bool(reading.date_started)
+                            'has_actual_start': bool(reading.date_started),
+                            'is_past_date_update': is_past_date_update
                         })
-                        
+
                         # Check if this is a new change or different from previous iteration
                         prev_change = all_changes.get(reading_id)
                         if not prev_change or (
-                            prev_change['new_start'] != new_start or 
+                            prev_change['new_start'] != new_start or
                             prev_change['new_end'] != new_end
                         ):
                             all_changes[reading_id] = current_change
@@ -628,40 +677,72 @@ class ChainOperations:
             console.print("[yellow]No chain date updates needed[/yellow]")
             return
 
-        table = Table(title="Proposed Chain Date Updates")
-        table.add_column("ID", justify="right", style="cyan")
-        table.add_column("Media", style="magenta", width=12)
-        table.add_column("Book Title", style="blue")
-        table.add_column("Words", justify="right", style="green")
-        table.add_column("Est. Days", justify="right", style="yellow")
-        table.add_column("Current Est. Start", justify="center")
-        table.add_column("New Est. Start", justify="center")
-        table.add_column("Current Est. End", justify="center")
-        table.add_column("New Est. End", justify="center")
+        # Separate past date updates from regular updates
+        past_date_updates = [c for c in changes if c.get('is_past_date_update', False)]
+        regular_updates = [c for c in changes if not c.get('is_past_date_update', False)]
 
-        for change in changes:
-            # Format word count with commas
-            word_count = f"{change['word_count']:,}" if change['word_count'] else "N/A"
+        if past_date_updates:
+            console.print("\n[red bold]⚠️  PAST DATE CORRECTIONS[/red bold]")
+            console.print("[red]The following books have estimated start dates in the past and will be updated to today:[/red]\n")
 
-            current_start = str(change['current_start'] or '')
-            new_start = str(change['new_start'] or '')
-            if change.get('has_actual_start'):
-                current_start = new_start = str(change['new_start'])
+            past_table = Table(title="Past Date Corrections")
+            past_table.add_column("ID", justify="right", style="cyan")
+            past_table.add_column("Media", style="magenta", width=12)
+            past_table.add_column("Book Title", style="blue")
+            past_table.add_column("Original Start", justify="center", style="red")
+            past_table.add_column("New Start (Today)", justify="center", style="green")
+            past_table.add_column("New End", justify="center", style="green")
 
-            table.add_row(
-                str(change['id']),
-                change['media'],
-                change['title'][:50],
-                word_count,
-                str(change['days_estimate']),
-                current_start,
-                new_start,
-                str(change['current_end'] or ''),
-                str(change['new_end'] or '')
-            )
+            for change in past_date_updates:
+                past_table.add_row(
+                    str(change['id']),
+                    change['media'],
+                    change['title'][:50],
+                    str(change.get('original_start', change['current_start']) or ''),
+                    str(change['new_start'] or ''),
+                    str(change['new_end'] or '')
+                )
 
-        console.print(table)
-        console.print(f"\nTotal changes: {len(changes)}")
+            console.print(past_table)
+            console.print(f"[red]Past date corrections: {len(past_date_updates)}[/red]\n")
+
+        if regular_updates:
+            table = Table(title="Regular Chain Date Updates")
+            table.add_column("ID", justify="right", style="cyan")
+            table.add_column("Media", style="magenta", width=12)
+            table.add_column("Book Title", style="blue")
+            table.add_column("Words", justify="right", style="green")
+            table.add_column("Est. Days", justify="right", style="yellow")
+            table.add_column("Current Est. Start", justify="center")
+            table.add_column("New Est. Start", justify="center")
+            table.add_column("Current Est. End", justify="center")
+            table.add_column("New Est. End", justify="center")
+
+            for change in regular_updates:
+                # Format word count with commas
+                word_count = f"{change['word_count']:,}" if change['word_count'] else "N/A"
+
+                current_start = str(change['current_start'] or '')
+                new_start = str(change['new_start'] or '')
+                if change.get('has_actual_start'):
+                    current_start = new_start = str(change['new_start'])
+
+                table.add_row(
+                    str(change['id']),
+                    change['media'],
+                    change['title'][:50],
+                    word_count,
+                    str(change['days_estimate']),
+                    current_start,
+                    new_start,
+                    str(change['current_end'] or ''),
+                    str(change['new_end'] or '')
+                )
+
+            console.print(table)
+            console.print(f"Regular updates: {len(regular_updates)}")
+
+        console.print(f"\n[bold]Total changes: {len(changes)}[/bold]")
 
     def preview_days_estimate_updates(self, media_type: str = None) -> List[Dict]:
         """Preview changes that would be made to days_estimate values"""

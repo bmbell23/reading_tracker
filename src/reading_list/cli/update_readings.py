@@ -103,11 +103,8 @@ def main(args=None):
                     chain_changes = chain_ops.preview_chain_updates(media_type=media_type)
 
                     if chain_changes:
-                        # Display preview of changes
-                        for change in chain_changes:
-                            console.print(f"[yellow]{change['title']}[/yellow]")
-                            console.print(f"  Start: {change['current_start']} → {change['new_start']}")
-                            console.print(f"  End:   {change['current_end']} → {change['new_end']}\n")
+                        # Display enhanced preview of changes
+                        chain_ops.display_chain_updates_preview(chain_changes)
 
                         if args.no_confirm or Confirm.ask(f"\nUpdate {len(chain_changes)} chain dates for {media_type}?"):
                             updates = chain_ops.apply_chain_updates(chain_changes)
