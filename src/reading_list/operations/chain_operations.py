@@ -157,29 +157,43 @@ class ChainOperations:
 
     def _check_and_update_past_dates(self, reading: Reading) -> bool:
         """
-        Check if estimated start date is in the past and update to today if needed.
+        Check if estimated start date is in the past or before publication date and update if needed.
         Returns True if an update was made.
         """
         today = date.today()
+        updated = False
 
         # Only check unstarted books (no actual start date)
         if reading.date_started:
             return False
 
-        # Check if estimated start date is in the past
-        if reading.date_est_start and reading.date_est_start < today:
-            print(f"  PAST DATE DETECTED: {reading.book.title[:40]}")
-            print(f"    Updating start date from {reading.date_est_start} to {today}")
-            reading.date_est_start = today
+        # Determine the minimum allowed start date
+        min_start_date = today
+
+        # Check if book has a publication date and if it's after today
+        if reading.book.date_published and reading.book.date_published > today:
+            min_start_date = reading.book.date_published
+
+        # Check if estimated start date needs updating
+        if reading.date_est_start and reading.date_est_start < min_start_date:
+            if reading.date_est_start < today:
+                print(f"  PAST DATE DETECTED: {reading.book.title[:40]}")
+                print(f"    Updating start date from {reading.date_est_start} to {min_start_date}")
+            elif reading.book.date_published and reading.date_est_start < reading.book.date_published:
+                print(f"  PRE-PUBLICATION DATE DETECTED: {reading.book.title[:40]}")
+                print(f"    Book published: {reading.book.date_published}")
+                print(f"    Updating start date from {reading.date_est_start} to {min_start_date}")
+
+            reading.date_est_start = min_start_date
 
             # Update end date if we have days estimate
             if reading.days_estimate:
-                reading.date_est_end = today + timedelta(days=reading.days_estimate - 1)
+                reading.date_est_end = min_start_date + timedelta(days=reading.days_estimate - 1)
                 print(f"    Updated end date to {reading.date_est_end}")
 
-            return True
+            updated = True
 
-        return False
+        return updated
 
     def update_chain_dates(self, reading: Reading) -> Tuple[int, int]:
         """Update dates for a single reading in the chain"""
@@ -218,10 +232,16 @@ class ChainOperations:
                 new_start = prev_end_date + timedelta(days=1)
 
                 # Update the start date if it's different from current
-                # But ensure we don't go backwards from today if we just corrected a past date
+                # But ensure we don't go backwards from today or before publication date
                 today = date.today()
                 if not reading.date_started:  # Only for unstarted books
-                    new_start = max(new_start, today)
+                    min_start_date = today
+
+                    # Check if book has a publication date and if it's after today
+                    if reading.book.date_published and reading.book.date_published > today:
+                        min_start_date = reading.book.date_published
+
+                    new_start = max(new_start, min_start_date)
 
                 if reading.date_est_start != new_start:
                     reading.date_est_start = new_start
@@ -620,13 +640,25 @@ class ChainOperations:
                     new_start = reading.date_started
                     new_end = reading.date_started + timedelta(days=reading.days_estimate - 1)
                 else:
-                    # Check if estimated start date is in the past and needs updating
-                    if reading.date_est_start and reading.date_est_start < today:
-                        new_start = today
-                        new_end = today + timedelta(days=reading.days_estimate - 1)
+                    # Determine the minimum allowed start date
+                    min_start_date = today
+
+                    # Check if book has a publication date and if it's after today
+                    if reading.book.date_published and reading.book.date_published > today:
+                        min_start_date = reading.book.date_published
+
+                    # Check if estimated start date needs updating (past date or pre-publication)
+                    if reading.date_est_start and reading.date_est_start < min_start_date:
+                        new_start = min_start_date
+                        new_end = min_start_date + timedelta(days=reading.days_estimate - 1)
                         is_past_date_update = True
                         current_change['past_date_update'] = True
                         current_change['original_start'] = reading.date_est_start
+
+                        # Add additional info for publication date corrections
+                        if reading.book.date_published and reading.date_est_start < reading.book.date_published:
+                            current_change['publication_date_update'] = True
+                            current_change['publication_date'] = reading.book.date_published
                     elif reading.id_previous:
                         prev_reading = self.session.get(Reading, reading.id_previous)
                         if prev_reading:
@@ -641,8 +673,14 @@ class ChainOperations:
 
                             if prev_end:
                                 calculated_start = prev_end + timedelta(days=1)
-                                # Use the later of calculated start or today (for past date correction)
-                                new_start = max(calculated_start, today) if reading.date_est_start and reading.date_est_start < today else calculated_start
+
+                                # Determine minimum allowed start date (considering both past dates and publication dates)
+                                min_start_date = today
+                                if reading.book.date_published and reading.book.date_published > today:
+                                    min_start_date = reading.book.date_published
+
+                                # Use the later of calculated start, today, or publication date
+                                new_start = max(calculated_start, min_start_date)
                                 new_end = new_start + timedelta(days=reading.days_estimate - 1)
 
                 if new_start and new_end:
@@ -682,29 +720,36 @@ class ChainOperations:
         regular_updates = [c for c in changes if not c.get('is_past_date_update', False)]
 
         if past_date_updates:
-            console.print("\n[red bold]⚠️  PAST DATE CORRECTIONS[/red bold]")
-            console.print("[red]The following books have estimated start dates in the past and will be updated to today:[/red]\n")
+            console.print("\n[red bold]⚠️  DATE CORRECTIONS[/red bold]")
+            console.print("[red]The following books have estimated start dates that need correction:[/red]\n")
 
-            past_table = Table(title="Past Date Corrections")
+            past_table = Table(title="Date Corrections")
             past_table.add_column("ID", justify="right", style="cyan")
             past_table.add_column("Media", style="magenta", width=12)
             past_table.add_column("Book Title", style="blue")
+            past_table.add_column("Issue", style="yellow", width=15)
             past_table.add_column("Original Start", justify="center", style="red")
-            past_table.add_column("New Start (Today)", justify="center", style="green")
+            past_table.add_column("New Start", justify="center", style="green")
             past_table.add_column("New End", justify="center", style="green")
 
             for change in past_date_updates:
+                # Determine the issue type
+                issue_type = "Past Date"
+                if change.get('publication_date_update'):
+                    issue_type = "Pre-Publication"
+
                 past_table.add_row(
                     str(change['id']),
                     change['media'],
-                    change['title'][:50],
+                    change['title'][:40],
+                    issue_type,
                     str(change.get('original_start', change['current_start']) or ''),
                     str(change['new_start'] or ''),
                     str(change['new_end'] or '')
                 )
 
             console.print(past_table)
-            console.print(f"[red]Past date corrections: {len(past_date_updates)}[/red]\n")
+            console.print(f"[red]Date corrections: {len(past_date_updates)}[/red]\n")
 
         if regular_updates:
             table = Table(title="Regular Chain Date Updates")
