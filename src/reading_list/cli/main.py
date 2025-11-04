@@ -64,6 +64,12 @@ def main():
         "update-entries",
         help="Update database entries interactively"
     )
+    update_entries_parser.add_argument("table", nargs="?", choices=["books", "read", "inv"],
+                                     help="Table to update (books, read, inv)")
+    update_entries_parser.add_argument("action", nargs="?", choices=["update", "new", "delete"],
+                                     help="Action to perform (update, new, delete)")
+    update_entries_parser.add_argument("search_term", nargs="?",
+                                     help="ID or title to search for")
 
     # Add update-readings command
     update_readings_parser = subparsers.add_parser(
@@ -151,7 +157,7 @@ def main():
     elif args.command == "chain-report":
         return chain_report.handle_command(args)
     elif args.command == "update-entries":
-        return update_entries.main()
+        return update_entries.main(args)
     elif args.command == "update-readings":
         return update_readings.main([
             '--all' if args.all else None,

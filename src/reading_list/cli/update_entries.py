@@ -27,6 +27,29 @@ class StyleConfig:
     HEADER = Style(color="blue", bold=True)
     console = Console()
 
+def streamlined_prompt(field_name: str, current_value: Any) -> tuple[str, Any]:
+    """
+    Streamlined prompt: type value to edit, Enter to skip, :s to save, :q to quit
+    Returns: (action, value) where action is 'edit', 'skip', 'save', or 'quit'
+    """
+    prompt_text = f"{field_name} (current: {current_value}): "
+
+    while True:
+        # Use input() instead of Prompt.ask() to avoid the automatic " ():" formatting
+        StyleConfig.console.print(prompt_text, end="")
+        response = input().strip()
+
+        if response == "":
+            return ('skip', None)
+        elif response == ":s":
+            return ('save', None)
+        elif response == ":q":
+            return ('quit', None)
+        elif response.upper() in ['NULL', 'BLANK', 'EMPTY']:
+            return ('edit', None)
+        else:
+            return ('edit', response)
+
 def verify_db():
     """Verify database exists at expected location"""
     expected_path = Path(engine.url.database)
@@ -267,6 +290,88 @@ class DatabaseUpdater:
         finally:
             self.session.close()
 
+    def run_direct(self, table_choice: str, action: str, search_term: str = None):
+        """Run with direct arguments, bypassing interactive prompts"""
+        try:
+            if table_choice not in self.handlers:
+                StyleConfig.console.print(f"[red]Invalid table: {table_choice}[/red]")
+                return
+
+            handler = self.handlers[table_choice]
+
+            if action == 'new':
+                if table_choice == 'read':
+                    self._create_new_reading()
+                elif table_choice == 'books':
+                    self._create_new_book()
+                elif table_choice == 'inv':
+                    book_id = self._get_book_id_from_user()
+                    if book_id is not None:
+                        self._create_new_inventory(book_id)
+                return
+
+            if action in ['update', 'delete'] and search_term:
+                self._handle_direct_search(handler, action, search_term)
+            else:
+                # Fall back to interactive mode for this table
+                self._handle_table_updates(table_choice)
+
+        except KeyboardInterrupt:
+            StyleConfig.console.print("\nGoodbye!", style=StyleConfig.SUCCESS)
+        finally:
+            self.session.close()
+
+    def _handle_direct_search(self, handler: ModelHandler, action: str, search_term: str):
+        """Handle direct search from command line arguments"""
+        try:
+            search_id = int(search_term)
+            entry = self.session.get(handler.model, search_id)
+            if entry:
+                if action == 'delete':
+                    self._delete_entry(entry, handler)
+                else:
+                    self._update_entry(entry, handler)
+            else:
+                StyleConfig.console.print(f"[red]No entry found with ID {search_id}[/red]")
+        except ValueError:
+            # Search by title using the editor's search_entries method
+            results = handler.editor.search_entries(handler.model, search_term)
+            if results:
+                if len(results) == 1:
+                    # Only one result - automatically select it
+                    entry = results[0]
+                    # Create a meaningful display name based on the model type
+                    if hasattr(entry, 'title'):
+                        display_name = entry.title
+                    elif hasattr(entry, 'book') and hasattr(entry.book, 'title'):
+                        display_name = f"{entry.book.title} (ID: {entry.id})"
+                    else:
+                        display_name = f"Entry ID: {entry.id}"
+
+                    StyleConfig.console.print(f"[green]Found single match: {display_name}[/green]")
+                    if action == 'delete':
+                        self._delete_entry(entry, handler)
+                    else:
+                        self._update_entry(entry, handler)
+                else:
+                    # Multiple results - show table and ask for selection
+                    handler.display_results(results)
+                    entry_id = Prompt.ask("Enter ID of entry to update")
+                    try:
+                        entry_id = int(entry_id)
+                        entry = next((e for e in results if e.id == entry_id), None)
+                        if entry:
+                            if action == 'delete':
+                                self._delete_entry(entry, handler)
+                            else:
+                                self._update_entry(entry, handler)
+                        else:
+                            StyleConfig.console.print("[red]Invalid selection[/red]")
+                    except ValueError:
+                        StyleConfig.console.print("[red]Invalid ID format[/red]")
+            else:
+                StyleConfig.console.print("[yellow]No matching entries found[/yellow]")
+
     def _get_book_id_from_user(self) -> Optional[int]:
         """Get book ID either directly or by searching title"""
         while True:
@@ -288,32 +393,39 @@ class DatabaseUpdater:
                 # If not a valid ID, search by title
                 results = self.editor.search_entries(Book, search_term)
                 if results:
-                    table = Table(title="Matching Books")
-                    table.add_column("ID")
-                    table.add_column("Title")
-                    table.add_column("Author")
+                    if len(results) == 1:
+                        # Only one result - automatically select it
+                        book = results[0]
+                        StyleConfig.console.print(f"[green]Found single match: {book.title}[/green]")
+                        return book.id
+                    else:
+                        # Multiple results - show table and ask for selection
+                        table = Table(title="Matching Books")
+                        table.add_column("ID")
+                        table.add_column("Title")
+                        table.add_column("Author")
 
-                    for book in results:
-                        table.add_row(
-                            str(book.id),
-                            book.title,
-                            f"{book.author_name_first} {book.author_name_second or ''}"
-                        )
+                        for book in results:
+                            table.add_row(
+                                str(book.id),
+                                book.title,
+                                f"{book.author_name_first} {book.author_name_second or ''}"
+                            )
 
-                    StyleConfig.console.print(table)
+                        StyleConfig.console.print(table)
 
-                    book_id = Prompt.ask("Enter ID of desired book (or 'back' to search again)")
-                    if book_id.lower() == 'back':
-                        continue
+                        book_id = Prompt.ask("Enter ID of desired book (or 'back' to search again)")
+                        if book_id.lower() == 'back':
+                            continue
 
-                    try:
-                        book_id = int(book_id)
-                        if any(b.id == book_id for b in results):
-                            return book_id
-                        else:
-                            StyleConfig.console.print("[red]Invalid selection[/red]")
-                    except ValueError:
-                        StyleConfig.console.print("[red]Invalid ID format[/red]")
+                        try:
+                            book_id = int(book_id)
+                            if any(b.id == book_id for b in results):
+                                return book_id
+                            else:
+                                StyleConfig.console.print("[red]Invalid selection[/red]")
+                        except ValueError:
+                            StyleConfig.console.print("[red]Invalid ID format[/red]")
                 else:
                     StyleConfig.console.print("[yellow]No matching books found[/yellow]")
 
@@ -362,20 +474,38 @@ class DatabaseUpdater:
                     # Search by title using the editor's search_entries method
                     results = handler.editor.search_entries(handler.model, search_term)
                     if results:
-                        handler.display_results(results)
-                        entry_id = Prompt.ask("Enter ID of entry to update")
-                        try:
-                            entry_id = int(entry_id)
-                            entry = next((e for e in results if e.id == entry_id), None)
-                            if entry:
-                                if action == 'delete':
-                                    self._delete_entry(entry, handler)
-                                else:
-                                    self._update_entry(entry, handler)
+                        if len(results) == 1:
+                            # Only one result - automatically select it
+                            entry = results[0]
+                            # Create a meaningful display name based on the model type
+                            if hasattr(entry, 'title'):
+                                display_name = entry.title
+                            elif hasattr(entry, 'book') and hasattr(entry.book, 'title'):
+                                display_name = f"{entry.book.title} (ID: {entry.id})"
                             else:
-                                StyleConfig.console.print("[red]Invalid selection[/red]")
-                        except ValueError:
-                            StyleConfig.console.print("[red]Invalid ID format[/red]")
+                                display_name = f"Entry ID: {entry.id}"
+
+                            StyleConfig.console.print(f"[green]Found single match: {display_name}[/green]")
+                            if action == 'delete':
+                                self._delete_entry(entry, handler)
+                            else:
+                                self._update_entry(entry, handler)
+                        else:
+                            # Multiple results - show table and ask for selection
+                            handler.display_results(results)
+                            entry_id = Prompt.ask("Enter ID of entry to update")
+                            try:
+                                entry_id = int(entry_id)
+                                entry = next((e for e in results if e.id == entry_id), None)
+                                if entry:
+                                    if action == 'delete':
+                                        self._delete_entry(entry, handler)
+                                    else:
+                                        self._update_entry(entry, handler)
+                                else:
+                                    StyleConfig.console.print("[red]Invalid selection[/red]")
+                            except ValueError:
+                                StyleConfig.console.print("[red]Invalid ID format[/red]")
                     else:
                         StyleConfig.console.print("[yellow]No matching entries found[/yellow]")
 
@@ -394,40 +524,24 @@ class DatabaseUpdater:
                 col_name = col[1]  # Column name is second element
                 current_value = getattr(existing, col_name, None)
 
-                if Prompt.ask(
-                    f"Update {col_name}? (current: {current_value})",
-                    choices=['y', 'n'],
-                    default='n'
-                ) == 'y':
-                    # Handle different column types
-                    if col[2].upper() == 'DATE':
-                        new_value = Prompt.ask(f"Enter new {col_name} (YYYY-MM-DD)")
-                        try:
-                            new_value = datetime.strptime(new_value, '%Y-%m-%d').date()
-                        except ValueError:
-                            new_value = None
-                    elif col[2].upper() == 'BOOLEAN':
-                        new_value = Prompt.ask(f"Enter new {col_name}", choices=['true', 'false']) == 'true'
-                    elif col[2].upper().startswith('INTEGER'):
-                        new_value = Prompt.ask(f"Enter new {col_name}")
-                        try:
-                            new_value = int(new_value) if new_value else None
-                        except ValueError:
-                            new_value = None
-                    elif col[2].upper().startswith('REAL'):
-                        new_value = Prompt.ask(f"Enter new {col_name}")
-                        try:
-                            new_value = float(new_value) if new_value else None
-                        except ValueError:
-                            new_value = None
-                    elif col[2].upper().startswith('FLOAT'):
-                        new_value = Prompt.ask(f"Enter new {col_name}")
-                        try:
-                            new_value = float(new_value) if new_value else None
-                        except ValueError:
-                            new_value = None
-                    else:  # VARCHAR/TEXT
-                        new_value = Prompt.ask(f"Enter new {col_name}") or None
+                action, raw_value = streamlined_prompt(col_name, current_value)
+
+                if action == 'save':
+                    # Save current changes and exit
+                    if new_data:
+                        self._save_changes(existing, new_data)
+                    else:
+                        StyleConfig.console.print("[yellow]No changes to save[/yellow]")
+                    return
+                elif action == 'quit':
+                    # Quit without saving
+                    StyleConfig.console.print("[yellow]Exiting without saving changes[/yellow]")
+                    return
+                elif action == 'skip':
+                    continue
+                elif action == 'edit':
+                    # Process the raw value based on column type
+                    new_value = self._process_field_value(raw_value, col[2], col_name)
 
                     if new_value != current_value:
                         new_data[col_name] = new_value
@@ -439,20 +553,61 @@ class DatabaseUpdater:
                     old_value = getattr(existing, field)
                     StyleConfig.console.print(f"{field}: [red]{old_value}[/red] → [green]{new_value}[/green]")
 
-                if Prompt.ask("\nSave these changes?", choices=['y', 'n'], default='y') == 'y':
-                    for field, value in new_data.items():
-                        setattr(existing, field, value)
-                    self.session.commit()
-                    StyleConfig.console.print("[green]Changes saved successfully![/green]")
-                else:
+                # Final save confirmation with streamlined prompt
+                StyleConfig.console.print("\nPress Enter to save, :q to discard changes")
+                response = Prompt.ask("", default="").strip()
+                if response == ":q":
                     self.session.rollback()
                     StyleConfig.console.print("[yellow]Changes discarded[/yellow]")
+                else:
+                    self._save_changes(existing, new_data)
             else:
                 StyleConfig.console.print("\nNo changes made")
 
         except Exception as e:
             self.session.rollback()
             StyleConfig.console.print(f"[red]Error updating entry: {str(e)}[/red]")
+
+    def _process_field_value(self, raw_value: str, col_type: str, col_name: str) -> Any:
+        """Process raw input value based on column type"""
+        if raw_value is None:  # NULL/BLANK/EMPTY was entered
+            return None
+
+        col_type_upper = col_type.upper()
+
+        try:
+            if col_type_upper == 'DATE':
+                if not raw_value.strip():
+                    return None
+                return datetime.strptime(raw_value, '%Y-%m-%d').date()
+            elif col_type_upper == 'BOOLEAN':
+                return raw_value.lower() in ['true', '1', 'yes', 'y', 'on']
+            elif col_type_upper.startswith('INTEGER'):
+                if not raw_value.strip():
+                    return None
+                return int(raw_value)
+            elif col_type_upper.startswith(('REAL', 'FLOAT')):
+                if not raw_value.strip():
+                    return None
+                return float(raw_value)
+            else:  # VARCHAR/TEXT
+                return raw_value if raw_value.strip() else None
+        except (ValueError, TypeError) as e:
+            StyleConfig.console.print(f"[red]Invalid value for {col_name}: {str(e)}[/red]")
+            StyleConfig.console.print(f"[yellow]Using None instead[/yellow]")
+            return None
+
+    def _save_changes(self, existing: Union[Book, Reading, Inventory], new_data: Dict[str, Any]):
+        """Save changes to the database"""
+        try:
+            for field, value in new_data.items():
+                setattr(existing, field, value)
+            self.session.commit()
+            StyleConfig.console.print("[green]Changes saved successfully![/green]")
+        except Exception as e:
+            self.session.rollback()
+            StyleConfig.console.print(f"[red]Error saving changes: {str(e)}[/red]")
+            raise
 
     def _create_new_reading(self, book_id: int = None):
         """Create a new reading entry"""
@@ -738,11 +893,19 @@ class DatabaseUpdater:
             self.session.rollback()
             StyleConfig.console.print(f"Error deleting entry: {str(e)}", style=StyleConfig.ERROR)
 
-def main():
+def main(args=None):
     """Main entry point"""
     StyleConfig.console.print(Panel("Database Update Utility", style=StyleConfig.HEADER))
     updater = DatabaseUpdater()
-    updater.run()
+
+    # If arguments provided, try to execute directly
+    if args and hasattr(args, 'table') and args.table and hasattr(args, 'action') and args.action:
+        if hasattr(args, 'search_term') and args.search_term:
+            updater.run_direct(args.table, args.action, args.search_term)
+        else:
+            updater.run_direct(args.table, args.action)
+    else:
+        updater.run()
 
 if __name__ == "__main__":
     main()
